@@ -16,6 +16,7 @@ export default function App() {
           <Route path="/erfolg/:slug" element={<SuccessPage />} />
         </Route>
         <Route path="/e/:slug" element={<InvitationPage />} />
+        <Route path="/e/:slug/g/:guestToken" element={<InvitationPage />} />
         <Route path="/dashboard/:token" element={<DashboardPage />} />
       </Routes>
     </BrowserRouter>

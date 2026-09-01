@@ -19,9 +19,22 @@ export interface Wedding {
   updated_at: string
 }
 
+export interface Guest {
+  id: string
+  wedding_id: string
+  name: string
+  email: string | null
+  guest_count: number
+  invite_token: string
+  rsvp_id: string | null
+  created_at: string
+  updated_at: string
+}
+
 export interface Rsvp {
   id: string
   wedding_id: string
+  guest_id: string | null
   guest_name: string
   email: string | null
   status: RsvpStatus
@@ -30,6 +43,10 @@ export interface Rsvp {
   message: string | null
   created_at: string
   updated_at: string
+}
+
+export interface GuestWithRsvp extends Guest {
+  rsvp?: Rsvp | null
 }
 
 export interface CreateWeddingInput {
@@ -45,6 +62,12 @@ export interface CreateWeddingInput {
   email: string
 }
 
+export interface CreateGuestInput {
+  name: string
+  email?: string
+  guest_count?: number
+}
+
 export interface RsvpInput {
   guest_name: string
   email?: string
@@ -52,4 +75,5 @@ export interface RsvpInput {
   guest_count: number
   dietary_notes?: string
   message?: string
+  guest_id?: string
 }
