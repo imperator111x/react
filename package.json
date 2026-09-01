@@ -8,12 +8,14 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "deploy": "GITHUB_PAGES=true npm run build"
+    "deploy": "GITHUB_PAGES=true npm run build",
+    "db:setup": "node scripts/setup-db.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.4",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.39.0",
+    "pg": "^8.23.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.3"
