@@ -77,7 +77,7 @@ export default function LandingPage() {
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
-            <Link to="/e/demo">
+            <Link to="/e/demo/g/demo-gast">
               <Button variant="outline" size="lg">
                 Demo ansehen
               </Button>

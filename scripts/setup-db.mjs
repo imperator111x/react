@@ -21,16 +21,33 @@ const client = new Client({
   ssl: { rejectUnauthorized: false },
 })
 
-const schemaPath = path.join(process.cwd(), 'supabase', 'schema.sql')
-const sql = fs.readFileSync(schemaPath, 'utf8')
+const sqlFiles = ['supabase/schema.sql', 'supabase/migration-v2-guests.sql']
 
 try {
   await client.connect()
   console.log('Verbunden mit Supabase PostgreSQL...')
-  await client.query(sql)
-  console.log('Schema erfolgreich ausgeführt!')
+
+  for (const file of sqlFiles) {
+    const filePath = path.join(process.cwd(), file)
+    if (!fs.existsSync(filePath)) continue
+    console.log(`Führe aus: ${file}`)
+    const sql = fs.readFileSync(filePath, 'utf8')
+    try {
+      await client.query(sql)
+      console.log(`✓ ${file}`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error)
+      if (file.includes('migration') || message.includes('already exists')) {
+        console.log(`⚠ ${file}: ${message}`)
+      } else {
+        throw error
+      }
+    }
+  }
+
+  console.log('Datenbank-Setup abgeschlossen!')
 } catch (error) {
-  console.error('Fehler:', error.message)
+  console.error('Fehler:', error instanceof Error ? error.message : error)
   process.exit(1)
 } finally {
   await client.end()

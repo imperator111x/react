@@ -22,9 +22,22 @@ CREATE TABLE weddings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE guests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  wedding_id UUID NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT,
+  guest_count INTEGER NOT NULL DEFAULT 1 CHECK (guest_count >= 1 AND guest_count <= 10),
+  invite_token UUID NOT NULL DEFAULT gen_random_uuid(),
+  rsvp_id UUID,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE TABLE rsvps (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   wedding_id UUID NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
+  guest_id UUID REFERENCES guests(id) ON DELETE SET NULL,
   guest_name TEXT NOT NULL,
   email TEXT,
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('accepted', 'declined', 'pending')),
@@ -35,36 +48,36 @@ CREATE TABLE rsvps (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE guests
+  ADD CONSTRAINT guests_rsvp_id_fkey
+  FOREIGN KEY (rsvp_id) REFERENCES rsvps(id) ON DELETE SET NULL;
+
 CREATE INDEX idx_weddings_slug ON weddings(slug);
 CREATE INDEX idx_weddings_dashboard_token ON weddings(dashboard_token);
+CREATE INDEX idx_weddings_wedding_date ON weddings(wedding_date);
+CREATE INDEX idx_guests_wedding_id ON guests(wedding_id);
+CREATE UNIQUE INDEX idx_guests_invite_token ON guests(invite_token);
 CREATE INDEX idx_rsvps_wedding_id ON rsvps(wedding_id);
+CREATE INDEX idx_rsvps_guest_id ON rsvps(guest_id);
 
 ALTER TABLE weddings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE guests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rsvps ENABLE ROW LEVEL SECURITY;
 
--- Öffentlich: Hochzeit lesen
-CREATE POLICY "weddings_select_public" ON weddings
-  FOR SELECT USING (true);
+CREATE POLICY "weddings_select_public" ON weddings FOR SELECT USING (true);
+CREATE POLICY "weddings_insert_public" ON weddings FOR INSERT WITH CHECK (true);
+CREATE POLICY "weddings_update_public" ON weddings FOR UPDATE USING (true);
+CREATE POLICY "weddings_delete_public" ON weddings FOR DELETE USING (true);
 
--- Öffentlich: Hochzeit erstellen
-CREATE POLICY "weddings_insert_public" ON weddings
-  FOR INSERT WITH CHECK (true);
+CREATE POLICY "guests_select_public" ON guests FOR SELECT USING (true);
+CREATE POLICY "guests_insert_public" ON guests FOR INSERT WITH CHECK (true);
+CREATE POLICY "guests_update_public" ON guests FOR UPDATE USING (true);
+CREATE POLICY "guests_delete_public" ON guests FOR DELETE USING (true);
 
--- Öffentlich: Hochzeit aktualisieren (Dashboard-Zugriff über Token auf Client-Seite)
-CREATE POLICY "weddings_update_public" ON weddings
-  FOR UPDATE USING (true);
+CREATE POLICY "rsvps_select_public" ON rsvps FOR SELECT USING (true);
+CREATE POLICY "rsvps_insert_public" ON rsvps FOR INSERT WITH CHECK (true);
+CREATE POLICY "rsvps_update_public" ON rsvps FOR UPDATE USING (true);
 
--- Öffentlich: RSVPs lesen und erstellen
-CREATE POLICY "rsvps_select_public" ON rsvps
-  FOR SELECT USING (true);
-
-CREATE POLICY "rsvps_insert_public" ON rsvps
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "rsvps_update_public" ON rsvps
-  FOR UPDATE USING (true);
-
--- Automatisches updated_at
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -74,9 +87,30 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER weddings_updated_at
-  BEFORE UPDATE ON weddings
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  BEFORE UPDATE ON weddings FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER guests_updated_at
+  BEFORE UPDATE ON guests FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER rsvps_updated_at
-  BEFORE UPDATE ON rsvps
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  BEFORE UPDATE ON rsvps FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Auto-Löschung 7 Tage nach Hochzeitsdatum
+CREATE OR REPLACE FUNCTION delete_expired_weddings()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  DELETE FROM weddings
+  WHERE wedding_date + INTERVAL '7 days' < NOW();
+END;
+$$;
+
+CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog;
+
+SELECT cron.schedule(
+  'delete-expired-weddings',
+  '0 3 * * *',
+  $$SELECT delete_expired_weddings()$$
+);

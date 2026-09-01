@@ -15,13 +15,16 @@ import Countdown from '../components/Countdown'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
-import { getWeddingBySlug, submitRsvp } from '../lib/supabase'
+import { getPersonalGreeting } from '../lib/guests'
+import { getGuestByInviteToken, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { DEMO_WEDDING } from '../lib/demo'
-import type { Wedding, RsvpStatus } from '../types/wedding'
+import { DEMO_GUEST } from '../lib/demo-guest'
+import type { Guest, Wedding, RsvpStatus } from '../types/wedding'
 
 export default function InvitationPage() {
-  const { slug } = useParams<{ slug: string }>()
+  const { slug, guestToken } = useParams<{ slug: string; guestToken?: string }>()
   const [wedding, setWedding] = useState<Wedding | null>(null)
+  const [invitedGuest, setInvitedGuest] = useState<Guest | null>(null)
   const [loading, setLoading] = useState(true)
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -34,19 +37,40 @@ export default function InvitationPage() {
   const [dietaryNotes, setDietaryNotes] = useState('')
   const [message, setMessage] = useState('')
 
+  const isPersonalLink = Boolean(guestToken)
+  const isDemo = slug === 'demo'
+
   useEffect(() => {
     async function load() {
-      if (slug === 'demo') {
+      if (isDemo) {
         setWedding(DEMO_WEDDING)
+        if (guestToken === 'demo-gast') {
+          setInvitedGuest(DEMO_GUEST)
+          setGuestName(DEMO_GUEST.name)
+          setEmail(DEMO_GUEST.email ?? '')
+          setGuestCount(DEMO_GUEST.guest_count)
+        }
         setLoading(false)
         return
       }
+
       const data = await getWeddingBySlug(slug!)
       setWedding(data)
+
+      if (data && guestToken) {
+        const guest = await getGuestByInviteToken(data.id, guestToken)
+        if (guest) {
+          setInvitedGuest(guest)
+          setGuestName(guest.name)
+          setEmail(guest.email ?? '')
+          setGuestCount(guest.guest_count)
+        }
+      }
+
       setLoading(false)
     }
     load()
-  }, [slug])
+  }, [slug, guestToken, isDemo])
 
   const handleRsvp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -57,7 +81,7 @@ export default function InvitationPage() {
       return
     }
 
-    if (slug === 'demo') {
+    if (isDemo) {
       setSubmitted(true)
       return
     }
@@ -72,6 +96,7 @@ export default function InvitationPage() {
         guest_count: guestCount,
         dietary_notes: dietaryNotes || undefined,
         message: message || undefined,
+        guest_id: invitedGuest?.id,
       })
       setSubmitted(true)
     } catch (err) {
@@ -101,17 +126,32 @@ export default function InvitationPage() {
     )
   }
 
+  if (guestToken && !invitedGuest && !isDemo) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+        <Heart className="w-12 h-12 text-gold/30 mb-4" />
+        <h1 className="font-serif text-3xl font-semibold text-charcoal mb-2">
+          Einladung nicht gefunden
+        </h1>
+        <p className="text-warm-gray">Dieser persönliche Link ist ungültig.</p>
+      </div>
+    )
+  }
+
   const weddingDate = new Date(wedding.wedding_date)
+  const personalGreeting = invitedGuest ? getPersonalGreeting(invitedGuest.name) : null
 
   return (
     <div className="min-h-screen">
-      {/* Hero */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-blush/40 via-cream to-cream" />
         <div className="absolute top-10 left-1/4 w-64 h-64 bg-gold/10 rounded-full blur-3xl" />
         <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-sage/10 rounded-full blur-3xl" />
 
         <div className="relative text-center px-4 py-20 max-w-3xl mx-auto">
+          {personalGreeting && (
+            <p className="text-warm-gray text-lg mb-4">{personalGreeting},</p>
+          )}
           <p className="text-gold uppercase tracking-[0.3em] text-sm mb-6">Wir heiraten</p>
           <h1 className="font-serif text-5xl sm:text-7xl font-semibold text-charcoal mb-4">
             {wedding.partner1_name}
@@ -121,10 +161,14 @@ export default function InvitationPage() {
           <p className="text-warm-gray text-lg sm:text-xl">
             {format(weddingDate, "EEEE, d. MMMM yyyy 'um' HH:mm 'Uhr'", { locale: de })}
           </p>
+          {personalGreeting && (
+            <p className="text-charcoal mt-6 text-lg max-w-xl mx-auto leading-relaxed">
+              wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!
+            </p>
+          )}
         </div>
       </section>
 
-      {/* Countdown */}
       <section className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-4 text-center">
           <h2 className="font-serif text-2xl text-warm-gray mb-8">Noch bis zum großen Tag</h2>
@@ -132,7 +176,6 @@ export default function InvitationPage() {
         </div>
       </section>
 
-      {/* Story */}
       {wedding.story && (
         <section className="py-16">
           <div className="max-w-2xl mx-auto px-4 text-center">
@@ -143,12 +186,9 @@ export default function InvitationPage() {
         </section>
       )}
 
-      {/* Details */}
       <section className="py-16 bg-white">
         <div className="max-w-2xl mx-auto px-4 space-y-10">
-          <h2 className="font-serif text-3xl font-semibold text-charcoal text-center mb-8">
-            Details
-          </h2>
+          <h2 className="font-serif text-3xl font-semibold text-charcoal text-center mb-8">Details</h2>
 
           {wedding.ceremony_location && (
             <div className="flex gap-4 p-6 rounded-2xl bg-cream">
@@ -194,15 +234,18 @@ export default function InvitationPage() {
         </div>
       </section>
 
-      {/* RSVP */}
       <section className="py-16 sm:py-24" id="rsvp">
         <div className="max-w-lg mx-auto px-4">
           <div className="text-center mb-10">
             <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal mb-3">
-              Seid ihr dabei?
+              {personalGreeting ? `${personalGreeting}, seid ihr dabei?` : 'Seid ihr dabei?'}
             </h2>
             <p className="text-warm-gray">
-              Bitte gebt uns bis zum {format(new Date(weddingDate.getTime() - 30 * 24 * 60 * 60 * 1000), 'd. MMMM yyyy', { locale: de })} Bescheid.
+              Bitte gebt uns bis zum{' '}
+              {format(new Date(weddingDate.getTime() - 30 * 24 * 60 * 60 * 1000), 'd. MMMM yyyy', {
+                locale: de,
+              })}{' '}
+              Bescheid.
             </p>
           </div>
 
@@ -210,7 +253,7 @@ export default function InvitationPage() {
             <div className="text-center p-8 bg-white rounded-2xl border border-cream-dark">
               <CheckCircle className="w-12 h-12 text-sage mx-auto mb-4" />
               <h3 className="font-serif text-2xl font-semibold text-charcoal mb-2">
-                Vielen Dank!
+                Vielen Dank{personalGreeting ? `, ${personalGreeting.replace('Liebe/r ', '')}` : ''}!
               </h3>
               <p className="text-warm-gray">
                 {rsvpStatus === 'accepted'
@@ -219,7 +262,10 @@ export default function InvitationPage() {
               </p>
             </div>
           ) : (
-            <form onSubmit={handleRsvp} className="bg-white rounded-2xl p-6 sm:p-8 border border-cream-dark space-y-6">
+            <form
+              onSubmit={handleRsvp}
+              className="bg-white rounded-2xl p-6 sm:p-8 border border-cream-dark space-y-6"
+            >
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -255,6 +301,8 @@ export default function InvitationPage() {
                     onChange={(e) => setGuestName(e.target.value)}
                     placeholder="Vor- und Nachname"
                     required
+                    readOnly={isPersonalLink && Boolean(invitedGuest)}
+                    className={isPersonalLink && invitedGuest ? 'bg-cream cursor-default' : ''}
                   />
 
                   <Input
@@ -263,6 +311,8 @@ export default function InvitationPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="email@beispiel.de"
+                    readOnly={isPersonalLink && Boolean(invitedGuest?.email)}
+                    className={isPersonalLink && invitedGuest?.email ? 'bg-cream cursor-default' : ''}
                   />
 
                   {rsvpStatus === 'accepted' && (
@@ -274,7 +324,8 @@ export default function InvitationPage() {
                         <select
                           value={guestCount}
                           onChange={(e) => setGuestCount(Number(e.target.value))}
-                          className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
+                          disabled={isPersonalLink && Boolean(invitedGuest)}
+                          className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-cream disabled:cursor-default"
                         >
                           {[1, 2, 3, 4, 5].map((n) => (
                             <option key={n} value={n}>
@@ -321,7 +372,6 @@ export default function InvitationPage() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="py-8 text-center text-sm text-warm-gray border-t border-cream-dark">
         <p className="font-serif text-lg text-charcoal mb-1">
           {wedding.partner1_name} & {wedding.partner2_name}
