@@ -56,21 +56,14 @@ npm run dev
 
 ## GitHub Pages Deployment
 
-### Repository-Einstellungen
+### Repository-Einstellungen (einmalig)
 
 1. Gehe zu **Settings → Pages**
-2. Wähle **GitHub Actions** als Source
+2. Unter **Build and deployment** → **Source**: **Deploy from a branch**
+3. Branch: **`gh-pages`** · Folder: **`/ (root)`**
+4. Speichern – nach dem nächsten Push auf `main` wird automatisch deployed
 
-### GitHub Secrets
-
-Füge unter **Settings → Secrets and variables → Actions** hinzu:
-
-| Secret | Beschreibung |
-|--------|-------------|
-| `VITE_SUPABASE_URL` | Supabase Project URL |
-| `VITE_SUPABASE_ANON_KEY` | Supabase anon public key |
-
-Bei jedem Push auf `main` wird die Seite automatisch gebaut und deployed.
+Die Supabase-Keys sind im Workflow hinterlegt (öffentliche anon-Keys, kein Secret nötig).
 
 Die Live-URL ist: `https://DEIN-USER.github.io/react/`
 
