@@ -27,6 +27,8 @@ export const tr = {
   },
   print: {
     rsvpHint: 'Lütfen çevrimiçi katılım durumunuzu bildirin:',
+    qrHint: 'Çevrimiçi davetiye ve RSVP için QR kodu tarayın',
+    qrAlt: 'Davetiye QR kodu',
     footerCredit: 'UnsereHochzeit ile oluşturuldu',
   },
   countdown: {

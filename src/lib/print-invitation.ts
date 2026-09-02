@@ -1,4 +1,5 @@
 import { format } from 'date-fns'
+import QRCode from 'qrcode'
 import { getDateFnsLocale, translate, type Locale } from '../i18n'
 import { getInvitationText } from './invitation-text'
 import { resolveCoverImageUrl } from './cover-url'
@@ -59,8 +60,8 @@ function renderEventCard(
 function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
   return `
     @page {
-      size: A5 portrait;
-      margin: 12mm;
+      size: A4 portrait;
+      margin: 14mm;
     }
 
     * {
@@ -91,7 +92,7 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
     .invitation-card {
       position: relative;
       width: 100%;
-      max-width: 520px;
+      max-width: 580px;
       background: linear-gradient(180deg, #fffcf8 0%, #faf6f0 100%);
       border: 1px solid ${theme.gold};
       box-shadow: inset 0 0 0 4px #fffcf8, inset 0 0 0 5px ${theme.blush};
@@ -334,24 +335,52 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
     .rsvp {
       text-align: center;
       margin: 0 auto 22px;
-      padding: 16px 18px;
+      padding: 18px 20px;
       background: ${theme.gold}10;
       border: 1px dashed ${theme.gold}66;
-      max-width: 400px;
+      max-width: 440px;
+    }
+
+    .rsvp-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .rsvp-qr {
+      width: 120px;
+      height: 120px;
+      padding: 6px;
+      background: white;
+      border: 1px solid ${theme.blush};
+      border-radius: 4px;
+    }
+
+    .rsvp-text {
+      flex: 1;
+      min-width: 0;
     }
 
     .rsvp-label {
       margin: 0 0 8px;
-      font-size: 14px;
+      font-size: 15px;
       color: #4a4540;
     }
 
     .rsvp-url {
-      margin: 0;
-      font-size: 13px;
+      margin: 0 0 8px;
+      font-size: 12px;
       letter-spacing: 0.02em;
       color: ${theme.goldDark};
       word-break: break-all;
+    }
+
+    .rsvp-qr-hint {
+      margin: 0;
+      font-size: 12px;
+      color: #7a746c;
+      font-style: italic;
     }
 
     .footer {
@@ -383,12 +412,26 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
   `
 }
 
-export function printInvitation(wedding: Wedding, locale: Locale = 'de'): void {
+export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): Promise<void> {
   const theme = getWeddingTheme(wedding.theme_id)
   const dfLocale = getDateFnsLocale(locale)
   const ceremonyIso = wedding.ceremony_date ?? wedding.wedding_date
   const receptionIso = wedding.reception_date
   const invitationLine = getInvitationText(wedding.invitation_text, null, locale)
+
+  const base = `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}`
+  const invitationUrl = `${base}/e/${wedding.slug}`
+
+  let qrDataUrl = ''
+  try {
+    qrDataUrl = await QRCode.toDataURL(invitationUrl, {
+      width: 240,
+      margin: 1,
+      color: { dark: theme.goldDark, light: '#ffffff' },
+    })
+  } catch {
+    /* QR optional – Druck funktioniert auch ohne Code */
+  }
 
   const coverUrl = resolveCoverImageUrl(wedding.cover_image_url)
   const coverBlock = coverUrl
@@ -431,9 +474,6 @@ export function printInvitation(wedding: Wedding, locale: Locale = 'de'): void {
         <p class="story-text">${escapeHtml(wedding.story)}</p>
       </section>`
     : ''
-
-  const base = `${window.location.origin}${import.meta.env.BASE_URL.replace(/\/$/, '')}`
-  const invitationUrl = `${base}/e/${wedding.slug}`
 
   const weekday = ceremonyIso
     ? format(new Date(ceremonyIso), locale === 'en' ? 'EEEE' : 'EEEE', { locale: dfLocale })
@@ -504,8 +544,14 @@ export function printInvitation(wedding: Wedding, locale: Locale = 'de'): void {
       ${storyBlock}
 
       <div class="rsvp">
-        <p class="rsvp-label">${escapeHtml(translate(locale, 'print.rsvpHint'))}</p>
-        <p class="rsvp-url">${escapeHtml(invitationUrl)}</p>
+        <div class="rsvp-inner">
+          ${qrDataUrl ? `<img class="rsvp-qr" src="${qrDataUrl}" alt="${escapeHtml(translate(locale, 'print.qrAlt'))}" />` : ''}
+          <div class="rsvp-text">
+            <p class="rsvp-label">${escapeHtml(translate(locale, 'print.rsvpHint'))}</p>
+            <p class="rsvp-url">${escapeHtml(invitationUrl)}</p>
+            ${qrDataUrl ? `<p class="rsvp-qr-hint">${escapeHtml(translate(locale, 'print.qrHint'))}</p>` : ''}
+          </div>
+        </div>
       </div>
 
       <p class="footer">${escapeHtml(translate(locale, 'print.footerCredit'))}</p>

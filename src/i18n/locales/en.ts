@@ -27,6 +27,8 @@ export const en = {
   },
   print: {
     rsvpHint: 'Please RSVP online at',
+    qrHint: 'Scan the QR code for the online invitation and RSVP',
+    qrAlt: 'QR code for the invitation',
     footerCredit: 'Created with UnsereHochzeit',
   },
   countdown: {
