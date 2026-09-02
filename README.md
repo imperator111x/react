@@ -1,6 +1,8 @@
 # UnsereHochzeit – Digitale Hochzeitseinladungen
 
-Eine kostenlose Hochzeitseinladungs-Website mit React und Supabase. Erstellt elegante digitale Einladungen, auf denen Gäste online zu- und absagen können – ähnlich wie [mi-boda.com](https://mi-boda.com/).
+Eine kostenlose Hochzeitseinladungs-Website mit React und Supabase. Erstellt elegante digitale Einladungen, auf denen Gäste online zu- und absagen können.
+
+**Live-Demo:** [imperator111x.github.io/react/e/demo](https://imperator111x.github.io/react/e/demo)
 
 ## Features
 
@@ -9,7 +11,7 @@ Eine kostenlose Hochzeitseinladungs-Website mit React und Supabase. Erstellt ele
 - **RSVP** – Gäste können zu- oder absagen, Begleitpersonen angeben und Nachrichten hinterlassen
 - **Countdown** – Live-Countdown bis zum großen Tag
 - **Dashboard** – Übersicht aller Zusagen und Absagen für das Brautpaar
-- **Demo-Modus** – `/e/demo` zeigt eine Beispiel-Einladung ohne Supabase
+- **Demo-Modus** – [Beispiel-Einladung ansehen](https://imperator111x.github.io/react/e/demo) (ohne Supabase)
 
 ## Tech Stack
 
@@ -65,7 +67,7 @@ npm run dev
 
 Die Supabase-Keys sind im Workflow hinterlegt (öffentliche anon-Keys, kein Secret nötig).
 
-Die Live-URL ist: `https://DEIN-USER.github.io/react/`
+Die Live-URL ist: [https://imperator111x.github.io/react/](https://imperator111x.github.io/react/)
 
 ## Seiten & Routen
 
@@ -75,7 +77,7 @@ Die Live-URL ist: `https://DEIN-USER.github.io/react/`
 | `/erstellen` | Hochzeit erstellen |
 | `/e/:slug` | Öffentliche Einladung (Gäste) |
 | `/dashboard/:token` | Dashboard für das Brautpaar |
-| `/e/demo` | Demo-Einladung |
+| `/e/demo` | [Demo-Einladung](https://imperator111x.github.io/react/e/demo) |
 
 ## Datenbank-Schema
 
