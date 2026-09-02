@@ -18,7 +18,6 @@ export const en = {
     reception: 'Reception',
     routePlan: 'Get directions',
     googleMaps: 'Google Maps',
-    openStreetMap: 'OpenStreetMap',
   },
   countdown: {
     title: 'Countdown to the big day',

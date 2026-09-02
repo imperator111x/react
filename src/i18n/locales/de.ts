@@ -16,9 +16,8 @@ export const de = {
     weMarry: 'Wir heiraten',
     ceremony: 'Trauung',
     reception: 'Feier',
-    routePlan: 'Route planen',
+    routePlan: 'Route starten',
     googleMaps: 'Google Maps',
-    openStreetMap: 'OpenStreetMap',
   },
   countdown: {
     title: 'Noch bis zum großen Tag',
