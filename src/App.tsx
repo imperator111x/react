@@ -11,6 +11,7 @@ import DashboardRecoverPage from './pages/DashboardRecoverPage'
 import SeatingPlanPage from './pages/SeatingPlanPage'
 import SuccessPage from './pages/SuccessPage'
 import GuestPhotosPage from './pages/GuestPhotosPage'
+import LivePhotoWallPage from './pages/LivePhotoWallPage'
 import PrivacyPage from './pages/PrivacyPage'
 import ImprintPage from './pages/ImprintPage'
 
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/e/:slug/tischplan/g/:guestToken" element={<SeatingPlanPage />} />
           <Route path="/e/:slug/fotos" element={<GuestPhotosPage />} />
           <Route path="/e/:slug/fotos/g/:guestToken" element={<GuestPhotosPage />} />
+          <Route path="/e/:slug/fotowand" element={<LivePhotoWallPage />} />
           <Route path="/dashboard/wiederherstellen" element={<DashboardRecoverPage />} />
           <Route path="/dashboard/:token" element={<DashboardPage />} />
         </Routes>

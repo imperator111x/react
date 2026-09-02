@@ -194,4 +194,11 @@ export const tr = {
     emptyPublic: 'Henüz misafir fotoğrafı yok – ilk siz olun!',
     pendingNote: 'Yeni fotoğraflar onaylandıktan sonra görünür.',
   },
+  liveWall: {
+    title: 'Misafir fotoğrafları',
+    live: 'Canlı',
+    empty: 'Misafirler fotoğraf yükledikçe burada ekranda otomatik olarak görünür.',
+    demoHint: 'Demo modu – gerçek düğününüzde misafir fotoğrafları burada canlı görünür.',
+    fullscreenHint: 'İpucu: tam ekran için F tuşu',
+  },
 } as const

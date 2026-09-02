@@ -16,6 +16,58 @@ export function getGuestPhotosPageUrl(slug: string, guestToken?: string): string
   return `${window.location.origin}${path}`
 }
 
+export function getLivePhotoWallUrl(slug: string): string {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '')
+  return `${window.location.origin}${base}/e/${slug}/fotowand`
+}
+
+const LIVE_WALL_POLL_MS = 12_000
+
+export function subscribeGuestPhotos(
+  weddingId: string,
+  onPhotos: (photos: GuestPhoto[]) => void
+): () => void {
+  if (!supabase) {
+    onPhotos([])
+    return () => {}
+  }
+
+  let cancelled = false
+
+  const refresh = async () => {
+    const photos = await getGuestPhotos(weddingId, false)
+    if (!cancelled) onPhotos(photos)
+  }
+
+  void refresh()
+
+  const channel = supabase
+    .channel(`guest-photos-live:${weddingId}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'guest_photos',
+        filter: `wedding_id=eq.${weddingId}`,
+      },
+      () => {
+        void refresh()
+      }
+    )
+    .subscribe()
+
+  const poll = window.setInterval(() => {
+    void refresh()
+  }, LIVE_WALL_POLL_MS)
+
+  return () => {
+    cancelled = true
+    window.clearInterval(poll)
+    if (supabase) void supabase.removeChannel(channel)
+  }
+}
+
 export async function getGuestPhotos(
   weddingId: string,
   approvedOnly = false
