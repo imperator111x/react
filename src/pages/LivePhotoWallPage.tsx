@@ -5,6 +5,7 @@ import { getGuestPhotoUrl, subscribeGuestPhotos } from '../lib/guest-photos'
 import { getWeddingBySlug } from '../lib/supabase'
 import { DEMO_WEDDING } from '../lib/demo'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
+import NotFoundState from '../components/NotFoundState'
 import type { GuestPhoto, Wedding } from '../types/wedding'
 
 export default function LivePhotoWallPage() {
@@ -96,9 +97,11 @@ function LivePhotoWallContent() {
 
   if (!wedding) {
     return (
-      <div className="live-wall live-wall--empty">
-        <p>{t('common.notFound')}</p>
-      </div>
+      <NotFoundState
+        title={t('common.notFound')}
+        description={t('common.notFoundDesc')}
+        homeLabel={t('common.backHome')}
+      />
     )
   }
 

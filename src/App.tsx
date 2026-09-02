@@ -14,6 +14,7 @@ import GuestPhotosPage from './pages/GuestPhotosPage'
 import LivePhotoWallPage from './pages/LivePhotoWallPage'
 import PrivacyPage from './pages/PrivacyPage'
 import ImprintPage from './pages/ImprintPage'
+import NotFoundPage from './pages/NotFoundPage'
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
             <Route path="/erfolg/:slug" element={<SuccessPage />} />
             <Route path="/datenschutz" element={<PrivacyPage />} />
             <Route path="/impressum" element={<ImprintPage />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
           <Route path="/e/:slug" element={<InvitationPage />} />
           <Route path="/e/:slug/g/:guestToken" element={<InvitationPage />} />

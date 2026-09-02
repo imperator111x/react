@@ -27,6 +27,7 @@ import SkipLink from '../components/SkipLink'
 import ThankYouSection from '../components/ThankYouSection'
 import CreatedWithCredit from '../components/CreatedWithCredit'
 import LegalFooterLinks from '../components/LegalFooterLinks'
+import NotFoundState from '../components/NotFoundState'
 import PrintInvitationButton from '../components/PrintInvitationButton'
 import LocationMapsLinks from '../components/LocationMapsLinks'
 import CalendarExportButtons from '../components/CalendarExportButtons'
@@ -262,23 +263,21 @@ function InvitationPageContent() {
 
   if (!wedding) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <Heart className="w-12 h-12 text-gold/30 mb-4" />
-        <h1 className="font-serif text-3xl font-semibold text-charcoal mb-2">{t('common.notFound')}</h1>
-        <p className="text-warm-gray">{t('common.notFoundDesc')}</p>
-      </div>
+      <NotFoundState
+        title={t('common.notFound')}
+        description={t('common.notFoundDesc')}
+        homeLabel={t('common.backHome')}
+      />
     )
   }
 
   if (guestToken && !invitedGuest && !isDemo) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <Heart className="w-12 h-12 text-gold/30 mb-4" />
-        <h1 className="font-serif text-3xl font-semibold text-charcoal mb-2">
-          {t('common.notFound')}
-        </h1>
-        <p className="text-warm-gray">{t('common.invalidLink')}</p>
-      </div>
+      <NotFoundState
+        title={t('common.notFound')}
+        description={t('common.invalidLink')}
+        homeLabel={t('common.backHome')}
+      />
     )
   }
 

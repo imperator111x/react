@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Camera, CheckCircle, Heart, Loader2, Upload } from 'lucide-react'
+import { ArrowLeft, Camera, CheckCircle, Loader2, Upload } from 'lucide-react'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import SkipLink from '../components/SkipLink'
 import CreatedWithCredit from '../components/CreatedWithCredit'
 import LegalFooterLinks from '../components/LegalFooterLinks'
+import NotFoundState from '../components/NotFoundState'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
 import Button from '../components/Button'
@@ -127,11 +128,11 @@ function GuestPhotosContent() {
 
   if (!wedding) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <Heart className="w-12 h-12 text-gold/30 mb-4" aria-hidden />
-        <h1 className="font-serif text-3xl font-semibold text-charcoal mb-2">{t('common.notFound')}</h1>
-        <p className="text-warm-gray">{t('common.notFoundDesc')}</p>
-      </div>
+      <NotFoundState
+        title={t('common.notFound')}
+        description={t('common.notFoundDesc')}
+        homeLabel={t('common.backHome')}
+      />
     )
   }
 
