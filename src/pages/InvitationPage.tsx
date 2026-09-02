@@ -18,6 +18,7 @@ import InvitationHero from '../components/InvitationHero'
 import GallerySection from '../components/GallerySection'
 import ItinerarySection from '../components/ItinerarySection'
 import FaqSection from '../components/FaqSection'
+import LocationMapsLinks from '../components/LocationMapsLinks'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
@@ -266,6 +267,10 @@ export default function InvitationPage() {
                       {wedding.ceremony_address}
                     </p>
                   )}
+                  <LocationMapsLinks
+                    address={wedding.ceremony_address}
+                    location={wedding.ceremony_location}
+                  />
                 </div>
               </div>
             )}
@@ -297,6 +302,10 @@ export default function InvitationPage() {
                       {wedding.reception_address}
                     </p>
                   )}
+                  <LocationMapsLinks
+                    address={wedding.reception_address}
+                    location={wedding.reception_location}
+                  />
                 </div>
               </div>
             )}
