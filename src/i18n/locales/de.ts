@@ -57,7 +57,7 @@ export const de = {
     guestsAtTable: 'Gäste an diesem Tisch',
     unassigned: 'Noch nicht zugewiesen',
     planTitle: 'Tischplan – {partner1} & {partner2}',
-    planSubtitle: 'Findet euren Tisch und eure Nachbarn.',
+    planSubtitle: 'Findet euren Tisch – ohne Gästelisten der anderen Tische.',
     highlighted: 'Das ist euer Tisch',
   },
   rsvp: {

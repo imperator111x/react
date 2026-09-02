@@ -7,6 +7,7 @@ import {
   assignGuestToTable,
   createSeatingTable,
   deleteSeatingTable,
+  MAX_SEATING_TABLES,
 } from '../lib/seating'
 import { getSeatingPlanUrl } from '../i18n'
 import type { GuestWithRsvp, SeatingTable, SeatingTableWithGuests } from '../types/wedding'
@@ -86,12 +87,12 @@ export default function SeatingManager({
         <div className="flex items-center gap-2 mb-2">
           <LayoutGrid className="w-5 h-5 text-sage" />
           <h2 className="font-serif text-xl font-semibold text-charcoal">
-            Tischplan ({tables.length})
+            Tischplan ({tables.length}/{MAX_SEATING_TABLES})
           </h2>
         </div>
         <p className="text-sm text-warm-gray">
-          Legt Tische an und weist Gäste zu. Gäste sehen ihren Tisch auf der Einladung und im
-          Tischplan.
+          Legt Tische an und weist Gäste zu. Maximal {MAX_SEATING_TABLES} Tische. Gäste sehen nur
+          ihren Tischnamen (z.&nbsp;B. „Tisch 5“) – ohne Kategorien wie Freunde oder Kollegen.
         </p>
       </div>
 
@@ -101,11 +102,12 @@ export default function SeatingManager({
             label="Neuer Tisch"
             value={tableName}
             onChange={(e) => setTableName(e.target.value)}
-            placeholder="z.B. Tisch 1 – Familie"
+            placeholder="z.B. Tisch 1"
             className="flex-1"
+            disabled={tables.length >= MAX_SEATING_TABLES}
           />
           <div className="sm:pt-7">
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving || tables.length >= MAX_SEATING_TABLES}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
               Tisch hinzufügen
             </Button>

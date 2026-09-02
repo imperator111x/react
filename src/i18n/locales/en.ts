@@ -57,7 +57,7 @@ export const en = {
     guestsAtTable: 'Guests at this table',
     unassigned: 'Not assigned yet',
     planTitle: 'Seating plan – {partner1} & {partner2}',
-    planSubtitle: 'Find your table and your neighbours.',
+    planSubtitle: 'Find your table – other guests\' names are not shown.',
     highlighted: 'This is your table',
   },
   rsvp: {
