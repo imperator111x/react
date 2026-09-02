@@ -324,8 +324,7 @@ export default function InvitationPage() {
                         <select
                           value={guestCount}
                           onChange={(e) => setGuestCount(Number(e.target.value))}
-                          disabled={isPersonalLink && Boolean(invitedGuest)}
-                          className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40 disabled:bg-cream disabled:cursor-default"
+                          className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                         >
                           {[1, 2, 3, 4, 5].map((n) => (
                             <option key={n} value={n}>
