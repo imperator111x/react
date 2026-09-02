@@ -7,6 +7,7 @@ import {
 import { useLocale } from '../context/LocaleContext'
 import { getDateFnsLocale } from '../i18n'
 import { getInvitationText } from '../lib/invitation-text'
+import { resolveCoverImageUrl } from '../lib/cover-url'
 import LocationMapsLinks from './LocationMapsLinks'
 import type { Guest, Wedding } from '../types/wedding'
 
@@ -124,14 +125,17 @@ function CoverHeroLayout({
   invitationLine: string
 }) {
   const { t } = useLocale()
+  const coverUrl = resolveCoverImageUrl(wedding.cover_image_url)
 
   return (
     <section className="invitation-hero invitation-hero--cover bg-cream pt-6 pb-12 sm:pt-8 sm:pb-16">
       <div className="max-w-md mx-auto w-full px-3 sm:px-4">
         <div className="invitation-hero__card invitation-hero__card--with-cover shadow-[0_20px_50px_rgba(44,44,44,0.12)]">
-          <div className="invitation-hero__cover">
-            <img src={wedding.cover_image_url!} alt="" />
-          </div>
+          {coverUrl && (
+            <div className="invitation-hero__cover">
+              <img src={coverUrl} alt="" loading="eager" decoding="async" />
+            </div>
+          )}
 
           <div className="invitation-hero__body invitation-hero__body--cover px-6 sm:px-8 py-8 sm:py-10 text-center">
             {personalGreeting && (
@@ -189,7 +193,8 @@ export default function InvitationHero({
   const { locale, t } = useLocale()
   const ceremonyIso = wedding.ceremony_date ?? wedding.wedding_date
   const receptionIso = wedding.reception_date
-  const hasCover = Boolean(wedding.cover_image_url)
+  const coverUrl = resolveCoverImageUrl(wedding.cover_image_url)
+  const hasCover = Boolean(coverUrl)
   const invitationLine = getInvitationText(wedding.invitation_text, invitedGuest?.salutation, locale)
 
   if (hasCover) {
