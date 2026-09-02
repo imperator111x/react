@@ -7,6 +7,7 @@ export const DEMO_GUEST: Guest = {
   salutation: 'frau',
   email: 'maria@beispiel.de',
   guest_count: 2,
+  max_guest_count: 2,
   invite_token: 'demo-gast',
   rsvp_id: null,
   created_at: new Date().toISOString(),

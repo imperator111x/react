@@ -18,6 +18,9 @@ import InvitationHero from '../components/InvitationHero'
 import GallerySection from '../components/GallerySection'
 import ItinerarySection from '../components/ItinerarySection'
 import FaqSection from '../components/FaqSection'
+import GuestbookSection from '../components/GuestbookSection'
+import TravelInfoSection from '../components/TravelInfoSection'
+import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LocationMapsLinks from '../components/LocationMapsLinks'
 import CalendarExportButtons from '../components/CalendarExportButtons'
 import Button from '../components/Button'
@@ -29,7 +32,8 @@ import {
   getCeremonyDate,
   getCountdownDate,
 } from '../lib/wedding-dates'
-import { getPersonalGreeting } from '../lib/guests'
+import { getPersonalGreeting, getRsvpPersonLimit, getRsvpPersonOptions } from '../lib/guests'
+import { getGuestbookEntries } from '../lib/guestbook'
 import { getGuestByInviteToken, getRsvpById, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
@@ -38,7 +42,8 @@ import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
 import { DEMO_ITINERARY } from '../lib/demo-itinerary'
 import { DEMO_FAQ } from '../lib/demo-faq'
-import type { FaqItem, GalleryImage, Guest, ItineraryItem, Wedding, RsvpStatus, Rsvp } from '../types/wedding'
+import { DEMO_GUESTBOOK } from '../lib/demo-guestbook'
+import type { FaqItem, GalleryImage, Guest, GuestbookEntry, ItineraryItem, Wedding, RsvpStatus, Rsvp } from '../types/wedding'
 
 export default function InvitationPage() {
   const { slug, guestToken } = useParams<{ slug: string; guestToken?: string }>()
@@ -47,6 +52,7 @@ export default function InvitationPage() {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
   const [faqItems, setFaqItems] = useState<FaqItem[]>([])
+  const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -72,6 +78,12 @@ export default function InvitationPage() {
 
   const isDemo = slug === 'demo'
   const isPersonalLink = Boolean(guestToken) || isDemo
+  const rsvpPersonOptions = getRsvpPersonOptions(invitedGuest)
+
+  const reloadGuestbook = useCallback(async (weddingId: string) => {
+    const entries = await getGuestbookEntries(weddingId, true)
+    setGuestbookEntries(entries)
+  }, [])
 
   useEffect(() => {
     async function load() {
@@ -80,6 +92,7 @@ export default function InvitationPage() {
         setGalleryImages([])
         setItineraryItems(DEMO_ITINERARY)
         setFaqItems(DEMO_FAQ)
+        setGuestbookEntries(DEMO_GUESTBOOK)
         setInvitedGuest(DEMO_GUEST)
         setGuestName(DEMO_GUEST.name)
         setGuestCount(DEMO_GUEST.guest_count)
@@ -91,14 +104,16 @@ export default function InvitationPage() {
       setWedding(data)
 
       if (data) {
-        const [gallery, itinerary, faq] = await Promise.all([
+        const [gallery, itinerary, faq, guestbook] = await Promise.all([
           getGalleryImages(data.id),
           getItineraryItems(data.id),
           getFaqItems(data.id),
+          getGuestbookEntries(data.id, true),
         ])
         setGalleryImages(gallery)
         setItineraryItems(itinerary)
         setFaqItems(faq)
+        setGuestbookEntries(guestbook)
       }
 
       if (data && guestToken) {
@@ -213,6 +228,7 @@ export default function InvitationPage() {
         onComplete={handleEnvelopeComplete}
       />
 
+      <WeddingThemeWrapper themeId={wedding.theme_id} className="min-h-screen">
       <div
         className={`min-h-screen transition-all duration-1000 ${
           showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
@@ -344,6 +360,8 @@ export default function InvitationPage() {
           </div>
         </section>
 
+        {wedding.travel_info && <TravelInfoSection travelInfo={wedding.travel_info} />}
+
       <section className="py-20 sm:py-28 relative" id="rsvp">
         <div className="absolute inset-0 bg-gradient-to-b from-cream via-blush/20 to-cream" />
         <div className="relative max-w-lg mx-auto px-4">
@@ -451,12 +469,18 @@ export default function InvitationPage() {
                           onChange={(e) => setGuestCount(Number(e.target.value))}
                           className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                         >
-                          {[1, 2, 3, 4, 5].map((n) => (
+                          {rsvpPersonOptions.map((n) => (
                             <option key={n} value={n}>
                               {n} {n === 1 ? 'Person' : 'Personen'}
                             </option>
                           ))}
                         </select>
+                        {invitedGuest && rsvpPersonOptions.length < 5 && (
+                          <p className="text-xs text-warm-gray mt-1.5">
+                            Max. {rsvpPersonOptions.length}{' '}
+                            {rsvpPersonOptions.length === 1 ? 'Person' : 'Personen'} für diese Einladung.
+                          </p>
+                        )}
                       </div>
 
                       <Input
@@ -517,6 +541,14 @@ export default function InvitationPage() {
         </div>
       </section>
 
+      <GuestbookSection
+        weddingId={wedding.id}
+        entries={guestbookEntries}
+        invitedGuest={invitedGuest}
+        isDemo={isDemo}
+        onEntryAdded={() => !isDemo && reloadGuestbook(wedding.id)}
+      />
+
       <FaqSection items={faqItems} />
 
       <footer className="py-10 text-center text-sm text-warm-gray border-t border-cream-dark bg-cream">
@@ -526,6 +558,7 @@ export default function InvitationPage() {
         <p className="text-xs mt-2 opacity-60">Mit Liebe erstellt mit UnsereHochzeit</p>
       </footer>
       </div>
+      </WeddingThemeWrapper>
     </>
   )
 }

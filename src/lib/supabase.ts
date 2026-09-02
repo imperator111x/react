@@ -132,6 +132,8 @@ export async function updateWedding(
   if (input.invitation_text !== undefined) {
     payload.invitation_text = input.invitation_text.trim() || null
   }
+  if (input.travel_info !== undefined) payload.travel_info = input.travel_info.trim() || null
+  if (input.theme_id !== undefined) payload.theme_id = input.theme_id || 'gold'
 
   const { data, error } = await supabase
     .from('weddings')
@@ -191,6 +193,9 @@ export async function getGuestByInviteToken(
 export async function createGuest(weddingId: string, input: CreateGuestInput): Promise<Guest> {
   if (!supabase) throw new Error('Supabase ist nicht konfiguriert')
 
+  const guestCount = input.guest_count ?? 1
+  const maxGuestCount = input.max_guest_count ?? guestCount
+
   const { data, error } = await supabase
     .from('guests')
     .insert({
@@ -198,7 +203,8 @@ export async function createGuest(weddingId: string, input: CreateGuestInput): P
       name: input.name,
       salutation: input.salutation,
       email: input.email || null,
-      guest_count: input.guest_count ?? 1,
+      guest_count: guestCount,
+      max_guest_count: Math.max(guestCount, maxGuestCount),
     })
     .select()
     .single()

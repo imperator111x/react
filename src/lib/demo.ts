@@ -23,6 +23,9 @@ export const DEMO_WEDDING: Wedding = {
     'Wir haben uns 2019 bei einem gemeinsamen Wanderausflug in den Alpen kennengelernt. Was als zufälliges Treffen auf dem Gipfel begann, wurde zu unserer großen Liebe. Jetzt möchten wir mit euch den schönsten Tag unseres Lebens feiern!',
   dress_code: 'Festlich – gerne in Sommerfarben',
   invitation_text: null,
+  travel_info:
+    'Hotel Empfehlung: Hotel Bayerischer Hof, Promenadeplatz 2–6, München\n\nParkplätze stehen am Veranstaltungsort zur Verfügung. Bitte plant etwas Zeit für die Anreise ein – besonders am Wochenende kann es voll werden.',
+  theme_id: 'gold',
   email: 'demo@unserehochzeit.de',
   dashboard_token: 'demo-token',
   cover_image_url: null,

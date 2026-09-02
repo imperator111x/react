@@ -3,6 +3,7 @@ import { Loader2, Pencil, Save } from 'lucide-react'
 import Button from './Button'
 import Input from './Input'
 import Textarea from './Textarea'
+import ThemePicker from './ThemePicker'
 import { updateWedding } from '../lib/supabase'
 import { toDatetimeLocalValue } from '../lib/wedding-dates'
 import type { UpdateWeddingInput, Wedding } from '../types/wedding'
@@ -23,6 +24,8 @@ function weddingToForm(wedding: Wedding): UpdateWeddingInput & { ceremony_date: 
     story: wedding.story ?? '',
     dress_code: wedding.dress_code ?? '',
     invitation_text: wedding.invitation_text ?? '',
+    travel_info: wedding.travel_info ?? '',
+    theme_id: wedding.theme_id ?? 'gold',
   }
 }
 
@@ -119,6 +122,19 @@ export default function WeddingEditor({ wedding, onUpdate }: WeddingEditorProps)
             />
           </div>
         </div>
+
+        <Textarea
+          label="Anreise & Unterkunft"
+          value={form.travel_info ?? ''}
+          onChange={(e) => update('travel_info', e.target.value)}
+          rows={5}
+          placeholder="Hotel-Tipps, Parkplätze, Shuttle … (Absätze mit Leerzeile trennen)"
+        />
+
+        <ThemePicker
+          value={form.theme_id ?? 'gold'}
+          onChange={(id) => update('theme_id', id)}
+        />
 
         <Textarea
           label="Einladungstext (unter der Anrede)"
