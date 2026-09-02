@@ -396,6 +396,17 @@ body {
   border-right: 1.5px solid;
 }
 
+/* Bot-check honeypot – hidden from humans */
+.bot-check-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* Accessibility: reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html {
