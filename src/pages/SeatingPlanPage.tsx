@@ -1,13 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Heart, LayoutGrid, Loader2 } from 'lucide-react'
+import { Heart, LayoutGrid, Loader2, Search } from 'lucide-react'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import InviteQrCode from '../components/InviteQrCode'
+import Input from '../components/Input'
+import Button from '../components/Button'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
 import { getSeatingPlanUrl } from '../i18n'
 import { getGuestByInviteToken, getWeddingBySlug } from '../lib/supabase'
-import { getSeatingPlan, getGuestTable, getPublicTableName } from '../lib/seating'
+import {
+  getGuestTable,
+  getPublicTableName,
+  getSeatingPlan,
+  lookupGuestInPlan,
+  type SeatingPlanGuest,
+} from '../lib/seating'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
 import { DEMO_TABLES } from '../lib/demo-seating'
@@ -18,8 +26,12 @@ function SeatingPlanContent() {
   const { t } = useLocale()
   const [wedding, setWedding] = useState<Wedding | null>(null)
   const [plan, setPlan] = useState<SeatingTableWithGuests[]>([])
-  const [guest, setGuest] = useState<Guest | null>(null)
+  const [tokenGuest, setTokenGuest] = useState<Guest | null>(null)
   const [loading, setLoading] = useState(true)
+  const [nameQuery, setNameQuery] = useState('')
+  const [searchedGuest, setSearchedGuest] = useState<SeatingPlanGuest | null>(null)
+  const [searchError, setSearchError] = useState('')
+  const highlightRef = useRef<HTMLDivElement>(null)
 
   const isDemo = slug === 'demo'
 
@@ -27,16 +39,24 @@ function SeatingPlanContent() {
     async function load() {
       if (isDemo) {
         setWedding(DEMO_WEDDING)
-        setGuest(guestToken ? DEMO_GUEST : null)
+        setTokenGuest(guestToken ? DEMO_GUEST : null)
         setPlan(
           DEMO_TABLES.map((table) => ({
             ...table,
             guests:
               table.id === DEMO_GUEST.table_id
-                ? [{ id: DEMO_GUEST.id, name: DEMO_GUEST.name, salutation: DEMO_GUEST.salutation }]
+                ? [
+                    {
+                      id: DEMO_GUEST.id,
+                      name: DEMO_GUEST.name,
+                      salutation: DEMO_GUEST.salutation,
+                      table_id: DEMO_GUEST.table_id,
+                    },
+                  ]
                 : [],
           }))
         )
+        if (guestToken) setNameQuery(DEMO_GUEST.name)
         setLoading(false)
         return
       }
@@ -47,13 +67,45 @@ function SeatingPlanContent() {
         setPlan(await getSeatingPlan(data.id))
         if (guestToken) {
           const g = await getGuestByInviteToken(data.id, guestToken)
-          setGuest(g)
+          setTokenGuest(g)
+          if (g) setNameQuery(g.name)
         }
       }
       setLoading(false)
     }
     load()
   }, [slug, guestToken, isDemo])
+
+  const activeTableId = tokenGuest?.table_id ?? searchedGuest?.table_id
+
+  useEffect(() => {
+    if (!loading && activeTableId) {
+      requestAnimationFrame(() => {
+        highlightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    }
+  }, [loading, activeTableId])
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    setSearchError('')
+    setSearchedGuest(null)
+
+    const result = lookupGuestInPlan(plan, nameQuery)
+    if (result.status === 'found') {
+      setSearchedGuest(result.guest)
+      return
+    }
+    if (result.status === 'no_table') {
+      setSearchError(t('seating.noTable'))
+      return
+    }
+    if (result.status === 'ambiguous') {
+      setSearchError(t('seating.guestAmbiguous'))
+      return
+    }
+    setSearchError(t('seating.guestNotFound'))
+  }
 
   if (loading) {
     return (
@@ -72,7 +124,8 @@ function SeatingPlanContent() {
     )
   }
 
-  const guestTable = getGuestTable(plan, guest)
+  const activeGuest = tokenGuest ?? searchedGuest
+  const guestTable = getGuestTable(plan, activeGuest)
   const planUrl = getSeatingPlanUrl(wedding.slug, guestToken)
   const invitePath = guestToken ? `/e/${slug}/g/${guestToken}` : `/e/${slug}`
 
@@ -91,10 +144,43 @@ function SeatingPlanContent() {
           <p className="text-warm-gray">{t('seating.planSubtitle')}</p>
         </div>
 
+        {!guestToken && (
+          <form
+            onSubmit={handleSearch}
+            className="mb-8 p-6 rounded-2xl bg-white border border-cream-dark shadow-sm"
+          >
+            <h2 className="font-serif text-lg font-semibold text-charcoal mb-4 text-center">
+              {t('seating.findYourTable')}
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Input
+                label={t('seating.nameSearchLabel')}
+                value={nameQuery}
+                onChange={(e) => {
+                  setNameQuery(e.target.value)
+                  setSearchError('')
+                }}
+                placeholder={t('seating.nameSearchPlaceholder')}
+                className="flex-1"
+                autoComplete="name"
+              />
+              <div className="sm:pt-7">
+                <Button type="submit" className="w-full sm:w-auto">
+                  <Search className="w-4 h-4" />
+                  {t('seating.searchButton')}
+                </Button>
+              </div>
+            </div>
+            {searchError && <p className="text-sm text-red-500 mt-3 text-center">{searchError}</p>}
+          </form>
+        )}
+
         {guestTable && (
           <div className="mb-8 p-6 rounded-2xl bg-gold/10 border-2 border-gold/30 text-center">
             <p className="text-sm uppercase tracking-wider text-gold mb-1">
-              {guest?.salutation === 'familie' ? t('seating.yourTable') : t('seating.yourTableSingular')}
+              {activeGuest?.salutation === 'familie'
+                ? t('seating.yourTable')
+                : t('seating.yourTableSingular')}
             </p>
             <p className="font-serif text-2xl font-semibold text-charcoal">
               {getPublicTableName(guestTable.name)}
@@ -113,6 +199,8 @@ function SeatingPlanContent() {
               return (
                 <div
                   key={table.id}
+                  id={`table-${table.id}`}
+                  ref={isHighlighted ? highlightRef : undefined}
                   className={`rounded-2xl border p-5 sm:p-6 ${
                     isHighlighted
                       ? 'border-gold bg-gold/5 shadow-md'
@@ -120,7 +208,7 @@ function SeatingPlanContent() {
                   }`}
                 >
                   <h2 className="font-serif text-xl font-semibold text-charcoal">{publicName}</h2>
-                  {isHighlighted && guest && (
+                  {isHighlighted && activeGuest && (
                     <p className="text-sm text-gold mt-2">{t('seating.highlighted')}</p>
                   )}
                 </div>

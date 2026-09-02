@@ -102,8 +102,71 @@ export async function assignGuestToTable(
 
 export function getGuestTable(
   tables: SeatingTable[],
-  guest: Guest | null | undefined
+  guest: Pick<Guest, 'table_id'> | null | undefined
 ): SeatingTable | null {
   if (!guest?.table_id) return null
   return tables.find((t) => t.id === guest.table_id) ?? null
+}
+
+export type SeatingPlanGuest = Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id'>
+
+export type GuestLookupResult =
+  | { status: 'found'; guest: SeatingPlanGuest }
+  | { status: 'not_found' }
+  | { status: 'ambiguous'; count: number }
+  | { status: 'no_table'; guest: SeatingPlanGuest }
+
+function normalizeGuestName(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .replace(/\s+/g, ' ')
+}
+
+function uniquePlanGuests(plan: SeatingTableWithGuests[]): SeatingPlanGuest[] {
+  const byId = new Map<string, SeatingPlanGuest>()
+  for (const table of plan) {
+    for (const guest of table.guests) {
+      byId.set(guest.id, guest)
+    }
+  }
+  return [...byId.values()]
+}
+
+/** Gast anhand des Namens im Tischplan finden (für öffentliche Namenssuche). */
+export function lookupGuestInPlan(
+  plan: SeatingTableWithGuests[],
+  query: string
+): GuestLookupResult {
+  const normalizedQuery = normalizeGuestName(query)
+  if (!normalizedQuery) return { status: 'not_found' }
+
+  const guests = uniquePlanGuests(plan)
+  const exact = guests.filter((g) => normalizeGuestName(g.name) === normalizedQuery)
+  if (exact.length === 1) {
+    return exact[0].table_id
+      ? { status: 'found', guest: exact[0] }
+      : { status: 'no_table', guest: exact[0] }
+  }
+  if (exact.length > 1) return { status: 'ambiguous', count: exact.length }
+
+  const startsWith = guests.filter((g) => normalizeGuestName(g.name).startsWith(normalizedQuery))
+  if (startsWith.length === 1) {
+    return startsWith[0].table_id
+      ? { status: 'found', guest: startsWith[0] }
+      : { status: 'no_table', guest: startsWith[0] }
+  }
+  if (startsWith.length > 1) return { status: 'ambiguous', count: startsWith.length }
+
+  const contains = guests.filter((g) => normalizeGuestName(g.name).includes(normalizedQuery))
+  if (contains.length === 1) {
+    return contains[0].table_id
+      ? { status: 'found', guest: contains[0] }
+      : { status: 'no_table', guest: contains[0] }
+  }
+  if (contains.length > 1) return { status: 'ambiguous', count: contains.length }
+
+  return { status: 'not_found' }
 }
