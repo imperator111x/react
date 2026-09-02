@@ -29,7 +29,7 @@ export const DEMO_WEDDING: Wedding = {
   email: 'demo@unserehochzeit.de',
   dashboard_token: 'demo-token',
   cover_image_url:
-    'https://images.unsplash.com/photo-1522673606160-8d295b871ae9?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1516589178581-6d783895ed99?auto=format&fit=crop&w=1200&q=80',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 }
