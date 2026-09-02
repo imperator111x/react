@@ -41,26 +41,26 @@ function BotanicalCorner({ className }: { className?: string }) {
 function HeroDateBanner({ dateIso, locale }: { dateIso: string; locale: 'de' | 'en' }) {
   const date = new Date(dateIso)
   const dfLocale = getDateFnsLocale(locale)
-  const weekday = format(date, 'EEEE', { locale: dfLocale }).toUpperCase()
-  const month = format(date, 'MMM', { locale: dfLocale }).toUpperCase()
+  const weekday = format(date, 'EEEE', { locale: dfLocale })
+  const month = format(date, 'MMM', { locale: dfLocale }).replace('.', '')
   const day = format(date, 'd')
   const year = format(date, 'yyyy')
   const time = formatEventTime(dateIso, locale)
 
   return (
-    <div className="my-6 max-w-xs mx-auto">
-      <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.65rem] tracking-[0.22em] text-charcoal/75 uppercase">
-        <span>{weekday}</span>
-        <span>{time}</span>
+    <div className="hero-date-banner my-7 sm:my-8">
+      <div className="hero-date-banner__meta">
+        <span className="hero-date-banner__rule" aria-hidden />
+        <span className="hero-date-banner__weekday">{weekday}</span>
+        <span className="hero-date-banner__rule hero-date-banner__rule--short" aria-hidden />
+        <span className="hero-date-banner__time">{time}</span>
+        <span className="hero-date-banner__rule" aria-hidden />
       </div>
-      <div className="flex items-center gap-2 my-1.5">
-        <div className="flex-1 h-px bg-charcoal/20" />
-        <div className="text-center shrink-0 px-2">
-          <span className="block text-[0.6rem] tracking-[0.3em] text-warm-gray uppercase">{month}</span>
-          <span className="block font-serif text-4xl text-charcoal leading-none my-0.5">{day}</span>
-          <span className="block text-[0.65rem] tracking-[0.25em] text-warm-gray">{year}</span>
-        </div>
-        <div className="flex-1 h-px bg-charcoal/20" />
+
+      <div className="hero-date-banner__core">
+        <span className="hero-date-banner__month">{month}</span>
+        <span className="hero-date-banner__day">{day}</span>
+        <span className="hero-date-banner__year">{year}</span>
       </div>
     </div>
   )
