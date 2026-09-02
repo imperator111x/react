@@ -89,7 +89,7 @@ function ChallengeField({
 }) {
   return (
     <Input
-      label={`Was ist ${challenge.a} + ${challenge.b}? *`}
+      label={`Was ist ${challenge.a} + ${challenge.b}?`}
       type="text"
       inputMode="numeric"
       pattern="[0-9]*"
