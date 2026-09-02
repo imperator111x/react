@@ -26,6 +26,7 @@ const sqlFiles = [
   'supabase/migration-v2-guests.sql',
   'supabase/migration-v3-salutation.sql',
   'supabase/migration-v4-gallery.sql',
+  'supabase/migration-v5-itinerary.sql',
 ]
 
 try {

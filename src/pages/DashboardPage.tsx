@@ -21,8 +21,10 @@ import Input from '../components/Input'
 import { getGuestInviteUrl, getDeletionDate } from '../lib/guests'
 import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
+import { getItineraryItems } from '../lib/itinerary'
 import GalleryManager from '../components/GalleryManager'
-import type { GalleryImage, GuestWithRsvp, Rsvp, Salutation, Wedding } from '../types/wedding'
+import ItineraryManager from '../components/ItineraryManager'
+import type { GalleryImage, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
@@ -31,6 +33,7 @@ export default function DashboardPage() {
   const [guests, setGuests] = useState<GuestWithRsvp[]>([])
   const [rsvps, setRsvps] = useState<Rsvp[]>([])
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
+  const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
@@ -46,14 +49,16 @@ export default function DashboardPage() {
     const w = await getWeddingByToken(dashboardToken)
     setWedding(w)
     if (w) {
-      const [g, r, gallery] = await Promise.all([
+      const [g, r, gallery, itinerary] = await Promise.all([
         getGuests(w.id),
         getRsvps(w.id),
         getGalleryImages(w.id),
+        getItineraryItems(w.id),
       ])
       setGuests(g)
       setRsvps(r)
       setGalleryImages(gallery)
+      setItineraryItems(itinerary)
     }
   }
 
@@ -200,6 +205,14 @@ export default function DashboardPage() {
           <GalleryManager
             weddingId={wedding.id}
             images={galleryImages}
+            onUpdate={() => token && loadData(token)}
+          />
+        )}
+
+        {wedding && (
+          <ItineraryManager
+            weddingId={wedding.id}
+            items={itineraryItems}
             onUpdate={() => token && loadData(token)}
           />
         )}

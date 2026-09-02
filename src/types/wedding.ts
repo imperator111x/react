@@ -95,3 +95,36 @@ export interface GalleryImage {
   sort_order: number
   created_at: string
 }
+
+export type ItineraryIconName =
+  | 'church'
+  | 'champagne'
+  | 'dinner'
+  | 'cake'
+  | 'music'
+  | 'heart'
+  | 'camera'
+  | 'ring'
+  | 'location'
+  | 'sun'
+  | 'moon'
+  | 'gift'
+  | 'flower'
+  | 'sparkles'
+  | 'guests'
+
+export interface ItineraryItem {
+  id: string
+  wedding_id: string
+  time_label: string
+  title: string
+  icon: ItineraryIconName
+  sort_order: number
+  created_at: string
+}
+
+export interface CreateItineraryInput {
+  time_label: string
+  title: string
+  icon: ItineraryIconName
+}

@@ -14,21 +14,25 @@ import {
 import Countdown from '../components/Countdown'
 import EnvelopeIntro from '../components/EnvelopeIntro'
 import GallerySection from '../components/GallerySection'
+import ItinerarySection from '../components/ItinerarySection'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
 import { getPersonalGreeting } from '../lib/guests'
 import { getGuestByInviteToken, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
+import { getItineraryItems } from '../lib/itinerary'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
-import type { GalleryImage, Guest, Wedding, RsvpStatus } from '../types/wedding'
+import { DEMO_ITINERARY } from '../lib/demo-itinerary'
+import type { GalleryImage, Guest, ItineraryItem, Wedding, RsvpStatus } from '../types/wedding'
 
 export default function InvitationPage() {
   const { slug, guestToken } = useParams<{ slug: string; guestToken?: string }>()
   const [wedding, setWedding] = useState<Wedding | null>(null)
   const [invitedGuest, setInvitedGuest] = useState<Guest | null>(null)
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
+  const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
   const [loading, setLoading] = useState(true)
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -58,6 +62,7 @@ export default function InvitationPage() {
       if (isDemo) {
         setWedding(DEMO_WEDDING)
         setGalleryImages([])
+        setItineraryItems(DEMO_ITINERARY)
         if (guestToken === 'demo-gast') {
           setInvitedGuest(DEMO_GUEST)
           setGuestName(DEMO_GUEST.name)
@@ -71,8 +76,12 @@ export default function InvitationPage() {
       setWedding(data)
 
       if (data) {
-        const gallery = await getGalleryImages(data.id)
+        const [gallery, itinerary] = await Promise.all([
+          getGalleryImages(data.id),
+          getItineraryItems(data.id),
+        ])
         setGalleryImages(gallery)
+        setItineraryItems(itinerary)
       }
 
       if (data && guestToken) {
@@ -237,6 +246,8 @@ export default function InvitationPage() {
         )}
 
         <GallerySection images={galleryImages} />
+
+        <ItinerarySection items={itineraryItems} />
 
         <section className="py-20 bg-white">
           <div className="max-w-2xl mx-auto px-4 space-y-6">
