@@ -20,7 +20,8 @@ import Button from '../components/Button'
 import Input from '../components/Input'
 import { getGuestInviteUrl, getDeletionDate } from '../lib/guests'
 import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from '../lib/supabase'
-import type { GuestWithRsvp, Rsvp, Wedding } from '../types/wedding'
+import type { GuestWithRsvp, Rsvp, Salutation, Wedding } from '../types/wedding'
+import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
   const { token } = useParams<{ token: string }>()
@@ -30,7 +31,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
-  const [guestForm, setGuestForm] = useState({ name: '', email: '', guest_count: 1 })
+  const [guestForm, setGuestForm] = useState({
+    name: '',
+    salutation: 'frau' as Salutation,
+    email: '',
+    guest_count: 1,
+  })
   const [guestError, setGuestError] = useState('')
 
   const loadData = async (dashboardToken: string) => {
@@ -97,10 +103,11 @@ export default function DashboardPage() {
     try {
       await createGuest(wedding.id, {
         name: guestForm.name.trim(),
+        salutation: guestForm.salutation,
         email: guestForm.email.trim() || undefined,
         guest_count: guestForm.guest_count,
       })
-      setGuestForm({ name: '', email: '', guest_count: 1 })
+      setGuestForm({ name: '', salutation: 'frau', email: '', guest_count: 1 })
       if (token) await loadData(token)
     } catch (err) {
       setGuestError(err instanceof Error ? err.message : 'Gast konnte nicht hinzugefügt werden.')
@@ -189,13 +196,31 @@ export default function DashboardPage() {
                 Gäste anlegen ({guests.length})
               </h2>
             </div>
-            <form onSubmit={handleAddGuest} className="grid sm:grid-cols-4 gap-3 items-end">
+            <form onSubmit={handleAddGuest} className="grid sm:grid-cols-6 gap-3 items-end">
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">Anrede</label>
+                <select
+                  value={guestForm.salutation}
+                  onChange={(e) =>
+                    setGuestForm((f) => ({ ...f, salutation: e.target.value as Salutation }))
+                  }
+                  className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
+                >
+                  {SALUTATION_OPTIONS.map(({ value, label }) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
               <div className="sm:col-span-2">
                 <Input
-                  label="Name"
+                  label={guestForm.salutation === 'familie' ? 'Familienname' : 'Name'}
                   value={guestForm.name}
                   onChange={(e) => setGuestForm((f) => ({ ...f, name: e.target.value }))}
-                  placeholder="Vor- und Nachname"
+                  placeholder={
+                    guestForm.salutation === 'familie' ? 'z.B. Schmidt' : 'Vor- und Nachname'
+                  }
                   required
                 />
               </div>
@@ -220,7 +245,7 @@ export default function DashboardPage() {
                   ))}
                 </select>
               </div>
-              <div className="sm:col-span-4">
+              <div className="sm:col-span-6">
                 {guestError && <p className="text-sm text-red-500 mb-2">{guestError}</p>}
                 <Button type="submit" disabled={addingGuest}>
                   {addingGuest ? (
@@ -256,7 +281,14 @@ export default function DashboardPage() {
                     <div className="flex flex-col sm:flex-row sm:items-start gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-charcoal">{guest.name}</span>
+                          <span className="font-medium text-charcoal">
+                            {guest.salutation === 'herr'
+                              ? 'Herr'
+                              : guest.salutation === 'frau'
+                                ? 'Frau'
+                                : 'Familie'}{' '}
+                            {guest.name}
+                          </span>
                           <span className={`text-xs px-2 py-0.5 rounded-full ${status.className}`}>
                             {status.label}
                           </span>

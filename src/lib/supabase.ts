@@ -138,6 +138,7 @@ export async function createGuest(weddingId: string, input: CreateGuestInput): P
     .insert({
       wedding_id: weddingId,
       name: input.name,
+      salutation: input.salutation,
       email: input.email || null,
       guest_count: input.guest_count ?? 1,
     })

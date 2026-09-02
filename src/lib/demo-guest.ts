@@ -4,6 +4,7 @@ export const DEMO_GUEST: Guest = {
   id: 'demo-guest',
   wedding_id: 'demo',
   name: 'Maria Schmidt',
+  salutation: 'frau',
   email: 'maria@beispiel.de',
   guest_count: 2,
   invite_token: 'demo-gast',

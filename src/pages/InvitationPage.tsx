@@ -47,7 +47,6 @@ export default function InvitationPage() {
         if (guestToken === 'demo-gast') {
           setInvitedGuest(DEMO_GUEST)
           setGuestName(DEMO_GUEST.name)
-          setEmail(DEMO_GUEST.email ?? '')
           setGuestCount(DEMO_GUEST.guest_count)
         }
         setLoading(false)
@@ -62,7 +61,6 @@ export default function InvitationPage() {
         if (guest) {
           setInvitedGuest(guest)
           setGuestName(guest.name)
-          setEmail(guest.email ?? '')
           setGuestCount(guest.guest_count)
         }
       }
@@ -139,7 +137,9 @@ export default function InvitationPage() {
   }
 
   const weddingDate = new Date(wedding.wedding_date)
-  const personalGreeting = invitedGuest ? getPersonalGreeting(invitedGuest.name) : null
+  const personalGreeting = invitedGuest
+    ? getPersonalGreeting(invitedGuest.name, invitedGuest.salutation)
+    : null
 
   return (
     <div className="min-h-screen">
@@ -163,7 +163,9 @@ export default function InvitationPage() {
           </p>
           {personalGreeting && (
             <p className="text-charcoal mt-6 text-lg max-w-xl mx-auto leading-relaxed">
-              wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!
+              {invitedGuest?.salutation === 'familie'
+                ? 'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!'
+                : 'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!'}
             </p>
           )}
         </div>
@@ -253,7 +255,7 @@ export default function InvitationPage() {
             <div className="text-center p-8 bg-white rounded-2xl border border-cream-dark">
               <CheckCircle className="w-12 h-12 text-sage mx-auto mb-4" />
               <h3 className="font-serif text-2xl font-semibold text-charcoal mb-2">
-                Vielen Dank{personalGreeting ? `, ${personalGreeting.replace('Liebe/r ', '')}` : ''}!
+                Vielen Dank{personalGreeting ? `, ${personalGreeting}` : ''}!
               </h3>
               <p className="text-warm-gray">
                 {rsvpStatus === 'accepted'
@@ -311,8 +313,6 @@ export default function InvitationPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="email@beispiel.de"
-                    readOnly={isPersonalLink && Boolean(invitedGuest?.email)}
-                    className={isPersonalLink && invitedGuest?.email ? 'bg-cream cursor-default' : ''}
                   />
 
                   {rsvpStatus === 'accepted' && (

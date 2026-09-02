@@ -21,7 +21,11 @@ const client = new Client({
   ssl: { rejectUnauthorized: false },
 })
 
-const sqlFiles = ['supabase/schema.sql', 'supabase/migration-v2-guests.sql']
+const sqlFiles = [
+  'supabase/schema.sql',
+  'supabase/migration-v2-guests.sql',
+  'supabase/migration-v3-salutation.sql',
+]
 
 try {
   await client.connect()

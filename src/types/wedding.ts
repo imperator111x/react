@@ -1,4 +1,11 @@
 export type RsvpStatus = 'accepted' | 'declined' | 'pending'
+export type Salutation = 'herr' | 'frau' | 'familie'
+
+export const SALUTATION_OPTIONS: { value: Salutation; label: string }[] = [
+  { value: 'herr', label: 'Herr' },
+  { value: 'frau', label: 'Frau' },
+  { value: 'familie', label: 'Familie' },
+]
 
 export interface Wedding {
   id: string
@@ -23,6 +30,7 @@ export interface Guest {
   id: string
   wedding_id: string
   name: string
+  salutation: Salutation
   email: string | null
   guest_count: number
   invite_token: string
@@ -64,6 +72,7 @@ export interface CreateWeddingInput {
 
 export interface CreateGuestInput {
   name: string
+  salutation: Salutation
   email?: string
   guest_count?: number
 }
