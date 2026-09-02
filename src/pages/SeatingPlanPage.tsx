@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Heart, LayoutGrid, Loader2, Search } from 'lucide-react'
+import { Heart, LayoutGrid, Loader2, Search, Users } from 'lucide-react'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import InviteQrCode from '../components/InviteQrCode'
@@ -18,7 +18,7 @@ import {
 } from '../lib/seating'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
-import { DEMO_TABLES } from '../lib/demo-seating'
+import { getDemoSeatingPlan } from '../lib/demo-seating'
 import type { Guest, SeatingTableWithGuests, Wedding } from '../types/wedding'
 
 function SeatingPlanContent() {
@@ -40,22 +40,7 @@ function SeatingPlanContent() {
       if (isDemo) {
         setWedding(DEMO_WEDDING)
         setTokenGuest(guestToken ? DEMO_GUEST : null)
-        setPlan(
-          DEMO_TABLES.map((table) => ({
-            ...table,
-            guests:
-              table.id === DEMO_GUEST.table_id
-                ? [
-                    {
-                      id: DEMO_GUEST.id,
-                      name: DEMO_GUEST.name,
-                      salutation: DEMO_GUEST.salutation,
-                      table_id: DEMO_GUEST.table_id,
-                    },
-                  ]
-                : [],
-          }))
-        )
+        setPlan(getDemoSeatingPlan())
         if (guestToken) setNameQuery(DEMO_GUEST.name)
         setLoading(false)
         return
@@ -201,15 +186,49 @@ function SeatingPlanContent() {
                   key={table.id}
                   id={`table-${table.id}`}
                   ref={isHighlighted ? highlightRef : undefined}
-                  className={`rounded-2xl border p-5 sm:p-6 ${
+                  className={`rounded-2xl border p-5 sm:p-6 transition-all duration-300 ${
                     isHighlighted
-                      ? 'border-gold bg-gold/5 shadow-md'
+                      ? 'border-gold bg-gold/5 shadow-lg ring-2 ring-gold/40'
                       : 'border-cream-dark bg-white'
                   }`}
                 >
                   <h2 className="font-serif text-xl font-semibold text-charcoal">{publicName}</h2>
+                  {table.guests.length > 0 ? (
+                    <ul className="mt-4 space-y-2">
+                      {table.guests.map((guest) => {
+                        const isActiveGuest = activeGuest?.id === guest.id
+                        return (
+                          <li
+                            key={guest.id}
+                            className={`flex items-center gap-2 text-sm transition-all duration-300 ${
+                              isActiveGuest
+                                ? 'text-gold font-semibold'
+                                : 'text-charcoal'
+                            }`}
+                          >
+                            <Users
+                              className={`w-3.5 h-3.5 shrink-0 ${
+                                isActiveGuest ? 'text-gold' : 'text-warm-gray'
+                              }`}
+                            />
+                            <span
+                              className={
+                                isActiveGuest
+                                  ? 'px-2 py-0.5 rounded-lg bg-gold/15 ring-2 ring-gold/50 shadow-sm'
+                                  : undefined
+                              }
+                            >
+                              {guest.name}
+                            </span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  ) : (
+                    <p className="mt-3 text-sm text-warm-gray italic">{t('seating.unassigned')}</p>
+                  )}
                   {isHighlighted && activeGuest && (
-                    <p className="text-sm text-gold mt-2">{t('seating.highlighted')}</p>
+                    <p className="text-sm text-gold mt-3">{t('seating.highlighted')}</p>
                   )}
                 </div>
               )

@@ -58,7 +58,7 @@ export const en = {
     guestsAtTable: 'Guests at this table',
     unassigned: 'Not assigned yet',
     planTitle: 'Seating plan – {partner1} & {partner2}',
-    planSubtitle: 'Overview of all tables – enter your name above to find yours.',
+    planSubtitle: 'Overview of all tables and guests – enter your name above to find yours.',
     findYourTable: 'Find your table',
     nameSearchLabel: 'Your name',
     nameSearchPlaceholder: 'First and last name',

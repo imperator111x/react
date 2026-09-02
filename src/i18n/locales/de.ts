@@ -58,7 +58,7 @@ export const de = {
     guestsAtTable: 'Gäste an diesem Tisch',
     unassigned: 'Noch nicht zugewiesen',
     planTitle: 'Tischplan – {partner1} & {partner2}',
-    planSubtitle: 'Alle Tische im Überblick – gebt oben euren Namen ein, um euren Tisch zu finden.',
+    planSubtitle: 'Alle Tische und Gäste im Überblick – gebt oben euren Namen ein, um euren Tisch zu finden.',
     findYourTable: 'Finde deinen Tisch',
     nameSearchLabel: 'Dein Name',
     nameSearchPlaceholder: 'Vor- und Nachname',
