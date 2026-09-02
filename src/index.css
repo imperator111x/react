@@ -239,3 +239,52 @@ body {
   background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
 }
 
+/* Invitation hero header */
+.invitation-hero__card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  border-radius: 2px;
+  box-shadow:
+    0 24px 64px rgba(44, 44, 44, 0.06),
+    0 4px 16px rgba(201, 169, 110, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.invitation-hero__corner {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-color: var(--color-gold);
+  opacity: 0.45;
+}
+
+.invitation-hero__corner--tl {
+  top: 12px;
+  left: 12px;
+  border-top: 1.5px solid;
+  border-left: 1.5px solid;
+}
+
+.invitation-hero__corner--tr {
+  top: 12px;
+  right: 12px;
+  border-top: 1.5px solid;
+  border-right: 1.5px solid;
+}
+
+.invitation-hero__corner--bl {
+  bottom: 12px;
+  left: 12px;
+  border-bottom: 1.5px solid;
+  border-left: 1.5px solid;
+}
+
+.invitation-hero__corner--br {
+  bottom: 12px;
+  right: 12px;
+  border-bottom: 1.5px solid;
+  border-right: 1.5px solid;
+}
+

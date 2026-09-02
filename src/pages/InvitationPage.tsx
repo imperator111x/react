@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import Countdown from '../components/Countdown'
 import EnvelopeIntro from '../components/EnvelopeIntro'
+import InvitationHero from '../components/InvitationHero'
 import GallerySection from '../components/GallerySection'
 import ItinerarySection from '../components/ItinerarySection'
 import Button from '../components/Button'
@@ -184,44 +185,13 @@ export default function InvitationPage() {
           showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}
       >
-        <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blush/50 via-cream to-cream" />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
-          <div className="absolute top-10 left-1/4 w-72 h-72 bg-gold/10 rounded-full blur-3xl animate-pulse-soft" />
-          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blush/30 rounded-full blur-3xl" />
+        <InvitationHero
+          wedding={wedding}
+          personalGreeting={personalGreeting}
+          invitedGuest={invitedGuest}
+        />
 
-          <div className="relative text-center px-4 py-24 max-w-3xl mx-auto">
-            {personalGreeting && (
-              <p className="font-serif text-2xl sm:text-3xl text-charcoal mb-6">{personalGreeting},</p>
-            )}
-            <div className="invitation-ornament mb-6">
-              <p className="text-gold uppercase tracking-[0.35em] text-xs sm:text-sm">Wir heiraten</p>
-            </div>
-            <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-semibold text-charcoal mb-6 leading-tight">
-              {wedding.partner1_name}
-              <span className="block text-3xl sm:text-5xl text-gold italic my-3 font-normal">&</span>
-              {wedding.partner2_name}
-            </h1>
-            <p className="text-warm-gray text-lg sm:text-xl font-light">
-              {format(weddingDate, "EEEE, d. MMMM yyyy", { locale: de })}
-            </p>
-            <p className="text-gold text-base mt-2">
-              {format(weddingDate, "HH:mm 'Uhr'", { locale: de })}
-            </p>
-            {personalGreeting && (
-              <p className="text-charcoal mt-8 text-lg max-w-lg mx-auto leading-relaxed font-light">
-                {invitedGuest?.salutation === 'familie'
-                  ? 'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!'
-                  : 'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!'}
-              </p>
-            )}
-            <div className="mt-12 flex justify-center">
-              <div className="w-px h-16 bg-gradient-to-b from-gold/60 to-transparent" />
-            </div>
-          </div>
-        </section>
-
-        <section className="py-20 bg-white relative">
+        <section id="countdown" className="py-20 bg-white relative scroll-mt-4">
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
           <div className="max-w-3xl mx-auto px-4 text-center">
             <div className="invitation-ornament mb-8">
