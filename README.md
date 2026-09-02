@@ -2,7 +2,7 @@
 
 Eine kostenlose Hochzeitseinladungs-Website mit React und Supabase. Erstellt elegante digitale Einladungen, auf denen Gäste online zu- und absagen können.
 
-**Live-Demo:** [imperator111x.github.io/react/e/demo](https://imperator111x.github.io/react/e/demo)
+**Live-Demo:** [imperator111x.github.io/react/e/demo](https://imperator111x.github.io/react/e/demo) (persönliche Anrede: „Liebe Maria“)
 
 ## Features
 

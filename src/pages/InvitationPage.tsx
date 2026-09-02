@@ -66,8 +66,8 @@ export default function InvitationPage() {
   })
   const handleEnvelopeComplete = useCallback(() => setShowContent(true), [])
 
-  const isPersonalLink = Boolean(guestToken)
   const isDemo = slug === 'demo'
+  const isPersonalLink = Boolean(guestToken) || isDemo
 
   useEffect(() => {
     async function load() {
@@ -76,11 +76,9 @@ export default function InvitationPage() {
         setGalleryImages([])
         setItineraryItems(DEMO_ITINERARY)
         setFaqItems(DEMO_FAQ)
-        if (guestToken === 'demo-gast') {
-          setInvitedGuest(DEMO_GUEST)
-          setGuestName(DEMO_GUEST.name)
-          setGuestCount(DEMO_GUEST.guest_count)
-        }
+        setInvitedGuest(DEMO_GUEST)
+        setGuestName(DEMO_GUEST.name)
+        setGuestCount(DEMO_GUEST.guest_count)
         setLoading(false)
         return
       }
