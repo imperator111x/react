@@ -25,6 +25,10 @@ export const en = {
     googleMaps: 'Google Maps',
     printInvitation: 'Print invitation',
   },
+  print: {
+    rsvpHint: 'Please RSVP online at',
+    footerCredit: 'Created with UnsereHochzeit',
+  },
   countdown: {
     title: 'Countdown to the big day',
     past: 'The big day is here!',
