@@ -320,7 +320,14 @@ function InvitationPageContent() {
               <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">{t('details.title')}</h2>
             </div>
 
-            <CalendarExportButtons wedding={wedding} className="mb-8" />
+            {(wedding.ceremony_date ?? wedding.wedding_date ?? wedding.reception_date) && (
+              <div className="mb-8">
+                <h3 className="font-serif text-xl font-semibold text-charcoal mb-4 text-center">
+                  {t('details.calendarCreate')}
+                </h3>
+                <CalendarExportButtons wedding={wedding} className="justify-center" />
+              </div>
+            )}
 
             {(wedding.ceremony_location || ceremonyDateIso) && (
               <div className="flex gap-5 p-7 rounded-2xl bg-cream border border-cream-dark/80 shadow-sm hover:shadow-md transition-shadow">

@@ -42,6 +42,7 @@ export const en = {
     calendarCeremony: 'Save ceremony',
     calendarReception: 'Save reception',
     calendarBoth: 'Both events',
+    calendarCreate: 'Create calendar entry',
   },
   travel: {
     title: 'Travel & accommodation',

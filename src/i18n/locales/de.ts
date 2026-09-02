@@ -42,6 +42,7 @@ export const de = {
     calendarCeremony: 'Trauung speichern',
     calendarReception: 'Feier speichern',
     calendarBoth: 'Beide Termine',
+    calendarCreate: 'Kalendereintrag erstellen',
   },
   travel: {
     title: 'Anreise & Unterkunft',

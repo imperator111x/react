@@ -5,7 +5,6 @@ import {
 } from '../lib/wedding-dates'
 import { useLocale } from '../context/LocaleContext'
 import { getInvitationText } from '../lib/invitation-text'
-import CalendarExportButtons from './CalendarExportButtons'
 import LocationMapsLinks from './LocationMapsLinks'
 import type { Guest, Wedding } from '../types/wedding'
 
@@ -173,12 +172,6 @@ export default function InvitationHero({
             )}
           </div>
         </div>
-
-        <CalendarExportButtons
-          wedding={wedding}
-          className="mt-8 justify-center"
-          compact
-        />
 
         <a
           href="#countdown"
