@@ -31,6 +31,7 @@ const sqlFiles = [
   'supabase/migration-v7-faq.sql',
   'supabase/migration-v8-invitation-text.sql',
   'supabase/migration-v9-medium-features.sql',
+  'supabase/migration-v10-seating.sql',
 ]
 
 try {

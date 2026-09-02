@@ -39,6 +39,7 @@ export interface Guest {
   email: string | null
   guest_count: number
   max_guest_count: number | null
+  table_id: string | null
   invite_token: string
   rsvp_id: string | null
   created_at: string
@@ -179,4 +180,20 @@ export interface CreateGuestbookInput {
   guest_name: string
   message: string
   guest_id?: string
+}
+
+export interface SeatingTable {
+  id: string
+  wedding_id: string
+  name: string
+  sort_order: number
+  created_at: string
+}
+
+export interface SeatingTableWithGuests extends SeatingTable {
+  guests: Pick<Guest, 'id' | 'name' | 'salutation'>[]
+}
+
+export interface CreateSeatingTableInput {
+  name: string
 }

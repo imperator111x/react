@@ -1,10 +1,12 @@
 import { Car, Hotel } from 'lucide-react'
+import { useLocale } from '../context/LocaleContext'
 
 interface TravelInfoSectionProps {
   travelInfo: string
 }
 
 export default function TravelInfoSection({ travelInfo }: TravelInfoSectionProps) {
+  const { t } = useLocale()
   const paragraphs = travelInfo.trim().split(/\n\n+/).filter(Boolean)
   if (paragraphs.length === 0) return null
 
@@ -14,7 +16,7 @@ export default function TravelInfoSection({ travelInfo }: TravelInfoSectionProps
         <div className="invitation-ornament mb-10 text-center">
           <Hotel className="w-7 h-7 text-gold mx-auto mb-4" />
           <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">
-            Anreise & Unterkunft
+            {t('travel.title')}
           </h2>
         </div>
 

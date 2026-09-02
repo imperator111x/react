@@ -27,6 +27,14 @@ CREATE TABLE weddings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE seating_tables (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  wedding_id UUID NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE TABLE guests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   wedding_id UUID NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
@@ -35,6 +43,7 @@ CREATE TABLE guests (
   email TEXT,
   guest_count INTEGER NOT NULL DEFAULT 1 CHECK (guest_count >= 1 AND guest_count <= 10),
   max_guest_count INTEGER,
+  table_id UUID REFERENCES seating_tables(id) ON DELETE SET NULL,
   invite_token UUID NOT NULL DEFAULT gen_random_uuid(),
   rsvp_id UUID,
   created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -79,10 +88,13 @@ CREATE TABLE guestbook_entries (
 
 CREATE INDEX idx_guestbook_wedding_id ON guestbook_entries(wedding_id);
 
+CREATE INDEX idx_seating_tables_wedding_id ON seating_tables(wedding_id);
+
 ALTER TABLE weddings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rsvps ENABLE ROW LEVEL SECURITY;
 ALTER TABLE guestbook_entries ENABLE ROW LEVEL SECURITY;
+ALTER TABLE seating_tables ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "weddings_select_public" ON weddings FOR SELECT USING (true);
 CREATE POLICY "weddings_insert_public" ON weddings FOR INSERT WITH CHECK (true);
@@ -102,6 +114,11 @@ CREATE POLICY "guestbook_select_public" ON guestbook_entries FOR SELECT USING (t
 CREATE POLICY "guestbook_insert_public" ON guestbook_entries FOR INSERT WITH CHECK (true);
 CREATE POLICY "guestbook_update_public" ON guestbook_entries FOR UPDATE USING (true);
 CREATE POLICY "guestbook_delete_public" ON guestbook_entries FOR DELETE USING (true);
+
+CREATE POLICY "seating_select_public" ON seating_tables FOR SELECT USING (true);
+CREATE POLICY "seating_insert_public" ON seating_tables FOR INSERT WITH CHECK (true);
+CREATE POLICY "seating_update_public" ON seating_tables FOR UPDATE USING (true);
+CREATE POLICY "seating_delete_public" ON seating_tables FOR DELETE USING (true);
 
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$

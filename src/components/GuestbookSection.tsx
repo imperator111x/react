@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { format } from 'date-fns'
-import { de } from 'date-fns/locale'
 import { BookHeart, Loader2, MessageSquare } from 'lucide-react'
 import Button from './Button'
 import Input from './Input'
 import Textarea from './Textarea'
+import { useLocale } from '../context/LocaleContext'
+import { getDateFnsLocale } from '../i18n'
 import { createGuestbookEntry } from '../lib/guestbook'
 import type { Guest, GuestbookEntry } from '../types/wedding'
 
@@ -23,6 +24,7 @@ export default function GuestbookSection({
   isDemo = false,
   onEntryAdded,
 }: GuestbookSectionProps) {
+  const { t, locale } = useLocale()
   const visibleEntries = entries.filter((e) => e.is_visible)
   const [name, setName] = useState(invitedGuest?.name ?? '')
   const [message, setMessage] = useState('')
@@ -33,7 +35,7 @@ export default function GuestbookSection({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim() || !message.trim()) {
-      setError('Bitte Name und Nachricht angeben.')
+      setError(t('guestbook.fillRequired'))
       return
     }
 
@@ -54,7 +56,7 @@ export default function GuestbookSection({
       setSubmitted(true)
       onEntryAdded?.()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nachricht konnte nicht gesendet werden.')
+      setError(err instanceof Error ? err.message : t('guestbook.submitError'))
     } finally {
       setSubmitting(false)
     }
@@ -65,8 +67,8 @@ export default function GuestbookSection({
       <div className="max-w-2xl mx-auto px-4">
         <div className="invitation-ornament mb-10 text-center">
           <BookHeart className="w-7 h-7 text-gold mx-auto mb-4" />
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">Gästebuch</h2>
-          <p className="text-warm-gray mt-3">Hinterlasst uns eine Nachricht – sie erscheint hier für alle Gäste.</p>
+          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">{t('guestbook.title')}</h2>
+          <p className="text-warm-gray mt-3">{t('guestbook.subtitle')}</p>
         </div>
 
         {visibleEntries.length > 0 && (
@@ -82,7 +84,9 @@ export default function GuestbookSection({
                     <p className="font-medium text-charcoal">{entry.guest_name}</p>
                     <p className="text-warm-gray mt-2 leading-relaxed italic">„{entry.message}"</p>
                     <p className="text-xs text-warm-gray/70 mt-3">
-                      {format(new Date(entry.created_at), 'd. MMMM yyyy', { locale: de })}
+                      {format(new Date(entry.created_at), 'd. MMMM yyyy', {
+                        locale: getDateFnsLocale(locale),
+                      })}
                     </p>
                   </div>
                 </div>
@@ -93,7 +97,7 @@ export default function GuestbookSection({
 
         {submitted && !message ? (
           <div className="text-center p-6 rounded-2xl bg-sage/10 border border-sage/20">
-            <p className="text-sage font-medium">Danke für eure Nachricht im Gästebuch!</p>
+            <p className="text-sage font-medium">{t('guestbook.thanks')}</p>
           </div>
         ) : (
           <form
@@ -101,7 +105,7 @@ export default function GuestbookSection({
             className="bg-white rounded-2xl p-6 border border-cream-dark space-y-4"
           >
             <Input
-              label="Euer Name"
+              label={t('guestbook.name')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               readOnly={Boolean(invitedGuest)}
@@ -109,11 +113,11 @@ export default function GuestbookSection({
               required
             />
             <Textarea
-              label="Nachricht"
+              label={t('guestbook.message')}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
-              placeholder="Wir freuen uns auf euch und wünschen euch alles Gute!"
+              placeholder={t('guestbook.messagePlaceholder')}
               required
             />
             {error && <p className="text-sm text-red-500">{error}</p>}
@@ -121,10 +125,10 @@ export default function GuestbookSection({
               {submitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Wird gesendet...
+                  {t('guestbook.sending')}
                 </>
               ) : (
-                'Nachricht hinterlassen'
+                t('guestbook.submit')
               )}
             </Button>
           </form>

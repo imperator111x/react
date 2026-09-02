@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, HelpCircle } from 'lucide-react'
+import { useLocale } from '../context/LocaleContext'
 import type { FaqItem } from '../types/wedding'
 
 interface FaqSectionProps {
@@ -7,6 +8,7 @@ interface FaqSectionProps {
 }
 
 export default function FaqSection({ items }: FaqSectionProps) {
+  const { t } = useLocale()
   const [openId, setOpenId] = useState<string | null>(items[0]?.id ?? null)
 
   if (items.length === 0) return null
@@ -15,11 +17,9 @@ export default function FaqSection({ items }: FaqSectionProps) {
     <section id="faq" className="py-20 sm:py-24 bg-white relative border-t border-cream-dark">
       <div className="max-w-2xl mx-auto px-4">
         <div className="invitation-ornament mb-10">
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">FAQ</h2>
+          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">{t('faq.title')}</h2>
         </div>
-        <p className="text-center text-warm-gray mb-10 font-light">
-          Häufige Fragen – falls etwas offen bleibt, meldet euch gerne bei uns.
-        </p>
+        <p className="text-center text-warm-gray mb-10 font-light">{t('faq.subtitle')}</p>
 
         <div className="space-y-3">
           {items.map((item) => {

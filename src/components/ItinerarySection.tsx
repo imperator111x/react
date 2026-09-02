@@ -1,12 +1,14 @@
 import type { ItineraryItem } from '../types/wedding'
 import { ItineraryIcon } from '../lib/itinerary-icons'
 import { formatItineraryTime } from '../lib/itinerary'
+import { useLocale } from '../context/LocaleContext'
 
 interface ItinerarySectionProps {
   items: ItineraryItem[]
 }
 
 export default function ItinerarySection({ items }: ItinerarySectionProps) {
+  const { t } = useLocale()
   if (items.length === 0) return null
 
   return (
@@ -28,7 +30,7 @@ export default function ItinerarySection({ items }: ItinerarySectionProps) {
 
       <div className="max-w-sm mx-auto px-6 relative">
         <div className="invitation-ornament mb-12">
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">Ablauf</h2>
+          <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">{t('itinerary.title')}</h2>
         </div>
 
         <ul className="relative">

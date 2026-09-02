@@ -3,6 +3,7 @@ import {
   formatEventDate,
   formatEventTime,
 } from '../lib/wedding-dates'
+import { useLocale } from '../context/LocaleContext'
 import { getInvitationText } from '../lib/invitation-text'
 import CalendarExportButtons from './CalendarExportButtons'
 import LocationMapsLinks from './LocationMapsLinks'
@@ -40,11 +41,13 @@ function HeroEventBlock({
   dateIso,
   location,
   address,
+  locale,
 }: {
   label: string
   dateIso: string
   location?: string | null
   address?: string | null
+  locale: 'de' | 'en'
 }) {
   return (
     <div className="text-center">
@@ -52,10 +55,10 @@ function HeroEventBlock({
         {label}
       </p>
       <p className="font-serif text-lg sm:text-xl text-charcoal mb-0.5">
-        {formatEventDate(dateIso)}
+        {formatEventDate(dateIso, locale)}
       </p>
       <p className="inline-block mt-3 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm tracking-wide">
-        {formatEventTime(dateIso)}
+        {formatEventTime(dateIso, locale)}
       </p>
       {location && (
         <p className="mt-4 flex items-center justify-center gap-2 text-warm-gray text-sm sm:text-base">
@@ -83,6 +86,7 @@ export default function InvitationHero({
   personalGreeting,
   invitedGuest,
 }: InvitationHeroProps) {
+  const { locale, t } = useLocale()
   const ceremonyIso = wedding.ceremony_date ?? wedding.wedding_date
   const receptionIso = wedding.reception_date
 
@@ -115,14 +119,14 @@ export default function InvitationHero({
               {personalGreeting},
             </p>
             <p className="text-charcoal text-base sm:text-lg max-w-lg mx-auto leading-relaxed font-light px-2">
-              {getInvitationText(wedding.invitation_text, invitedGuest?.salutation)}
+              {getInvitationText(wedding.invitation_text, invitedGuest?.salutation, locale)}
             </p>
           </div>
         )}
 
         <div className="invitation-ornament mb-8">
           <p className="text-gold uppercase tracking-[0.4em] text-[0.65rem] sm:text-xs font-medium">
-            Save the Date
+            {t('hero.saveTheDate')}
           </p>
         </div>
 
@@ -133,7 +137,7 @@ export default function InvitationHero({
           <div className="invitation-hero__corner invitation-hero__corner--br" aria-hidden />
 
           <p className="text-gold/80 uppercase tracking-[0.35em] text-[0.6rem] sm:text-xs mb-6">
-            Wir heiraten
+            {t('hero.weMarry')}
           </p>
 
           <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-tight">
@@ -147,10 +151,11 @@ export default function InvitationHero({
           <div className="mt-8 sm:mt-10 pt-8 border-t border-gold/15 space-y-8">
             {ceremonyIso && (
               <HeroEventBlock
-                label="Trauung"
+                label={t('hero.ceremony')}
                 dateIso={ceremonyIso}
                 location={wedding.ceremony_location}
                 address={wedding.ceremony_address}
+                locale={locale}
               />
             )}
 
@@ -158,10 +163,11 @@ export default function InvitationHero({
               <>
                 {ceremonyIso && <div className="h-px bg-gold/10 max-w-xs mx-auto" />}
                 <HeroEventBlock
-                  label="Feier"
+                  label={t('hero.reception')}
                   dateIso={receptionIso}
                   location={wedding.reception_location}
                   address={wedding.reception_address}
+                  locale={locale}
                 />
               </>
             )}
@@ -179,7 +185,7 @@ export default function InvitationHero({
           className="mt-12 inline-flex flex-col items-center gap-2 text-warm-gray/70 hover:text-gold transition-colors group"
           aria-label="Weiter scrollen"
         >
-          <span className="text-[0.65rem] uppercase tracking-[0.25em]">Mehr entdecken</span>
+          <span className="text-[0.65rem] uppercase tracking-[0.25em]">{t('common.scrollMore')}</span>
           <ChevronDown className="w-5 h-5 animate-bounce group-hover:text-gold" />
         </a>
       </div>

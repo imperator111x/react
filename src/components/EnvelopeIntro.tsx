@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Heart } from 'lucide-react'
+import { useLocale } from '../context/LocaleContext'
 
 interface EnvelopeIntroProps {
   partner1: string
@@ -18,6 +19,7 @@ export default function EnvelopeIntro({
   storageKey,
   onComplete,
 }: EnvelopeIntroProps) {
+  const { t } = useLocale()
   const [phase, setPhase] = useState<Phase>('idle')
   const [visible, setVisible] = useState(true)
 
@@ -71,7 +73,7 @@ export default function EnvelopeIntro({
             className={`envelope-scene focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 ${
               phase === 'opening' ? 'envelope-scene--opening' : ''
             }`}
-            aria-label="Einladung öffnen"
+            aria-label={t('envelope.open')}
           >
             <svg
               viewBox="0 0 320 220"
@@ -164,14 +166,14 @@ export default function EnvelopeIntro({
                 {partner2}
               </h2>
               <div className="letter-reveal__line" />
-              <p className="letter-reveal__hint">Eure Einladung</p>
+              <p className="letter-reveal__hint">{t('hero.saveTheDate')}</p>
             </div>
           </div>
         )}
 
         {phase === 'idle' && (
           <p className="mt-10 font-serif text-xs text-warm-gray tracking-[0.3em] uppercase opacity-70">
-            Tippen zum Öffnen
+            {t('envelope.tap')}
           </p>
         )}
       </div>
