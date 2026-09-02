@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import {
   Calendar,
   MapPin,
@@ -23,6 +23,9 @@ import TravelInfoSection from '../components/TravelInfoSection'
 import SeatingAssignmentSection from '../components/SeatingAssignmentSection'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import SkipLink from '../components/SkipLink'
+import ThankYouSection from '../components/ThankYouSection'
+import PrintInvitationButton from '../components/PrintInvitationButton'
 import LocationMapsLinks from '../components/LocationMapsLinks'
 import CalendarExportButtons from '../components/CalendarExportButtons'
 import Button from '../components/Button'
@@ -35,6 +38,7 @@ import {
   formatRsvpDeadline,
   getCeremonyDate,
   getCountdownDate,
+  isWeddingPast,
 } from '../lib/wedding-dates'
 import { getPersonalGreeting, getRsvpPersonLimit, getRsvpPersonOptions } from '../lib/guests'
 import { getGuestbookEntries } from '../lib/guestbook'
@@ -43,6 +47,7 @@ import { getWishlistItems } from '../lib/wishlist'
 import { getSeatingTables } from '../lib/seating'
 import { getGuestByInviteToken, getRsvpById, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
+import { getGuestPhotos } from '../lib/guest-photos'
 import { getItineraryItems } from '../lib/itinerary'
 import { getFaqItems } from '../lib/faq'
 import { DEMO_WEDDING } from '../lib/demo'
@@ -57,6 +62,7 @@ import type {
   GalleryImage,
   Guest,
   GuestbookEntry,
+  GuestPhoto,
   ItineraryItem,
   MusicWish,
   SeatingTable,
@@ -77,10 +83,12 @@ export default function InvitationPage() {
 
 function InvitationPageContent() {
   const { slug, guestToken } = useParams<{ slug: string; guestToken?: string }>()
+  const [searchParams] = useSearchParams()
   const { locale, t } = useLocale()
   const [wedding, setWedding] = useState<Wedding | null>(null)
   const [invitedGuest, setInvitedGuest] = useState<Guest | null>(null)
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
+  const [guestPhotos, setGuestPhotos] = useState<GuestPhoto[]>([])
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
   const [faqItems, setFaqItems] = useState<FaqItem[]>([])
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([])
@@ -134,6 +142,7 @@ function InvitationPageContent() {
         setMusicWishes(DEMO_MUSIC_WISHES)
         setWishlistItems(DEMO_WISHLIST)
         setSeatingTables(DEMO_TABLES)
+        setGuestPhotos([])
         setInvitedGuest(DEMO_GUEST)
         setGuestName(DEMO_GUEST.name)
         setGuestCount(DEMO_GUEST.guest_count)
@@ -145,7 +154,7 @@ function InvitationPageContent() {
       setWedding(data)
 
       if (data) {
-        const [gallery, itinerary, faq, guestbook, tables, music, wishlist] = await Promise.all([
+        const [gallery, itinerary, faq, guestbook, tables, music, wishlist, photos] = await Promise.all([
           getGalleryImages(data.id),
           getItineraryItems(data.id),
           getFaqItems(data.id),
@@ -153,6 +162,7 @@ function InvitationPageContent() {
           getSeatingTables(data.id),
           getMusicWishes(data.id),
           getWishlistItems(data.id),
+          getGuestPhotos(data.id, true),
         ])
         setGalleryImages(gallery)
         setItineraryItems(itinerary)
@@ -161,6 +171,7 @@ function InvitationPageContent() {
         setSeatingTables(tables)
         setMusicWishes(music)
         setWishlistItems(wishlist)
+        setGuestPhotos(photos)
       }
 
       if (data && guestToken) {
@@ -262,7 +273,7 @@ function InvitationPageContent() {
       <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
         <Heart className="w-12 h-12 text-gold/30 mb-4" />
         <h1 className="font-serif text-3xl font-semibold text-charcoal mb-2">
-          Einladung nicht gefunden
+          {t('common.notFound')}
         </h1>
         <p className="text-warm-gray">{t('common.invalidLink')}</p>
       </div>
@@ -280,6 +291,19 @@ function InvitationPageContent() {
     locale
   )
 
+  const isThankYouMode =
+    isWeddingPast(wedding) || (isDemo && searchParams.get('danke') === '1')
+
+  if (isThankYouMode) {
+    return (
+      <WeddingThemeWrapper themeId={wedding.theme_id} className="min-h-screen">
+        <SkipLink />
+        <LanguageSwitcher />
+        <ThankYouSection wedding={wedding} guestPhotos={guestPhotos} slug={slug!} />
+      </WeddingThemeWrapper>
+    )
+  }
+
   return (
     <>
       <EnvelopeIntro
@@ -291,8 +315,13 @@ function InvitationPageContent() {
       />
 
       <WeddingThemeWrapper themeId={wedding.theme_id} className="min-h-screen">
+      <SkipLink />
       <LanguageSwitcher />
+      <div className="fixed top-4 left-4 z-50">
+        <PrintInvitationButton wedding={wedding} locale={locale} />
+      </div>
       <div
+        id="main-content"
         className={`min-h-screen transition-all duration-1000 ${
           showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}

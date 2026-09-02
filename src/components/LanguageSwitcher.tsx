@@ -12,7 +12,7 @@ export default function LanguageSwitcher() {
   ]
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-sm border border-cream-dark shadow-md p-1">
+    <div className="fixed top-4 right-4 z-50 flex items-center gap-1 rounded-full bg-white/95 backdrop-blur-sm border border-cream-dark shadow-md p-1 language-switcher-print-hide">
       <Languages className="w-4 h-4 text-gold ml-2 hidden sm:block" aria-hidden />
       {options.map(({ value, label }) => (
         <button

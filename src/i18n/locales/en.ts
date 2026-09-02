@@ -10,6 +10,8 @@ export const en = {
     invalidLink: 'This personal link is invalid.',
     scrollMore: 'Discover more',
     scrollDown: 'Scroll down',
+    skipToContent: 'Skip to content',
+    close: 'Close',
     createdWith: 'Made with love using UnsereHochzeit',
   },
   hero: {
@@ -21,6 +23,7 @@ export const en = {
     reception: 'Reception',
     routePlan: 'Get directions',
     googleMaps: 'Google Maps',
+    printInvitation: 'Print invitation',
   },
   countdown: {
     title: 'Countdown to the big day',
@@ -147,5 +150,32 @@ export const en = {
       'we warmly invite you to our wedding and would love to celebrate with you!',
     defaultPlural:
       'we warmly invite you to our wedding and would love to celebrate with you!',
+  },
+  thankYou: {
+    title: 'Thank you!',
+    subtitle: 'Celebrating this special day with you meant the world to us.',
+    message:
+      'We are overwhelmed by all the love, smiles, and unforgettable moments. Thank you for being part of our story!',
+    uploadPhotos: 'Share your photos',
+    viewInvitation: 'View invitation',
+  },
+  guestPhotos: {
+    title: 'Your photos',
+    pageTitle: 'Share photos',
+    subtitle: 'Upload your favourite moments from our celebration – we would love to see them!',
+    yourName: 'Your name *',
+    namePlaceholder: 'First and last name',
+    caption: 'Caption (optional)',
+    captionPlaceholder: 'e.g. First dance',
+    selectPhotos: 'Choose photos',
+    photosSelected: '{count} photo(s) selected',
+    upload: 'Upload',
+    uploading: 'Uploading…',
+    thanks: 'Thank you! Your photos will appear after a quick review.',
+    fillRequired: 'Please enter your name and select at least one photo.',
+    uploadError: 'Upload failed.',
+    backToInvitation: 'Back to invitation',
+    emptyPublic: 'No guest photos yet – be the first!',
+    pendingNote: 'New photos appear after we approve them.',
   },
 } as const

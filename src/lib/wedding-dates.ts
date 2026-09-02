@@ -48,6 +48,14 @@ export function getDeletionDate(wedding: Wedding): Date {
   return date
 }
 
+/** True ab dem Tag nach dem letzten Hochzeitstermin (Mitternacht lokal). */
+export function isWeddingPast(wedding: Wedding, now = new Date()): boolean {
+  const latest = getLatestEventDate(wedding)
+  const endOfWeddingDay = new Date(latest)
+  endOfWeddingDay.setHours(23, 59, 59, 999)
+  return now > endOfWeddingDay
+}
+
 export function formatEventDate(iso: string, locale: Locale = 'de'): string {
   return format(new Date(iso), EVENT_DATE_PATTERNS[locale], { locale: getDateFnsLocale(locale) })
 }

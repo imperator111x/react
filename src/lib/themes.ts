@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 
-export type WeddingThemeId = 'gold' | 'sage' | 'blush' | 'navy'
+export type WeddingThemeId = 'gold' | 'sage' | 'blush' | 'navy' | 'lavender' | 'terracotta' | 'burgundy' | 'forest'
 
 export interface WeddingTheme {
   id: WeddingThemeId
@@ -48,6 +48,42 @@ export const WEDDING_THEMES: WeddingTheme[] = [
     blush: '#d4dae8',
     sage: '#4a5568',
     sageDark: '#2d3748',
+  },
+  {
+    id: 'lavender',
+    label: 'Lavendel',
+    gold: '#9b8ab8',
+    goldDark: '#7a6899',
+    blush: '#e8e0f0',
+    sage: '#8a7aa8',
+    sageDark: '#6b5d87',
+  },
+  {
+    id: 'terracotta',
+    label: 'Terrakotta',
+    gold: '#c4785a',
+    goldDark: '#a35f44',
+    blush: '#f0ddd4',
+    sage: '#a67c6a',
+    sageDark: '#8a6354',
+  },
+  {
+    id: 'burgundy',
+    label: 'Burgund',
+    gold: '#b8956b',
+    goldDark: '#967748',
+    blush: '#e8d4d8',
+    sage: '#7a4a52',
+    sageDark: '#5c3540',
+  },
+  {
+    id: 'forest',
+    label: 'Waldgrün',
+    gold: '#8fa87a',
+    goldDark: '#6f8660',
+    blush: '#dde6d8',
+    sage: '#5a7350',
+    sageDark: '#435a3c',
   },
 ]
 
