@@ -19,6 +19,8 @@ import {
 import Button from '../components/Button'
 import Input from '../components/Input'
 import { getGuestInviteUrl } from '../lib/guests'
+import { filterAndSortGuests, type GuestSortOption, type GuestStatusFilter } from '../lib/guest-filter'
+import { getGeneralInviteShareMessage, getPersonalInviteShareMessage } from '../lib/share'
 import { getDeletionDate, formatEventDate, formatEventTime } from '../lib/wedding-dates'
 import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
@@ -31,6 +33,7 @@ import WeddingEditor from '../components/WeddingEditor'
 import InviteQrCode from '../components/InviteQrCode'
 import PendingGuestsPanel from '../components/PendingGuestsPanel'
 import GuestExportBar from '../components/GuestExportBar'
+import WhatsAppShareButton from '../components/WhatsAppShareButton'
 import type { FaqItem, GalleryImage, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
@@ -52,6 +55,9 @@ export default function DashboardPage() {
     guest_count: 1,
   })
   const [guestError, setGuestError] = useState('')
+  const [guestSearch, setGuestSearch] = useState('')
+  const [guestStatusFilter, setGuestStatusFilter] = useState<GuestStatusFilter>('all')
+  const [guestSort, setGuestSort] = useState<GuestSortOption>('name')
 
   const loadData = async (dashboardToken: string) => {
     const w = await getWeddingByToken(dashboardToken)
@@ -106,6 +112,12 @@ export default function DashboardPage() {
   const deletionDate = getDeletionDate(wedding)
 
   const inviteUrl = `${window.location.origin}${import.meta.env.BASE_URL}e/${wedding.slug}`
+  const filteredGuests = filterAndSortGuests(guests, guestSearch, guestStatusFilter, guestSort)
+  const generalShareMessage = getGeneralInviteShareMessage(
+    wedding.partner1_name,
+    wedding.partner2_name,
+    inviteUrl
+  )
 
   const copyText = async (text: string, key: string) => {
     await navigator.clipboard.writeText(text)
@@ -211,6 +223,7 @@ export default function DashboardPage() {
               <Copy className="w-4 h-4" />
               {copied === 'general' ? 'Kopiert!' : 'Kopieren'}
             </Button>
+            <WhatsAppShareButton message={generalShareMessage} />
             <a href={inviteUrl} target="_blank" rel="noopener noreferrer">
               <Button variant="ghost" size="sm">
                 <ExternalLink className="w-4 h-4" />
@@ -332,17 +345,64 @@ export default function DashboardPage() {
             </form>
           </div>
 
+          {guests.length > 0 && (
+            <div className="px-6 py-4 border-b border-cream-dark bg-cream/40 flex flex-col sm:flex-row gap-3">
+              <Input
+                label="Suchen"
+                value={guestSearch}
+                onChange={(e) => setGuestSearch(e.target.value)}
+                placeholder="Name oder E-Mail …"
+                className="flex-1"
+              />
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">Status</label>
+                <select
+                  value={guestStatusFilter}
+                  onChange={(e) => setGuestStatusFilter(e.target.value as GuestStatusFilter)}
+                  className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
+                >
+                  <option value="all">Alle</option>
+                  <option value="open">Offen</option>
+                  <option value="accepted">Zusage</option>
+                  <option value="declined">Absage</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1.5">Sortierung</label>
+                <select
+                  value={guestSort}
+                  onChange={(e) => setGuestSort(e.target.value as GuestSortOption)}
+                  className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
+                >
+                  <option value="name">Name</option>
+                  <option value="status">Status</option>
+                  <option value="newest">Neueste zuerst</option>
+                </select>
+              </div>
+            </div>
+          )}
+
           {guests.length === 0 ? (
             <div className="p-12 text-center text-warm-gray">
               <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
               <p>Noch keine Gäste angelegt. Fügt eure Gäste hinzu und teilt die persönlichen Links.</p>
             </div>
+          ) : filteredGuests.length === 0 ? (
+            <div className="p-12 text-center text-warm-gray">
+              <p>Keine Gäste passen zu eurer Suche.</p>
+            </div>
           ) : (
             <div className="divide-y divide-cream-dark">
-              {guests.map((guest) => {
+              {filteredGuests.map((guest) => {
                 const status = getGuestStatus(guest)
                 const personalUrl = getGuestInviteUrl(wedding.slug, guest.invite_token)
                 const copyKey = `guest-${guest.id}`
+                const shareMessage = getPersonalInviteShareMessage(
+                  guest.name,
+                  wedding.partner1_name,
+                  wedding.partner2_name,
+                  personalUrl
+                )
 
                 return (
                   <div key={guest.id} className="p-4 sm:p-6 space-y-3">
@@ -388,6 +448,7 @@ export default function DashboardPage() {
                         <Link2 className="w-4 h-4" />
                         {copied === copyKey ? 'Kopiert!' : 'Link'}
                       </Button>
+                      <WhatsAppShareButton message={shareMessage} />
                     </div>
                   </div>
                 )

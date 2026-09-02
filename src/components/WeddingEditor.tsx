@@ -22,6 +22,7 @@ function weddingToForm(wedding: Wedding): UpdateWeddingInput & { ceremony_date: 
     reception_address: wedding.reception_address ?? '',
     story: wedding.story ?? '',
     dress_code: wedding.dress_code ?? '',
+    invitation_text: wedding.invitation_text ?? '',
   }
 }
 
@@ -118,6 +119,14 @@ export default function WeddingEditor({ wedding, onUpdate }: WeddingEditorProps)
             />
           </div>
         </div>
+
+        <Textarea
+          label="Einladungstext (unter der Anrede)"
+          value={form.invitation_text ?? ''}
+          onChange={(e) => update('invitation_text', e.target.value)}
+          rows={3}
+          placeholder="z.B. wir laden dich herzlich zu unserer Hochzeit ein …"
+        />
 
         <Textarea
           label="Eure Geschichte"

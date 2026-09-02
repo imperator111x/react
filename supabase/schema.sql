@@ -17,6 +17,7 @@ CREATE TABLE weddings (
   reception_address TEXT,
   story TEXT,
   dress_code TEXT,
+  invitation_text TEXT,
   email TEXT NOT NULL,
   dashboard_token UUID NOT NULL DEFAULT gen_random_uuid(),
   cover_image_url TEXT,

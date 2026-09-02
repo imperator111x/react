@@ -22,6 +22,7 @@ export const DEMO_WEDDING: Wedding = {
   story:
     'Wir haben uns 2019 bei einem gemeinsamen Wanderausflug in den Alpen kennengelernt. Was als zufälliges Treffen auf dem Gipfel begann, wurde zu unserer großen Liebe. Jetzt möchten wir mit euch den schönsten Tag unseres Lebens feiern!',
   dress_code: 'Festlich – gerne in Sommerfarben',
+  invitation_text: null,
   email: 'demo@unserehochzeit.de',
   dashboard_token: 'demo-token',
   cover_image_url: null,

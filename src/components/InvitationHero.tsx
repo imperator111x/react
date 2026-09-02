@@ -3,6 +3,8 @@ import {
   formatEventDate,
   formatEventTime,
 } from '../lib/wedding-dates'
+import { getInvitationText } from '../lib/invitation-text'
+import CalendarExportButtons from './CalendarExportButtons'
 import LocationMapsLinks from './LocationMapsLinks'
 import type { Guest, Wedding } from '../types/wedding'
 
@@ -113,9 +115,7 @@ export default function InvitationHero({
               {personalGreeting},
             </p>
             <p className="text-charcoal text-base sm:text-lg max-w-lg mx-auto leading-relaxed font-light px-2">
-              {invitedGuest?.salutation === 'familie'
-                ? 'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!'
-                : 'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!'}
+              {getInvitationText(wedding.invitation_text, invitedGuest?.salutation)}
             </p>
           </div>
         )}
@@ -167,6 +167,12 @@ export default function InvitationHero({
             )}
           </div>
         </div>
+
+        <CalendarExportButtons
+          wedding={wedding}
+          className="mt-8 justify-center"
+          compact
+        />
 
         <a
           href="#countdown"
