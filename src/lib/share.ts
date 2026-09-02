@@ -1,9 +1,18 @@
+/** Offizielle WhatsApp-Share-URL (funktioniert auf Mobile & Desktop). */
 export function getWhatsAppShareUrl(text: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(text)}`
+  return `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`
 }
 
 export function openWhatsAppShare(text: string): void {
-  window.open(getWhatsAppShareUrl(text), '_blank', 'noopener,noreferrer')
+  const url = getWhatsAppShareUrl(text)
+  // <a>-Klick statt window.open – wird von Popup-Blockern nicht unterdrückt
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.target = '_blank'
+  anchor.rel = 'noopener noreferrer'
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
 }
 
 export function getGeneralInviteShareMessage(partner1: string, partner2: string, url: string): string {
