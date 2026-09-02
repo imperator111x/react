@@ -13,19 +13,22 @@ import {
 } from 'lucide-react'
 import Countdown from '../components/Countdown'
 import EnvelopeIntro from '../components/EnvelopeIntro'
+import GallerySection from '../components/GallerySection'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
 import { getPersonalGreeting } from '../lib/guests'
 import { getGuestByInviteToken, getWeddingBySlug, submitRsvp } from '../lib/supabase'
+import { getGalleryImages } from '../lib/gallery'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
-import type { Guest, Wedding, RsvpStatus } from '../types/wedding'
+import type { GalleryImage, Guest, Wedding, RsvpStatus } from '../types/wedding'
 
 export default function InvitationPage() {
   const { slug, guestToken } = useParams<{ slug: string; guestToken?: string }>()
   const [wedding, setWedding] = useState<Wedding | null>(null)
   const [invitedGuest, setInvitedGuest] = useState<Guest | null>(null)
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -54,6 +57,7 @@ export default function InvitationPage() {
     async function load() {
       if (isDemo) {
         setWedding(DEMO_WEDDING)
+        setGalleryImages([])
         if (guestToken === 'demo-gast') {
           setInvitedGuest(DEMO_GUEST)
           setGuestName(DEMO_GUEST.name)
@@ -65,6 +69,11 @@ export default function InvitationPage() {
 
       const data = await getWeddingBySlug(slug!)
       setWedding(data)
+
+      if (data) {
+        const gallery = await getGalleryImages(data.id)
+        setGalleryImages(gallery)
+      }
 
       if (data && guestToken) {
         const guest = await getGuestByInviteToken(data.id, guestToken)
@@ -226,6 +235,8 @@ export default function InvitationPage() {
             </div>
           </section>
         )}
+
+        <GallerySection images={galleryImages} />
 
         <section className="py-20 bg-white">
           <div className="max-w-2xl mx-auto px-4 space-y-6">
