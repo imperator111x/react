@@ -130,6 +130,15 @@ export default function InvitationHero({
         </div>
 
         <div className="invitation-hero__card mx-auto max-w-2xl px-8 sm:px-12 py-10 sm:py-14">
+          {wedding.cover_image_url && (
+            <div className="mb-8 -mx-4 sm:-mx-8 -mt-4 sm:-mt-6 rounded-t-2xl overflow-hidden aspect-[16/10]">
+              <img
+                src={wedding.cover_image_url}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
           <div className="invitation-hero__corner invitation-hero__corner--tl" aria-hidden />
           <div className="invitation-hero__corner invitation-hero__corner--tr" aria-hidden />
           <div className="invitation-hero__corner invitation-hero__corner--bl" aria-hidden />

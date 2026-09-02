@@ -90,6 +90,15 @@ export interface UpdateWeddingInput {
   invitation_text?: string
   travel_info?: string
   theme_id?: string
+  cover_image_url?: string | null
+}
+
+export interface UpdateGuestInput {
+  name?: string
+  salutation?: Salutation
+  email?: string | null
+  guest_count?: number
+  max_guest_count?: number
 }
 
 export interface CreateGuestInput {
@@ -196,4 +205,45 @@ export interface SeatingTableWithGuests extends SeatingTable {
 
 export interface CreateSeatingTableInput {
   name: string
+}
+
+export interface MusicWish {
+  id: string
+  wedding_id: string
+  guest_id: string | null
+  guest_name: string
+  song_title: string
+  artist: string | null
+  created_at: string
+}
+
+export interface CreateMusicWishInput {
+  guest_name: string
+  song_title: string
+  artist?: string
+  guest_id?: string
+}
+
+export interface WishlistItem {
+  id: string
+  wedding_id: string
+  title: string
+  url: string | null
+  description: string | null
+  sort_order: number
+  created_at: string
+}
+
+export interface CreateWishlistInput {
+  title: string
+  url?: string
+  description?: string
+}
+
+export interface WeddingRecoveryInfo {
+  id: string
+  slug: string
+  partner1_name: string
+  partner2_name: string
+  dashboard_token: string
 }

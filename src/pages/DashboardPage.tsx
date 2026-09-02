@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import {
@@ -12,6 +12,9 @@ import {
   Trash2,
   Link2,
   CalendarClock,
+  Pencil,
+  Save,
+  X,
 } from 'lucide-react'
 import Button from '../components/Button'
 import Input from '../components/Input'
@@ -19,11 +22,13 @@ import { getGuestInviteUrl } from '../lib/guests'
 import { filterAndSortGuests, type GuestSortOption, type GuestStatusFilter } from '../lib/guest-filter'
 import { getGeneralInviteShareMessage, getPersonalInviteShareMessage } from '../lib/share'
 import { getDeletionDate, formatEventDate, formatEventTime } from '../lib/wedding-dates'
-import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from '../lib/supabase'
+import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken, updateGuest } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
 import { getFaqItems } from '../lib/faq'
 import { getGuestbookEntries } from '../lib/guestbook'
+import { getMusicWishes } from '../lib/music-wishes'
+import { getWishlistItems } from '../lib/wishlist'
 import { getSeatingPlan, getSeatingTables } from '../lib/seating'
 import { getGuestRsvpMax } from '../lib/dashboard-stats'
 import DashboardStatsPanel from '../components/DashboardStatsPanel'
@@ -36,8 +41,10 @@ import WeddingEditor from '../components/WeddingEditor'
 import InviteQrCode from '../components/InviteQrCode'
 import PendingGuestsPanel from '../components/PendingGuestsPanel'
 import GuestExportBar from '../components/GuestExportBar'
+import MusicWishManager from '../components/MusicWishManager'
+import WishlistManager from '../components/WishlistManager'
 import WhatsAppShareButton from '../components/WhatsAppShareButton'
-import type { FaqItem, GalleryImage, GuestbookEntry, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, SeatingTable, SeatingTableWithGuests, Wedding } from '../types/wedding'
+import type { FaqItem, GalleryImage, GuestbookEntry, GuestWithRsvp, ItineraryItem, MusicWish, Rsvp, Salutation, SeatingTable, SeatingTableWithGuests, Wedding, WishlistItem } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
@@ -51,6 +58,8 @@ export default function DashboardPage() {
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([])
   const [seatingTables, setSeatingTables] = useState<SeatingTable[]>([])
   const [seatingPlan, setSeatingPlan] = useState<SeatingTableWithGuests[]>([])
+  const [musicWishes, setMusicWishes] = useState<MusicWish[]>([])
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
@@ -65,12 +74,21 @@ export default function DashboardPage() {
   const [guestSearch, setGuestSearch] = useState('')
   const [guestStatusFilter, setGuestStatusFilter] = useState<GuestStatusFilter>('all')
   const [guestSort, setGuestSort] = useState<GuestSortOption>('name')
+  const [editingGuestId, setEditingGuestId] = useState<string | null>(null)
+  const [editForm, setEditForm] = useState({
+    name: '',
+    salutation: 'frau' as Salutation,
+    email: '',
+    guest_count: 1,
+    allow_plus_one: false,
+  })
+  const [savingGuest, setSavingGuest] = useState(false)
 
   const loadData = async (dashboardToken: string) => {
     const w = await getWeddingByToken(dashboardToken)
     setWedding(w)
     if (w) {
-      const [g, r, gallery, itinerary, faq, guestbook, tables, plan] = await Promise.all([
+      const [g, r, gallery, itinerary, faq, guestbook, tables, plan, music, wishlist] = await Promise.all([
         getGuests(w.id),
         getRsvps(w.id),
         getGalleryImages(w.id),
@@ -79,6 +97,8 @@ export default function DashboardPage() {
         getGuestbookEntries(w.id),
         getSeatingTables(w.id),
         getSeatingPlan(w.id),
+        getMusicWishes(w.id),
+        getWishlistItems(w.id),
       ])
       setGuests(g)
       setRsvps(r)
@@ -88,6 +108,8 @@ export default function DashboardPage() {
       setGuestbookEntries(guestbook)
       setSeatingTables(tables)
       setSeatingPlan(plan)
+      setMusicWishes(music)
+      setWishlistItems(wishlist)
     }
   }
 
@@ -115,6 +137,12 @@ export default function DashboardPage() {
           Dashboard nicht gefunden
         </h1>
         <p className="text-warm-gray">Der Link ist ungültig oder abgelaufen.</p>
+        <Link
+          to="/dashboard/wiederherstellen"
+          className="mt-4 text-gold hover:underline text-sm inline-block"
+        >
+          Dashboard-Link per E-Mail wiederherstellen
+        </Link>
       </div>
     )
   }
@@ -168,6 +196,49 @@ export default function DashboardPage() {
     if (!confirm('Gast wirklich aus der Liste entfernen?')) return
     await deleteGuest(guestId)
     if (token) await loadData(token)
+  }
+
+  const startEditGuest = (guest: GuestWithRsvp) => {
+    setEditingGuestId(guest.id)
+    setEditForm({
+      name: guest.name,
+      salutation: guest.salutation,
+      email: guest.email ?? '',
+      guest_count: guest.guest_count,
+      allow_plus_one: getGuestRsvpMax(guest) > guest.guest_count,
+    })
+  }
+
+  const cancelEditGuest = () => {
+    setEditingGuestId(null)
+    setGuestError('')
+  }
+
+  const handleSaveGuest = async (guestId: string) => {
+    if (!editForm.name.trim()) {
+      setGuestError('Bitte einen Namen eingeben.')
+      return
+    }
+
+    setSavingGuest(true)
+    setGuestError('')
+    try {
+      await updateGuest(guestId, {
+        name: editForm.name.trim(),
+        salutation: editForm.salutation,
+        email: editForm.email.trim() || null,
+        guest_count: editForm.guest_count,
+        max_guest_count: editForm.allow_plus_one
+          ? Math.min(editForm.guest_count + 1, 5)
+          : editForm.guest_count,
+      })
+      setEditingGuestId(null)
+      if (token) await loadData(token)
+    } catch (err) {
+      setGuestError(err instanceof Error ? err.message : 'Speichern fehlgeschlagen.')
+    } finally {
+      setSavingGuest(false)
+    }
   }
 
   const getGuestStatus = (guest: GuestWithRsvp) => {
@@ -234,6 +305,14 @@ export default function DashboardPage() {
         </div>
 
         <WeddingEditor wedding={wedding} onUpdate={() => token && loadData(token)} />
+
+        <WishlistManager
+          weddingId={wedding.id}
+          items={wishlistItems}
+          onUpdate={() => token && loadData(token)}
+        />
+
+        <MusicWishManager wishes={musicWishes} onUpdate={() => token && loadData(token)} />
 
         <GuestbookManager entries={guestbookEntries} onUpdate={() => token && loadData(token)} />
 
@@ -430,56 +509,145 @@ export default function DashboardPage() {
                   wedding.partner2_name,
                   personalUrl
                 )
+                const isEditing = editingGuestId === guest.id
 
                 return (
                   <div key={guest.id} className="p-4 sm:p-6 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-medium text-charcoal">
-                            {guest.salutation === 'herr'
-                              ? 'Herr'
-                              : guest.salutation === 'frau'
-                                ? 'Frau'
-                                : 'Familie'}{' '}
-                            {guest.name}
-                          </span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${status.className}`}>
-                            {status.label}
-                          </span>
-                          {guest.guest_count > 1 && (
-                            <span className="text-xs text-warm-gray">{guest.guest_count} Personen</span>
-                          )}
-                          {getGuestRsvpMax(guest) > guest.guest_count && (
-                            <span className="text-xs text-gold">+1 erlaubt</span>
-                          )}
+                    {isEditing ? (
+                      <div className="space-y-3">
+                        <div className="grid sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-charcoal mb-1.5">Anrede</label>
+                            <select
+                              value={editForm.salutation}
+                              onChange={(e) =>
+                                setEditForm((f) => ({ ...f, salutation: e.target.value as Salutation }))
+                              }
+                              className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
+                            >
+                              {SALUTATION_OPTIONS.map(({ value, label }) => (
+                                <option key={value} value={value}>
+                                  {label}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <Input
+                            label="Name"
+                            value={editForm.name}
+                            onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                          />
+                          <Input
+                            label="E-Mail (optional)"
+                            type="email"
+                            value={editForm.email}
+                            onChange={(e) => setEditForm((f) => ({ ...f, email: e.target.value }))}
+                          />
+                          <div>
+                            <label className="block text-sm font-medium text-charcoal mb-1.5">Personen</label>
+                            <select
+                              value={editForm.guest_count}
+                              onChange={(e) =>
+                                setEditForm((f) => ({ ...f, guest_count: Number(e.target.value) }))
+                              }
+                              className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
+                            >
+                              {[1, 2, 3, 4, 5].map((n) => (
+                                <option key={n} value={n}>
+                                  {n}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
                         </div>
-                        {guest.email && <p className="text-sm text-warm-gray">{guest.email}</p>}
-                        {guest.rsvp?.message && (
-                          <p className="text-sm text-warm-gray mt-1 italic">„{guest.rsvp.message}"</p>
-                        )}
+                        <label className="flex items-center gap-2 text-sm text-charcoal">
+                          <input
+                            type="checkbox"
+                            checked={editForm.allow_plus_one}
+                            onChange={(e) =>
+                              setEditForm((f) => ({ ...f, allow_plus_one: e.target.checked }))
+                            }
+                            className="rounded border-cream-dark text-gold focus:ring-gold/40"
+                          />
+                          Begleitung (+1) erlauben
+                        </label>
+                        <div className="flex gap-2">
+                          <Button size="sm" disabled={savingGuest} onClick={() => handleSaveGuest(guest.id)}>
+                            {savingGuest ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Save className="w-4 h-4" />
+                            )}
+                            Speichern
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={cancelEditGuest}>
+                            <X className="w-4 h-4" />
+                            Abbrechen
+                          </Button>
+                        </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteGuest(guest.id)}
-                        className="text-red-400 hover:text-red-600 shrink-0"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    <div className="flex gap-2">
-                      <input
-                        readOnly
-                        value={personalUrl}
-                        className="flex-1 px-3 py-2 rounded-xl bg-cream border border-cream-dark text-xs sm:text-sm truncate"
-                      />
-                      <Button variant="outline" size="sm" onClick={() => copyText(personalUrl, copyKey)}>
-                        <Link2 className="w-4 h-4" />
-                        {copied === copyKey ? 'Kopiert!' : 'Link'}
-                      </Button>
-                      <WhatsAppShareButton message={shareMessage} />
-                    </div>
+                    ) : (
+                      <>
+                        <div className="flex flex-col sm:flex-row sm:items-start gap-3">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-medium text-charcoal">
+                                {guest.salutation === 'herr'
+                                  ? 'Herr'
+                                  : guest.salutation === 'frau'
+                                    ? 'Frau'
+                                    : 'Familie'}{' '}
+                                {guest.name}
+                              </span>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${status.className}`}>
+                                {status.label}
+                              </span>
+                              {guest.guest_count > 1 && (
+                                <span className="text-xs text-warm-gray">{guest.guest_count} Personen</span>
+                              )}
+                              {getGuestRsvpMax(guest) > guest.guest_count && (
+                                <span className="text-xs text-gold">+1 erlaubt</span>
+                              )}
+                            </div>
+                            {guest.email && <p className="text-sm text-warm-gray">{guest.email}</p>}
+                            {guest.rsvp?.dietary_notes && (
+                              <p className="text-sm text-charcoal mt-1">
+                                <span className="font-medium">Allergien/Ernährung:</span>{' '}
+                                {guest.rsvp.dietary_notes}
+                              </p>
+                            )}
+                            {guest.rsvp?.message && (
+                              <p className="text-sm text-warm-gray mt-1 italic">„{guest.rsvp.message}"</p>
+                            )}
+                          </div>
+                          <div className="flex gap-1 shrink-0">
+                            <Button variant="ghost" size="sm" onClick={() => startEditGuest(guest)}>
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteGuest(guest.id)}
+                              className="text-red-400 hover:text-red-600"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <input
+                            readOnly
+                            value={personalUrl}
+                            className="flex-1 px-3 py-2 rounded-xl bg-cream border border-cream-dark text-xs sm:text-sm truncate"
+                          />
+                          <Button variant="outline" size="sm" onClick={() => copyText(personalUrl, copyKey)}>
+                            <Link2 className="w-4 h-4" />
+                            {copied === copyKey ? 'Kopiert!' : 'Link'}
+                          </Button>
+                          <WhatsAppShareButton message={shareMessage} />
+                        </div>
+                      </>
+                    )}
                   </div>
                 )
               })}
@@ -524,6 +692,14 @@ export default function DashboardPage() {
                     {rsvp.email && <p className="text-sm text-warm-gray">{rsvp.email}</p>}
                     {rsvp.status === 'accepted' && rsvp.guest_count > 1 && (
                       <p className="text-sm text-warm-gray">{rsvp.guest_count} Personen</p>
+                    )}
+                    {rsvp.dietary_notes && (
+                      <p className="text-sm text-charcoal mt-1">
+                        <span className="font-medium">Allergien/Ernährung:</span> {rsvp.dietary_notes}
+                      </p>
+                    )}
+                    {rsvp.message && (
+                      <p className="text-sm text-warm-gray mt-1 italic">„{rsvp.message}"</p>
                     )}
                   </div>
                   <div className="text-xs text-warm-gray shrink-0">
