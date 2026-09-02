@@ -12,7 +12,7 @@ export default function FaqSection({ items }: FaqSectionProps) {
   if (items.length === 0) return null
 
   return (
-    <section className="py-20 sm:py-24 bg-cream relative">
+    <section id="faq" className="py-20 sm:py-24 bg-white relative border-t border-cream-dark">
       <div className="max-w-2xl mx-auto px-4">
         <div className="invitation-ornament mb-10">
           <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">FAQ</h2>

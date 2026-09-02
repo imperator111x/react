@@ -216,6 +216,14 @@ export default function DashboardPage() {
         </div>
 
         {wedding && (
+          <FaqManager
+            weddingId={wedding.id}
+            items={faqItems}
+            onUpdate={() => token && loadData(token)}
+          />
+        )}
+
+        {wedding && (
           <GalleryManager
             weddingId={wedding.id}
             images={galleryImages}
@@ -227,14 +235,6 @@ export default function DashboardPage() {
           <ItineraryManager
             weddingId={wedding.id}
             items={itineraryItems}
-            onUpdate={() => token && loadData(token)}
-          />
-        )}
-
-        {wedding && (
-          <FaqManager
-            weddingId={wedding.id}
-            items={faqItems}
             onUpdate={() => token && loadData(token)}
           />
         )}

@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp, HelpCircle, Loader2, Plus, Trash2 } from 'lucid
 import Button from './Button'
 import Input from './Input'
 import Textarea from './Textarea'
-import { createFaqItem, deleteFaqItem, reorderFaqItems, updateFaqItem } from '../lib/faq'
+import { createFaqItem, createFaqItems, deleteFaqItem, reorderFaqItems, updateFaqItem, DEFAULT_FAQ_TEMPLATES } from '../lib/faq'
 import type { CreateFaqInput, FaqItem } from '../types/wedding'
 
 interface FaqManagerProps {
@@ -23,6 +23,23 @@ export default function FaqManager({ weddingId, items, onUpdate }: FaqManagerPro
   const [error, setError] = useState('')
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [movingId, setMovingId] = useState<string | null>(null)
+  const [loadingTemplates, setLoadingTemplates] = useState(false)
+
+  const handleLoadTemplates = async () => {
+    if (items.length > 0 && !confirm('Beispielfragen zusätzlich hinzufügen?')) {
+      return
+    }
+    setLoadingTemplates(true)
+    setError('')
+    try {
+      await createFaqItems(weddingId, DEFAULT_FAQ_TEMPLATES)
+      onUpdate()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Beispielfragen konnten nicht geladen werden.')
+    } finally {
+      setLoadingTemplates(false)
+    }
+  }
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -115,19 +132,37 @@ export default function FaqManager({ weddingId, items, onUpdate }: FaqManagerPro
             rows={3}
           />
 
-          <Button type="submit" variant="outline" disabled={saving}>
-            {saving ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Wird gespeichert...
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4" />
-                Frage hinzufügen
-              </>
-            )}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" variant="outline" disabled={saving}>
+              {saving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Wird gespeichert...
+                </>
+              ) : (
+                <>
+                  <Plus className="w-4 h-4" />
+                  Frage hinzufügen
+                </>
+              )}
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={loadingTemplates}
+              onClick={handleLoadTemplates}
+            >
+              {loadingTemplates ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Wird geladen...
+                </>
+              ) : (
+                'Beispielfragen übernehmen'
+              )}
+            </Button>
+          </div>
         </form>
 
         {error && <p className="text-sm text-red-500 mt-3">{error}</p>}

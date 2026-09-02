@@ -1,6 +1,8 @@
 import type { CreateFaqInput, FaqItem } from '../types/wedding'
 import { supabase } from './supabase'
 
+export { DEFAULT_FAQ_TEMPLATES } from './default-faq'
+
 export async function getFaqItems(weddingId: string): Promise<FaqItem[]> {
   if (!supabase) return []
 
@@ -13,6 +15,15 @@ export async function getFaqItems(weddingId: string): Promise<FaqItem[]> {
 
   if (error) return []
   return data as FaqItem[]
+}
+
+export async function createFaqItems(
+  weddingId: string,
+  inputs: CreateFaqInput[]
+): Promise<void> {
+  for (const input of inputs) {
+    await createFaqItem(weddingId, input)
+  }
 }
 
 export async function createFaqItem(weddingId: string, input: CreateFaqInput): Promise<FaqItem> {

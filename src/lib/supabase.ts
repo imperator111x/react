@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { datetimeLocalToIso } from './wedding-dates'
+import { createFaqItems, DEFAULT_FAQ_TEMPLATES } from './faq'
 import type {
   Wedding,
   Guest,
@@ -63,6 +64,9 @@ export async function createWedding(input: CreateWeddingInput): Promise<Wedding>
     .single()
 
   if (error) throw error
+
+  await createFaqItems(data.id, DEFAULT_FAQ_TEMPLATES)
+
   return data as Wedding
 }
 

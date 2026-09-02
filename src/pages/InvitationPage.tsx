@@ -461,7 +461,7 @@ export default function InvitationPage() {
 
       <FaqSection items={faqItems} />
 
-      <footer className="py-10 text-center text-sm text-warm-gray border-t border-cream-dark bg-white">
+      <footer className="py-10 text-center text-sm text-warm-gray border-t border-cream-dark bg-cream">
         <p className="font-serif text-xl text-charcoal mb-1">
           {wedding.partner1_name} <span className="text-gold italic">&</span> {wedding.partner2_name}
         </p>
