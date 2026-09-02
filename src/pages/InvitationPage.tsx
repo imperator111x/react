@@ -18,6 +18,8 @@ import GallerySection from '../components/GallerySection'
 import ItinerarySection from '../components/ItinerarySection'
 import FaqSection from '../components/FaqSection'
 import GuestbookSection from '../components/GuestbookSection'
+import MusicWishSection from '../components/MusicWishSection'
+import WishlistSection from '../components/WishlistSection'
 import TravelInfoSection from '../components/TravelInfoSection'
 import SeatingAssignmentSection from '../components/SeatingAssignmentSection'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
@@ -37,6 +39,8 @@ import {
 } from '../lib/wedding-dates'
 import { getPersonalGreeting, getRsvpPersonLimit, getRsvpPersonOptions } from '../lib/guests'
 import { getGuestbookEntries } from '../lib/guestbook'
+import { getMusicWishes } from '../lib/music-wishes'
+import { getWishlistItems } from '../lib/wishlist'
 import { getSeatingTables } from '../lib/seating'
 import { getGuestByInviteToken, getRsvpById, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
@@ -47,6 +51,7 @@ import { DEMO_GUEST } from '../lib/demo-guest'
 import { DEMO_ITINERARY } from '../lib/demo-itinerary'
 import { DEMO_FAQ } from '../lib/demo-faq'
 import { DEMO_GUESTBOOK } from '../lib/demo-guestbook'
+import { DEMO_MUSIC_WISHES, DEMO_WISHLIST } from '../lib/demo-extras'
 import { DEMO_TABLES } from '../lib/demo-seating'
 import type {
   FaqItem,
@@ -54,10 +59,12 @@ import type {
   Guest,
   GuestbookEntry,
   ItineraryItem,
+  MusicWish,
   SeatingTable,
   Wedding,
   RsvpStatus,
   Rsvp,
+  WishlistItem,
 } from '../types/wedding'
 
 export default function InvitationPage() {
@@ -78,6 +85,8 @@ function InvitationPageContent() {
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
   const [faqItems, setFaqItems] = useState<FaqItem[]>([])
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([])
+  const [musicWishes, setMusicWishes] = useState<MusicWish[]>([])
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
   const [seatingTables, setSeatingTables] = useState<SeatingTable[]>([])
   const [loading, setLoading] = useState(true)
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus | null>(null)
@@ -111,6 +120,10 @@ function InvitationPageContent() {
     setGuestbookEntries(entries)
   }, [])
 
+  const reloadMusicWishes = useCallback(async (weddingId: string) => {
+    setMusicWishes(await getMusicWishes(weddingId))
+  }, [])
+
   useEffect(() => {
     async function load() {
       if (isDemo) {
@@ -119,6 +132,8 @@ function InvitationPageContent() {
         setItineraryItems(DEMO_ITINERARY)
         setFaqItems(DEMO_FAQ)
         setGuestbookEntries(DEMO_GUESTBOOK)
+        setMusicWishes(DEMO_MUSIC_WISHES)
+        setWishlistItems(DEMO_WISHLIST)
         setSeatingTables(DEMO_TABLES)
         setInvitedGuest(DEMO_GUEST)
         setGuestName(DEMO_GUEST.name)
@@ -131,18 +146,22 @@ function InvitationPageContent() {
       setWedding(data)
 
       if (data) {
-        const [gallery, itinerary, faq, guestbook, tables] = await Promise.all([
+        const [gallery, itinerary, faq, guestbook, tables, music, wishlist] = await Promise.all([
           getGalleryImages(data.id),
           getItineraryItems(data.id),
           getFaqItems(data.id),
           getGuestbookEntries(data.id, true),
           getSeatingTables(data.id),
+          getMusicWishes(data.id),
+          getWishlistItems(data.id),
         ])
         setGalleryImages(gallery)
         setItineraryItems(itinerary)
         setFaqItems(faq)
         setGuestbookEntries(guestbook)
         setSeatingTables(tables)
+        setMusicWishes(music)
+        setWishlistItems(wishlist)
       }
 
       if (data && guestToken) {
@@ -598,6 +617,16 @@ function InvitationPageContent() {
         guestToken={guestToken}
         tables={seatingTables}
         guest={invitedGuest}
+      />
+
+      <WishlistSection items={wishlistItems} />
+
+      <MusicWishSection
+        weddingId={wedding.id}
+        wishes={musicWishes}
+        invitedGuest={invitedGuest}
+        isDemo={isDemo}
+        onUpdate={() => !isDemo && reloadMusicWishes(wedding.id)}
       />
 
       <GuestbookSection

@@ -8,8 +8,10 @@ import type {
   Rsvp,
   CreateWeddingInput,
   CreateGuestInput,
+  UpdateGuestInput,
   RsvpInput,
   UpdateWeddingInput,
+  WeddingRecoveryInfo,
 } from '../types/wedding'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -134,6 +136,7 @@ export async function updateWedding(
   }
   if (input.travel_info !== undefined) payload.travel_info = input.travel_info.trim() || null
   if (input.theme_id !== undefined) payload.theme_id = input.theme_id || 'gold'
+  if (input.cover_image_url !== undefined) payload.cover_image_url = input.cover_image_url
 
   const { data, error } = await supabase
     .from('weddings')
@@ -206,6 +209,42 @@ export async function createGuest(weddingId: string, input: CreateGuestInput): P
       guest_count: guestCount,
       max_guest_count: Math.max(guestCount, maxGuestCount),
     })
+    .select()
+    .single()
+
+  if (error) throw error
+  return data as Guest
+}
+
+export async function getWeddingsByEmail(email: string): Promise<WeddingRecoveryInfo[]> {
+  if (!supabase) return []
+
+  const normalized = email.trim().toLowerCase()
+  if (!normalized) return []
+
+  const { data, error } = await supabase
+    .from('weddings')
+    .select('id, slug, partner1_name, partner2_name, dashboard_token')
+    .ilike('email', normalized)
+
+  if (error || !data) return []
+  return data as WeddingRecoveryInfo[]
+}
+
+export async function updateGuest(guestId: string, input: UpdateGuestInput): Promise<Guest> {
+  if (!supabase) throw new Error('Supabase ist nicht konfiguriert')
+
+  const payload: Record<string, string | number | null> = {}
+  if (input.name !== undefined) payload.name = input.name.trim()
+  if (input.salutation !== undefined) payload.salutation = input.salutation
+  if (input.email !== undefined) payload.email = input.email?.trim() || null
+  if (input.guest_count !== undefined) payload.guest_count = input.guest_count
+  if (input.max_guest_count !== undefined) payload.max_guest_count = input.max_guest_count
+
+  const { data, error } = await supabase
+    .from('guests')
+    .update(payload)
+    .eq('id', guestId)
     .select()
     .single()
 

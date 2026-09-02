@@ -4,6 +4,7 @@ import Button from './Button'
 import Input from './Input'
 import Textarea from './Textarea'
 import ThemePicker from './ThemePicker'
+import CoverImageUpload from './CoverImageUpload'
 import { updateWedding } from '../lib/supabase'
 import { toDatetimeLocalValue } from '../lib/wedding-dates'
 import type { UpdateWeddingInput, Wedding } from '../types/wedding'
@@ -78,6 +79,8 @@ export default function WeddingEditor({ wedding, onUpdate }: WeddingEditorProps)
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <CoverImageUpload wedding={wedding} onUpdate={onUpdate} />
+
         <div>
           <h3 className="font-serif text-lg font-semibold text-charcoal mb-3">Trauung</h3>
           <div className="space-y-3">

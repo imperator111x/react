@@ -241,6 +241,12 @@ export default function LandingPage() {
               <ArrowRight className="w-5 h-5" />
             </Button>
           </Link>
+          <p className="mt-6 text-sm text-warm-gray">
+            Dashboard-Link verloren?{' '}
+            <Link to="/dashboard/wiederherstellen" className="text-gold hover:underline">
+              Hier wiederherstellen
+            </Link>
+          </p>
         </div>
       </section>
     </div>
