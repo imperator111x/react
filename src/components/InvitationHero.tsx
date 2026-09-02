@@ -1,6 +1,6 @@
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
-import { ChevronDown, Heart, MapPin } from 'lucide-react'
+import { ChevronDown, MapPin } from 'lucide-react'
 import type { Guest, Wedding } from '../types/wedding'
 
 interface InvitationHeroProps {
@@ -36,7 +36,6 @@ export default function InvitationHero({
   invitedGuest,
 }: InvitationHeroProps) {
   const weddingDate = new Date(wedding.wedding_date)
-  const initials = `${wedding.partner1_name.charAt(0)}${wedding.partner2_name.charAt(0)}`.toUpperCase()
 
   return (
     <section className="invitation-hero relative min-h-[88vh] flex items-center justify-center overflow-hidden">
@@ -83,22 +82,11 @@ export default function InvitationHero({
             Wir heiraten
           </p>
 
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-[1.15]">
+          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-tight">
             {wedding.partner1_name}
-          </h1>
-
-          <div className="flex items-center justify-center gap-4 my-5 sm:my-6">
-            <span className="h-px w-12 sm:w-20 bg-gradient-to-r from-transparent to-gold/50" />
-            <div className="relative">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-gold/30 bg-cream/80 flex items-center justify-center shadow-sm">
-                <span className="font-serif text-lg sm:text-xl text-gold tracking-wider">{initials}</span>
-              </div>
-              <Heart className="absolute -top-1 -right-1 w-4 h-4 text-blush fill-blush/60" />
-            </div>
-            <span className="h-px w-12 sm:w-20 bg-gradient-to-l from-transparent to-gold/50" />
-          </div>
-
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-[1.15]">
+            <span className="block text-2xl sm:text-4xl lg:text-5xl text-gold italic my-3 sm:my-4 font-normal">
+              &
+            </span>
             {wedding.partner2_name}
           </h1>
 
