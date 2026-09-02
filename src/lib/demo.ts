@@ -28,7 +28,8 @@ export const DEMO_WEDDING: Wedding = {
   theme_id: 'gold',
   email: 'demo@unserehochzeit.de',
   dashboard_token: 'demo-token',
-  cover_image_url: null,
+  cover_image_url:
+    'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=80',
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 }
