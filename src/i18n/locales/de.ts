@@ -33,10 +33,12 @@ export const de = {
     printInvitation: 'Einladung drucken',
   },
   print: {
-    rsvpHint: 'Bitte gebt online zu- oder ab unter',
+    rsvpHint: 'Bitte gebt online zu- oder ab',
     qrHint: 'QR-Code scannen für die Online-Einladung und RSVP',
     qrAlt: 'QR-Code zur Einladung',
     footerCredit: 'Erstellt mit UnsereHochzeit',
+    headerHint:
+      'Im Druckfenster „Weitere Einstellungen“ → „Kopf- und Fußzeile“ deaktivieren (entfernt URL und Seitenzahl).',
   },
   countdown: {
     title: 'Noch bis zum großen Tag',
