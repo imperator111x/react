@@ -38,6 +38,7 @@ import SeatingManager from '../components/SeatingManager'
 import ItineraryManager from '../components/ItineraryManager'
 import FaqManager from '../components/FaqManager'
 import WeddingEditor from '../components/WeddingEditor'
+import CoverImageUpload from '../components/CoverImageUpload'
 import InviteQrCode from '../components/InviteQrCode'
 import PendingGuestsPanel from '../components/PendingGuestsPanel'
 import GuestExportBar from '../components/GuestExportBar'
@@ -302,6 +303,10 @@ export default function DashboardPage() {
             </a>
           </div>
           <InviteQrCode url={inviteUrl} />
+        </div>
+
+        <div className="bg-white rounded-2xl border border-cream-dark p-6 mb-8">
+          <CoverImageUpload wedding={wedding} onUpdate={() => token && loadData(token)} />
         </div>
 
         <WeddingEditor wedding={wedding} onUpdate={() => token && loadData(token)} />

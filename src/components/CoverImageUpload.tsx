@@ -14,6 +14,7 @@ export default function CoverImageUpload({ wedding, onUpdate }: CoverImageUpload
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState(false)
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -27,6 +28,8 @@ export default function CoverImageUpload({ wedding, onUpdate }: CoverImageUpload
       }
       const url = await uploadCoverImage(wedding.id, file)
       await updateWedding(wedding.id, { cover_image_url: url })
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 3000)
       onUpdate()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload fehlgeschlagen.')
@@ -102,6 +105,11 @@ export default function CoverImageUpload({ wedding, onUpdate }: CoverImageUpload
         )}
       </div>
       {error && <p className="text-sm text-red-500 mt-2">{error}</p>}
+      {success && (
+        <p className="text-sm text-sage mt-2">
+          Titelbild gespeichert – auf der Einladung sichtbar nach dem Umschlag.
+        </p>
+      )}
     </div>
   )
 }

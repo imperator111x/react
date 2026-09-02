@@ -123,6 +123,18 @@ export default function InvitationHero({
           </div>
         )}
 
+        {wedding.cover_image_url && (
+          <div className="mb-10 mx-auto max-w-3xl w-full">
+            <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-gold/25 aspect-[16/10] sm:aspect-[2/1]">
+              <img
+                src={wedding.cover_image_url}
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
         <div className="invitation-ornament mb-8">
           <p className="text-gold uppercase tracking-[0.4em] text-[0.65rem] sm:text-xs font-medium">
             {t('hero.saveTheDate')}
@@ -130,15 +142,6 @@ export default function InvitationHero({
         </div>
 
         <div className="invitation-hero__card mx-auto max-w-2xl px-8 sm:px-12 py-10 sm:py-14">
-          {wedding.cover_image_url && (
-            <div className="mb-8 -mx-4 sm:-mx-8 -mt-4 sm:-mt-6 rounded-t-2xl overflow-hidden aspect-[16/10]">
-              <img
-                src={wedding.cover_image_url}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
           <div className="invitation-hero__corner invitation-hero__corner--tl" aria-hidden />
           <div className="invitation-hero__corner invitation-hero__corner--tr" aria-hidden />
           <div className="invitation-hero__corner invitation-hero__corner--bl" aria-hidden />
