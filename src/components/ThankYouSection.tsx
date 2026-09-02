@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { Camera, Heart } from 'lucide-react'
 import { useLocale } from '../context/LocaleContext'
 import GuestPhotoGallerySection from './GuestPhotoGallerySection'
+import CreatedWithCredit from './CreatedWithCredit'
+import LegalFooterLinks from './LegalFooterLinks'
 import type { GuestPhoto, Wedding } from '../types/wedding'
 
 interface ThankYouSectionProps {
@@ -42,7 +44,14 @@ export default function ThankYouSection({ wedding, guestPhotos, slug }: ThankYou
       <GuestPhotoGallerySection photos={guestPhotos} showPendingNote />
 
       <footer className="py-10 text-center text-warm-gray text-sm border-t border-cream-dark">
-        {t('common.createdWith')}
+        <CreatedWithCredit className="text-xs opacity-60" />
+        <LegalFooterLinks
+          variant="light"
+          className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs"
+          impressumLabel={t('footer.impressum')}
+          privacyLabel={t('footer.privacy')}
+          websiteLabel={t('footer.website')}
+        />
       </footer>
     </main>
   )

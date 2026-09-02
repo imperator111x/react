@@ -14,6 +14,13 @@ export const de = {
     close: 'Schließen',
     createdWith: 'Mit Liebe erstellt mit UnsereHochzeit',
   },
+  footer: {
+    website: 'UnsereHochzeit',
+    impressum: 'Impressum',
+    privacy: 'Datenschutz',
+    createdWithBefore: 'Mit Liebe erstellt mit ',
+    createdWithAfter: '',
+  },
   hero: {
     saveTheDate: 'Merkt euch den Tag',
     sayYesPrefix: 'Wir sagen',

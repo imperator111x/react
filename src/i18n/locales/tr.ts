@@ -14,6 +14,13 @@ export const tr = {
     close: 'Kapat',
     createdWith: 'UnsereHochzeit ile sevgiyle hazırlandı',
   },
+  footer: {
+    website: 'UnsereHochzeit',
+    impressum: 'Künye',
+    privacy: 'Gizlilik',
+    createdWithBefore: '',
+    createdWithAfter: ' ile sevgiyle hazırlandı',
+  },
   hero: {
     saveTheDate: 'Tarihi not edin',
     sayYesPrefix: 'Evet',

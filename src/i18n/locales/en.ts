@@ -14,6 +14,13 @@ export const en = {
     close: 'Close',
     createdWith: 'Made with love using UnsereHochzeit',
   },
+  footer: {
+    website: 'UnsereHochzeit',
+    impressum: 'Legal notice',
+    privacy: 'Privacy',
+    createdWithBefore: 'Made with love using ',
+    createdWithAfter: '',
+  },
   hero: {
     saveTheDate: 'Save the Date',
     sayYesPrefix: "We're saying",
