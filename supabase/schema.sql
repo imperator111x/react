@@ -26,6 +26,7 @@ CREATE TABLE guests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   wedding_id UUID NOT NULL REFERENCES weddings(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
+  salutation TEXT NOT NULL DEFAULT 'frau' CHECK (salutation IN ('herr', 'frau', 'familie')),
   email TEXT,
   guest_count INTEGER NOT NULL DEFAULT 1 CHECK (guest_count >= 1 AND guest_count <= 10),
   invite_token UUID NOT NULL DEFAULT gen_random_uuid(),
