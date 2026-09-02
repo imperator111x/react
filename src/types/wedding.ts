@@ -191,7 +191,7 @@ export interface SeatingTable {
 }
 
 export interface SeatingTableWithGuests extends SeatingTable {
-  guests: Pick<Guest, 'id' | 'name' | 'salutation'>[]
+  guests: Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id'>[]
 }
 
 export interface CreateSeatingTableInput {

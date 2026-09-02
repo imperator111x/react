@@ -119,6 +119,20 @@ export default function SeatingManager({
       {tables.length > 0 && (
         <div className="p-6 border-b border-cream-dark">
           <InviteQrCode url={seatingUrl} label="Tischplan" />
+          <p className="text-sm text-warm-gray mt-4 break-all">
+            Öffentlicher Link für Gäste:{' '}
+            <a
+              href={seatingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gold hover:text-gold-dark underline underline-offset-2"
+            >
+              {seatingUrl}
+            </a>
+          </p>
+          <p className="text-xs text-warm-gray mt-2">
+            Gäste sehen alle Tische und können oben ihren Namen eingeben, um ihren Tisch zu finden.
+          </p>
         </div>
       )}
 
