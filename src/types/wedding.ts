@@ -13,6 +13,8 @@ export interface Wedding {
   partner1_name: string
   partner2_name: string
   wedding_date: string
+  ceremony_date: string | null
+  reception_date: string | null
   ceremony_location: string | null
   ceremony_address: string | null
   reception_location: string | null
@@ -60,7 +62,8 @@ export interface GuestWithRsvp extends Guest {
 export interface CreateWeddingInput {
   partner1_name: string
   partner2_name: string
-  wedding_date: string
+  ceremony_date: string
+  reception_date?: string
   ceremony_location?: string
   ceremony_address?: string
   reception_location?: string

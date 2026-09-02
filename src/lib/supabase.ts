@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { datetimeLocalToIso } from './wedding-dates'
 import type {
   Wedding,
   Guest,
@@ -38,13 +39,18 @@ export async function createWedding(input: CreateWeddingInput): Promise<Wedding>
 
   const slug = generateSlug(input.partner1_name, input.partner2_name)
 
+  const ceremonyIso = datetimeLocalToIso(input.ceremony_date)
+  const receptionIso = input.reception_date ? datetimeLocalToIso(input.reception_date) : null
+
   const { data, error } = await supabase
     .from('weddings')
     .insert({
       slug,
       partner1_name: input.partner1_name,
       partner2_name: input.partner2_name,
-      wedding_date: input.wedding_date,
+      wedding_date: ceremonyIso,
+      ceremony_date: ceremonyIso,
+      reception_date: receptionIso,
       ceremony_location: input.ceremony_location || null,
       ceremony_address: input.ceremony_address || null,
       reception_location: input.reception_location || null,

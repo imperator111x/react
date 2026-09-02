@@ -18,7 +18,8 @@ import {
 } from 'lucide-react'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import { getGuestInviteUrl, getDeletionDate } from '../lib/guests'
+import { getGuestInviteUrl } from '../lib/guests'
+import { getDeletionDate, formatEventDate, formatEventTime } from '../lib/wedding-dates'
 import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
@@ -93,7 +94,7 @@ export default function DashboardPage() {
   const accepted = rsvps.filter((r) => r.status === 'accepted')
   const declined = rsvps.filter((r) => r.status === 'declined')
   const pendingInvites = guests.filter((g) => !g.rsvp).length
-  const deletionDate = getDeletionDate(wedding.wedding_date)
+  const deletionDate = getDeletionDate(wedding)
 
   const inviteUrl = `${window.location.origin}${import.meta.env.BASE_URL}e/${wedding.slug}`
 
@@ -151,7 +152,15 @@ export default function DashboardPage() {
           </h1>
           <p className="text-warm-gray">
             {wedding.partner1_name} & {wedding.partner2_name} ·{' '}
-            {format(new Date(wedding.wedding_date), 'd. MMMM yyyy', { locale: de })}
+            {formatEventDate(wedding.ceremony_date ?? wedding.wedding_date)}
+            {' · '}
+            {formatEventTime(wedding.ceremony_date ?? wedding.wedding_date)}
+            {wedding.reception_date && (
+              <>
+                <br />
+                Feier: {formatEventDate(wedding.reception_date)} · {formatEventTime(wedding.reception_date)}
+              </>
+            )}
           </p>
           <p className="text-sm text-warm-gray mt-2 flex items-center gap-1.5">
             <CalendarClock className="w-4 h-4" />

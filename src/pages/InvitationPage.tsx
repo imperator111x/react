@@ -7,6 +7,7 @@ import {
   MapPin,
   Heart,
   Shirt,
+  Clock,
   CheckCircle,
   XCircle,
   Loader2,
@@ -19,6 +20,12 @@ import ItinerarySection from '../components/ItinerarySection'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
+import {
+  formatEventDate,
+  formatEventTime,
+  getCeremonyDate,
+  getCountdownDate,
+} from '../lib/wedding-dates'
 import { getPersonalGreeting } from '../lib/guests'
 import { getGuestByInviteToken, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
@@ -165,7 +172,9 @@ export default function InvitationPage() {
     )
   }
 
-  const weddingDate = new Date(wedding.wedding_date)
+  const weddingDate = getCeremonyDate(wedding) ?? new Date(wedding.wedding_date)
+  const ceremonyDateIso = wedding.ceremony_date ?? wedding.wedding_date
+  const receptionDateIso = wedding.reception_date
   const personalGreeting = invitedGuest
     ? getPersonalGreeting(invitedGuest.name, invitedGuest.salutation)
     : null
@@ -197,7 +206,7 @@ export default function InvitationPage() {
             <div className="invitation-ornament mb-8">
               <h2 className="font-serif text-2xl text-warm-gray">Noch bis zum großen Tag</h2>
             </div>
-            <Countdown targetDate={wedding.wedding_date} />
+            <Countdown targetDate={getCountdownDate(wedding)} />
           </div>
         </section>
 
@@ -225,14 +234,27 @@ export default function InvitationPage() {
               <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">Details</h2>
             </div>
 
-            {wedding.ceremony_location && (
+            {(wedding.ceremony_location || ceremonyDateIso) && (
               <div className="flex gap-5 p-7 rounded-2xl bg-cream border border-cream-dark/80 shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
                   <Calendar className="w-5 h-5 text-gold" />
                 </div>
                 <div>
                   <h3 className="font-serif text-xl font-semibold text-charcoal mb-1">Trauung</h3>
-                  <p className="text-charcoal">{wedding.ceremony_location}</p>
+                  {ceremonyDateIso && (
+                    <p className="text-charcoal font-medium">{formatEventDate(ceremonyDateIso)}</p>
+                  )}
+                  {ceremonyDateIso && (
+                    <p className="text-gold text-sm mt-1 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      {formatEventTime(ceremonyDateIso)}
+                    </p>
+                  )}
+                  {wedding.ceremony_location && (
+                    <p className={`text-charcoal ${ceremonyDateIso ? 'mt-3' : ''}`}>
+                      {wedding.ceremony_location}
+                    </p>
+                  )}
                   {wedding.ceremony_address && (
                     <p className="text-warm-gray text-sm mt-2 flex items-start gap-1.5">
                       <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-gold/70" />
@@ -243,14 +265,27 @@ export default function InvitationPage() {
               </div>
             )}
 
-            {wedding.reception_location && (
+            {(wedding.reception_location || receptionDateIso) && (
               <div className="flex gap-5 p-7 rounded-2xl bg-cream border border-cream-dark/80 shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
                   <Heart className="w-5 h-5 text-gold" />
                 </div>
                 <div>
                   <h3 className="font-serif text-xl font-semibold text-charcoal mb-1">Feier</h3>
-                  <p className="text-charcoal">{wedding.reception_location}</p>
+                  {receptionDateIso && (
+                    <p className="text-charcoal font-medium">{formatEventDate(receptionDateIso)}</p>
+                  )}
+                  {receptionDateIso && (
+                    <p className="text-gold text-sm mt-1 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" />
+                      {formatEventTime(receptionDateIso)}
+                    </p>
+                  )}
+                  {wedding.reception_location && (
+                    <p className={`text-charcoal ${receptionDateIso ? 'mt-3' : ''}`}>
+                      {wedding.reception_location}
+                    </p>
+                  )}
                   {wedding.reception_address && (
                     <p className="text-warm-gray text-sm mt-2 flex items-start gap-1.5">
                       <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-gold/70" />

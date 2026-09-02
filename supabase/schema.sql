@@ -9,6 +9,8 @@ CREATE TABLE weddings (
   partner1_name TEXT NOT NULL,
   partner2_name TEXT NOT NULL,
   wedding_date TIMESTAMPTZ NOT NULL,
+  ceremony_date TIMESTAMPTZ,
+  reception_date TIMESTAMPTZ,
   ceremony_location TEXT,
   ceremony_address TEXT,
   reception_location TEXT,
@@ -104,7 +106,11 @@ SECURITY DEFINER
 AS $$
 BEGIN
   DELETE FROM weddings
-  WHERE wedding_date + INTERVAL '7 days' < NOW();
+  WHERE GREATEST(
+    wedding_date,
+    COALESCE(ceremony_date, wedding_date),
+    COALESCE(reception_date, wedding_date)
+  ) + INTERVAL '7 days' < NOW();
 END;
 $$;
 

@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { ChevronDown, MapPin } from 'lucide-react'
+import { getCeremonyDate } from '../lib/wedding-dates'
 import type { Guest, Wedding } from '../types/wedding'
 
 interface InvitationHeroProps {
@@ -35,7 +36,7 @@ export default function InvitationHero({
   personalGreeting,
   invitedGuest,
 }: InvitationHeroProps) {
-  const weddingDate = new Date(wedding.wedding_date)
+  const weddingDate = getCeremonyDate(wedding) ?? new Date(wedding.wedding_date)
 
   return (
     <section className="invitation-hero relative min-h-[88vh] flex items-center justify-center overflow-hidden">

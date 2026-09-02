@@ -15,7 +15,8 @@ export default function CreateWeddingPage() {
   const [form, setForm] = useState<CreateWeddingInput>({
     partner1_name: '',
     partner2_name: '',
-    wedding_date: '',
+    ceremony_date: '',
+    reception_date: '',
     ceremony_location: '',
     ceremony_address: '',
     reception_location: '',
@@ -33,7 +34,7 @@ export default function CreateWeddingPage() {
     e.preventDefault()
     setError('')
 
-    if (!form.partner1_name || !form.partner2_name || !form.wedding_date || !form.email) {
+    if (!form.partner1_name || !form.partner2_name || !form.ceremony_date || !form.email) {
       setError('Bitte füllt alle Pflichtfelder aus.')
       return
     }
@@ -99,14 +100,6 @@ export default function CreateWeddingPage() {
           </div>
 
           <Input
-            label="Hochzeitsdatum *"
-            type="datetime-local"
-            value={form.wedding_date}
-            onChange={(e) => update('wedding_date', e.target.value)}
-            required
-          />
-
-          <Input
             label="E-Mail *"
             type="email"
             value={form.email}
@@ -118,6 +111,13 @@ export default function CreateWeddingPage() {
           <hr className="border-cream-dark" />
 
           <h2 className="font-serif text-xl font-semibold text-charcoal">Trauung</h2>
+          <Input
+            label="Datum & Uhrzeit Trauung *"
+            type="datetime-local"
+            value={form.ceremony_date}
+            onChange={(e) => update('ceremony_date', e.target.value)}
+            required
+          />
           <Input
             label="Ort der Trauung"
             value={form.ceremony_location}
@@ -132,6 +132,15 @@ export default function CreateWeddingPage() {
           />
 
           <h2 className="font-serif text-xl font-semibold text-charcoal">Feier</h2>
+          <Input
+            label="Datum & Uhrzeit Feier"
+            type="datetime-local"
+            value={form.reception_date}
+            onChange={(e) => update('reception_date', e.target.value)}
+          />
+          <p className="text-xs text-warm-gray -mt-4">
+            Optional – kann an einem anderen Tag stattfinden als die Trauung.
+          </p>
           <Input
             label="Ort der Feier"
             value={form.reception_location}
