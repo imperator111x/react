@@ -61,9 +61,16 @@ export default function InvitationHero({
 
       <div className="relative text-center px-4 py-20 sm:py-24 max-w-3xl mx-auto w-full">
         {personalGreeting && (
-          <p className="font-serif text-2xl sm:text-3xl text-charcoal mb-8 animate-fade-in">
-            {personalGreeting},
-          </p>
+          <div className="mb-8 animate-fade-in">
+            <p className="font-serif text-2xl sm:text-3xl text-charcoal mb-4">
+              {personalGreeting},
+            </p>
+            <p className="text-charcoal text-base sm:text-lg max-w-lg mx-auto leading-relaxed font-light px-2">
+              {invitedGuest?.salutation === 'familie'
+                ? 'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!'
+                : 'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!'}
+            </p>
+          </div>
         )}
 
         <div className="invitation-ornament mb-8">
@@ -109,14 +116,6 @@ export default function InvitationHero({
             )}
           </div>
         </div>
-
-        {personalGreeting && (
-          <p className="text-charcoal mt-10 text-base sm:text-lg max-w-lg mx-auto leading-relaxed font-light px-2">
-            {invitedGuest?.salutation === 'familie'
-              ? 'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!'
-              : 'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!'}
-          </p>
-        )}
 
         <a
           href="#countdown"
