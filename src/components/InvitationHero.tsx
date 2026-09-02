@@ -3,9 +3,10 @@ import { format } from 'date-fns'
 import {
   formatEventDate,
   formatEventTime,
+  formatBannerDate,
 } from '../lib/wedding-dates'
 import { useLocale } from '../context/LocaleContext'
-import { getDateFnsLocale } from '../i18n'
+import { getDateFnsLocale, type Locale } from '../i18n'
 import { getInvitationText } from '../lib/invitation-text'
 import { resolveCoverImageUrl } from '../lib/cover-url'
 import LocationMapsLinks from './LocationMapsLinks'
@@ -38,11 +39,11 @@ function BotanicalCorner({ className }: { className?: string }) {
   )
 }
 
-function HeroDateBanner({ dateIso, locale }: { dateIso: string; locale: 'de' | 'en' }) {
+function HeroDateBanner({ dateIso, locale }: { dateIso: string; locale: Locale }) {
   const date = new Date(dateIso)
   const dfLocale = getDateFnsLocale(locale)
   const weekday = format(date, 'EEEE', { locale: dfLocale })
-  const dateLine = format(date, locale === 'en' ? 'd/M/yyyy' : 'd.M.yyyy', { locale: dfLocale })
+  const dateLine = formatBannerDate(dateIso, locale)
   const time = formatEventTime(dateIso, locale)
 
   return (
@@ -73,7 +74,7 @@ function HeroEventBlock({
   dateIso: string
   location?: string | null
   address?: string | null
-  locale: 'de' | 'en'
+  locale: Locale
 }) {
   return (
     <div className="text-center">
@@ -117,7 +118,7 @@ function CoverHeroLayout({
   wedding: Wedding
   personalGreeting?: string | null
   ceremonyIso: string | undefined
-  locale: 'de' | 'en'
+  locale: Locale
   invitationLine: string
 }) {
   const { t } = useLocale()

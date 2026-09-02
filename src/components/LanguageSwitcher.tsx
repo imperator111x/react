@@ -8,6 +8,7 @@ export default function LanguageSwitcher() {
   const options: { value: Locale; label: string }[] = [
     { value: 'de', label: 'DE' },
     { value: 'en', label: 'EN' },
+    { value: 'tr', label: 'TR' },
   ]
 
   return (

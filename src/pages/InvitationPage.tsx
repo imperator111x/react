@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { format } from 'date-fns'
 import {
   Calendar,
   MapPin,
@@ -30,10 +29,10 @@ import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
-import { getDateFnsLocale } from '../i18n'
 import {
   formatEventDate,
   formatEventTime,
+  formatRsvpDeadline,
   getCeremonyDate,
   getCountdownDate,
 } from '../lib/wedding-dates'
@@ -276,10 +275,9 @@ function InvitationPageContent() {
   const personalGreeting = invitedGuest
     ? getPersonalGreeting(invitedGuest.name, invitedGuest.salutation, locale)
     : null
-  const rsvpDeadline = format(
+  const rsvpDeadline = formatRsvpDeadline(
     new Date(weddingDate.getTime() - 30 * 24 * 60 * 60 * 1000),
-    locale === 'en' ? 'MMMM d, yyyy' : 'd. MMMM yyyy',
-    { locale: getDateFnsLocale(locale) }
+    locale
   )
 
   return (
