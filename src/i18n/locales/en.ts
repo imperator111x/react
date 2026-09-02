@@ -32,6 +32,12 @@ export const en = {
     googleMaps: 'Google Maps',
     printInvitation: 'Print invitation',
   },
+  print: {
+    rsvpHint: 'Please RSVP online at',
+    qrHint: 'Scan the QR code for the online invitation and RSVP',
+    qrAlt: 'QR code for the invitation',
+    footerCredit: 'Created with UnsereHochzeit',
+  },
   countdown: {
     title: 'Countdown to the big day',
     past: 'The big day is here!',

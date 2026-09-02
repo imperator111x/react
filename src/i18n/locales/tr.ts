@@ -32,6 +32,12 @@ export const tr = {
     googleMaps: 'Google Maps',
     printInvitation: 'Davetiyeyi yazdır',
   },
+  print: {
+    rsvpHint: 'Lütfen çevrimiçi katılım durumunuzu bildirin:',
+    qrHint: 'Çevrimiçi davetiye ve RSVP için QR kodu tarayın',
+    qrAlt: 'Davetiye QR kodu',
+    footerCredit: 'UnsereHochzeit ile oluşturuldu',
+  },
   countdown: {
     title: 'Büyük güne kalan süre',
     past: 'Büyük gün geldi!',
