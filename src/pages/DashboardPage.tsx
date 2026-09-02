@@ -20,7 +20,9 @@ import Button from '../components/Button'
 import Input from '../components/Input'
 import { getGuestInviteUrl, getDeletionDate } from '../lib/guests'
 import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from '../lib/supabase'
-import type { GuestWithRsvp, Rsvp, Salutation, Wedding } from '../types/wedding'
+import { getGalleryImages } from '../lib/gallery'
+import GalleryManager from '../components/GalleryManager'
+import type { GalleryImage, GuestWithRsvp, Rsvp, Salutation, Wedding } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
@@ -28,6 +30,7 @@ export default function DashboardPage() {
   const [wedding, setWedding] = useState<Wedding | null>(null)
   const [guests, setGuests] = useState<GuestWithRsvp[]>([])
   const [rsvps, setRsvps] = useState<Rsvp[]>([])
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
@@ -43,9 +46,14 @@ export default function DashboardPage() {
     const w = await getWeddingByToken(dashboardToken)
     setWedding(w)
     if (w) {
-      const [g, r] = await Promise.all([getGuests(w.id), getRsvps(w.id)])
+      const [g, r, gallery] = await Promise.all([
+        getGuests(w.id),
+        getRsvps(w.id),
+        getGalleryImages(w.id),
+      ])
       setGuests(g)
       setRsvps(r)
+      setGalleryImages(gallery)
     }
   }
 
@@ -187,6 +195,14 @@ export default function DashboardPage() {
             </a>
           </div>
         </div>
+
+        {wedding && (
+          <GalleryManager
+            weddingId={wedding.id}
+            images={galleryImages}
+            onUpdate={() => token && loadData(token)}
+          />
+        )}
 
         <div className="bg-white rounded-2xl border border-cream-dark overflow-hidden mb-8">
           <div className="p-6 border-b border-cream-dark">

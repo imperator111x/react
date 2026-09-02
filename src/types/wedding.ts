@@ -86,3 +86,12 @@ export interface RsvpInput {
   message?: string
   guest_id?: string
 }
+
+export interface GalleryImage {
+  id: string
+  wedding_id: string
+  storage_path: string
+  caption: string | null
+  sort_order: number
+  created_at: string
+}
