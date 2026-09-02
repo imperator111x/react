@@ -131,3 +131,17 @@ export interface CreateItineraryInput {
   title: string
   icon: ItineraryIconName
 }
+
+export interface FaqItem {
+  id: string
+  wedding_id: string
+  question: string
+  answer: string
+  sort_order: number
+  created_at: string
+}
+
+export interface CreateFaqInput {
+  question: string
+  answer: string
+}

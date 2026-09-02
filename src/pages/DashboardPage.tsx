@@ -23,9 +23,11 @@ import { getDeletionDate, formatEventDate, formatEventTime } from '../lib/weddin
 import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
+import { getFaqItems } from '../lib/faq'
 import GalleryManager from '../components/GalleryManager'
 import ItineraryManager from '../components/ItineraryManager'
-import type { GalleryImage, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
+import FaqManager from '../components/FaqManager'
+import type { FaqItem, GalleryImage, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
@@ -35,6 +37,7 @@ export default function DashboardPage() {
   const [rsvps, setRsvps] = useState<Rsvp[]>([])
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
+  const [faqItems, setFaqItems] = useState<FaqItem[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
@@ -50,16 +53,18 @@ export default function DashboardPage() {
     const w = await getWeddingByToken(dashboardToken)
     setWedding(w)
     if (w) {
-      const [g, r, gallery, itinerary] = await Promise.all([
+      const [g, r, gallery, itinerary, faq] = await Promise.all([
         getGuests(w.id),
         getRsvps(w.id),
         getGalleryImages(w.id),
         getItineraryItems(w.id),
+        getFaqItems(w.id),
       ])
       setGuests(g)
       setRsvps(r)
       setGalleryImages(gallery)
       setItineraryItems(itinerary)
+      setFaqItems(faq)
     }
   }
 
@@ -222,6 +227,14 @@ export default function DashboardPage() {
           <ItineraryManager
             weddingId={wedding.id}
             items={itineraryItems}
+            onUpdate={() => token && loadData(token)}
+          />
+        )}
+
+        {wedding && (
+          <FaqManager
+            weddingId={wedding.id}
+            items={faqItems}
             onUpdate={() => token && loadData(token)}
           />
         )}

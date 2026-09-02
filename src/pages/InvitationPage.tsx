@@ -17,6 +17,7 @@ import EnvelopeIntro from '../components/EnvelopeIntro'
 import InvitationHero from '../components/InvitationHero'
 import GallerySection from '../components/GallerySection'
 import ItinerarySection from '../components/ItinerarySection'
+import FaqSection from '../components/FaqSection'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
@@ -30,10 +31,12 @@ import { getPersonalGreeting } from '../lib/guests'
 import { getGuestByInviteToken, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
+import { getFaqItems } from '../lib/faq'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
 import { DEMO_ITINERARY } from '../lib/demo-itinerary'
-import type { GalleryImage, Guest, ItineraryItem, Wedding, RsvpStatus } from '../types/wedding'
+import { DEMO_FAQ } from '../lib/demo-faq'
+import type { FaqItem, GalleryImage, Guest, ItineraryItem, Wedding, RsvpStatus } from '../types/wedding'
 
 export default function InvitationPage() {
   const { slug, guestToken } = useParams<{ slug: string; guestToken?: string }>()
@@ -41,6 +44,7 @@ export default function InvitationPage() {
   const [invitedGuest, setInvitedGuest] = useState<Guest | null>(null)
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
+  const [faqItems, setFaqItems] = useState<FaqItem[]>([])
   const [loading, setLoading] = useState(true)
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus | null>(null)
   const [submitting, setSubmitting] = useState(false)
@@ -71,6 +75,7 @@ export default function InvitationPage() {
         setWedding(DEMO_WEDDING)
         setGalleryImages([])
         setItineraryItems(DEMO_ITINERARY)
+        setFaqItems(DEMO_FAQ)
         if (guestToken === 'demo-gast') {
           setInvitedGuest(DEMO_GUEST)
           setGuestName(DEMO_GUEST.name)
@@ -84,12 +89,14 @@ export default function InvitationPage() {
       setWedding(data)
 
       if (data) {
-        const [gallery, itinerary] = await Promise.all([
+        const [gallery, itinerary, faq] = await Promise.all([
           getGalleryImages(data.id),
           getItineraryItems(data.id),
+          getFaqItems(data.id),
         ])
         setGalleryImages(gallery)
         setItineraryItems(itinerary)
+        setFaqItems(faq)
       }
 
       if (data && guestToken) {
@@ -451,6 +458,8 @@ export default function InvitationPage() {
           )}
         </div>
       </section>
+
+      <FaqSection items={faqItems} />
 
       <footer className="py-10 text-center text-sm text-warm-gray border-t border-cream-dark bg-white">
         <p className="font-serif text-xl text-charcoal mb-1">
