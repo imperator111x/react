@@ -1,5 +1,6 @@
 import { Bell, Copy, Link2 } from 'lucide-react'
 import Button from './Button'
+import WhatsAppShareButton from './WhatsAppShareButton'
 import { getGuestInviteUrl } from '../lib/guests'
 import { getReminderMessage } from '../lib/guest-export'
 import type { GuestWithRsvp, Wedding } from '../types/wedding'
@@ -61,6 +62,7 @@ export default function PendingGuestsPanel({
                   <Copy className="w-4 h-4" />
                   {copied === msgKey ? 'Nachricht kopiert!' : 'Erinnerung kopieren'}
                 </Button>
+                <WhatsAppShareButton message={reminder} label="WhatsApp" variant="ghost" />
               </div>
             </li>
           )

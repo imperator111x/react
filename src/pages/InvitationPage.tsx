@@ -19,6 +19,7 @@ import GallerySection from '../components/GallerySection'
 import ItinerarySection from '../components/ItinerarySection'
 import FaqSection from '../components/FaqSection'
 import LocationMapsLinks from '../components/LocationMapsLinks'
+import CalendarExportButtons from '../components/CalendarExportButtons'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
@@ -29,7 +30,7 @@ import {
   getCountdownDate,
 } from '../lib/wedding-dates'
 import { getPersonalGreeting } from '../lib/guests'
-import { getGuestByInviteToken, getWeddingBySlug, submitRsvp } from '../lib/supabase'
+import { getGuestByInviteToken, getRsvpById, getWeddingBySlug, submitRsvp } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
 import { getFaqItems } from '../lib/faq'
@@ -37,7 +38,7 @@ import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
 import { DEMO_ITINERARY } from '../lib/demo-itinerary'
 import { DEMO_FAQ } from '../lib/demo-faq'
-import type { FaqItem, GalleryImage, Guest, ItineraryItem, Wedding, RsvpStatus } from '../types/wedding'
+import type { FaqItem, GalleryImage, Guest, ItineraryItem, Wedding, RsvpStatus, Rsvp } from '../types/wedding'
 
 export default function InvitationPage() {
   const { slug, guestToken } = useParams<{ slug: string; guestToken?: string }>()
@@ -50,6 +51,8 @@ export default function InvitationPage() {
   const [rsvpStatus, setRsvpStatus] = useState<RsvpStatus | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [editingRsvp, setEditingRsvp] = useState(false)
+  const [existingRsvp, setExistingRsvp] = useState<Rsvp | null>(null)
   const [error, setError] = useState('')
 
   const [guestName, setGuestName] = useState('')
@@ -104,6 +107,19 @@ export default function InvitationPage() {
           setInvitedGuest(guest)
           setGuestName(guest.name)
           setGuestCount(guest.guest_count)
+
+          if (guest.rsvp_id) {
+            const rsvp = await getRsvpById(guest.rsvp_id)
+            if (rsvp) {
+              setExistingRsvp(rsvp)
+              setRsvpStatus(rsvp.status)
+              setEmail(rsvp.email ?? '')
+              setGuestCount(rsvp.guest_count)
+              setDietaryNotes(rsvp.dietary_notes ?? '')
+              setMessage(rsvp.message ?? '')
+              setSubmitted(true)
+            }
+          }
         }
       }
 
@@ -129,7 +145,7 @@ export default function InvitationPage() {
     setSubmitting(true)
     setError('')
     try {
-      await submitRsvp(wedding.id, {
+      const rsvp = await submitRsvp(wedding.id, {
         guest_name: guestName,
         email: email || undefined,
         status: rsvpStatus,
@@ -138,7 +154,9 @@ export default function InvitationPage() {
         message: message || undefined,
         guest_id: invitedGuest?.id,
       })
+      setExistingRsvp(rsvp)
       setSubmitted(true)
+      setEditingRsvp(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Fehler beim Senden der Antwort.')
     } finally {
@@ -239,6 +257,8 @@ export default function InvitationPage() {
             <div className="invitation-ornament mb-10">
               <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">Details</h2>
             </div>
+
+            <CalendarExportButtons wedding={wedding} className="mb-8" />
 
             {(wedding.ceremony_location || ceremonyDateIso) && (
               <div className="flex gap-5 p-7 rounded-2xl bg-cream border border-cream-dark/80 shadow-sm hover:shadow-md transition-shadow">
@@ -346,23 +366,33 @@ export default function InvitationPage() {
             </p>
           </div>
 
-          {submitted ? (
-            <div className="text-center p-8 bg-white rounded-2xl border border-cream-dark">
+          {submitted && !editingRsvp ? (
+            <div className="text-center p-8 bg-white rounded-2xl border border-cream-dark space-y-4">
               <CheckCircle className="w-12 h-12 text-sage mx-auto mb-4" />
               <h3 className="font-serif text-2xl font-semibold text-charcoal mb-2">
                 Vielen Dank{personalGreeting ? `, ${personalGreeting}` : ''}!
               </h3>
               <p className="text-warm-gray">
-                {rsvpStatus === 'accepted'
+                {(existingRsvp?.status ?? rsvpStatus) === 'accepted'
                   ? 'Wir freuen uns riesig auf euch!'
                   : 'Schade, dass ihr nicht kommen könnt. Wir werden an euch denken!'}
               </p>
+              {isPersonalLink && invitedGuest && !isDemo && (
+                <Button variant="outline" onClick={() => setEditingRsvp(true)}>
+                  Antwort ändern
+                </Button>
+              )}
             </div>
           ) : (
             <form
               onSubmit={handleRsvp}
               className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-cream-dark shadow-lg space-y-6"
             >
+              {existingRsvp && editingRsvp && (
+                <p className="text-sm text-warm-gray text-center">
+                  Ihr könnt eure Antwort jederzeit anpassen.
+                </p>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -455,10 +485,31 @@ export default function InvitationPage() {
                         <Loader2 className="w-5 h-5 animate-spin" />
                         Wird gesendet...
                       </>
+                    ) : existingRsvp && editingRsvp ? (
+                      'Antwort aktualisieren'
                     ) : (
                       'Antwort senden'
                     )}
                   </Button>
+
+                  {existingRsvp && editingRsvp && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => {
+                        setEditingRsvp(false)
+                        setSubmitted(true)
+                        setRsvpStatus(existingRsvp.status)
+                        setEmail(existingRsvp.email ?? '')
+                        setGuestCount(existingRsvp.guest_count)
+                        setDietaryNotes(existingRsvp.dietary_notes ?? '')
+                        setMessage(existingRsvp.message ?? '')
+                      }}
+                    >
+                      Abbrechen
+                    </Button>
+                  )}
                 </>
               )}
             </form>

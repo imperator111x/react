@@ -21,6 +21,7 @@ export interface Wedding {
   reception_address: string | null
   story: string | null
   dress_code: string | null
+  invitation_text: string | null
   email: string
   dashboard_token: string
   cover_image_url: string | null
@@ -82,6 +83,7 @@ export interface UpdateWeddingInput {
   reception_address?: string
   story?: string
   dress_code?: string
+  invitation_text?: string
 }
 
 export interface CreateGuestInput {

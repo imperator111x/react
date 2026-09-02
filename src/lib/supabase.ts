@@ -129,6 +129,9 @@ export async function updateWedding(
   }
   if (input.story !== undefined) payload.story = input.story.trim() || null
   if (input.dress_code !== undefined) payload.dress_code = input.dress_code.trim() || null
+  if (input.invitation_text !== undefined) {
+    payload.invitation_text = input.invitation_text.trim() || null
+  }
 
   const { data, error } = await supabase
     .from('weddings')
@@ -209,6 +212,15 @@ export async function deleteGuest(guestId: string): Promise<void> {
 
   const { error } = await supabase.from('guests').delete().eq('id', guestId)
   if (error) throw error
+}
+
+export async function getRsvpById(rsvpId: string): Promise<Rsvp | null> {
+  if (!supabase) return null
+
+  const { data, error } = await supabase.from('rsvps').select('*').eq('id', rsvpId).single()
+
+  if (error) return null
+  return data as Rsvp
 }
 
 export async function getRsvps(weddingId: string): Promise<Rsvp[]> {
