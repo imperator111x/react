@@ -4,6 +4,8 @@ import { ArrowLeft, Camera, CheckCircle, Heart, Loader2, Upload } from 'lucide-r
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import SkipLink from '../components/SkipLink'
+import CreatedWithCredit from '../components/CreatedWithCredit'
+import LegalFooterLinks from '../components/LegalFooterLinks'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
 import Button from '../components/Button'
@@ -233,6 +235,17 @@ function GuestPhotosContent() {
             </form>
           )}
         </div>
+
+        <footer className="mt-16 pt-8 border-t border-cream-dark text-center">
+          <CreatedWithCredit />
+          <LegalFooterLinks
+            variant="light"
+            className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs"
+            impressumLabel={t('footer.impressum')}
+            privacyLabel={t('footer.privacy')}
+            websiteLabel={t('footer.website')}
+          />
+        </footer>
       </main>
     </WeddingThemeWrapper>
   )

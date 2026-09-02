@@ -25,6 +25,8 @@ import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import SkipLink from '../components/SkipLink'
 import ThankYouSection from '../components/ThankYouSection'
+import CreatedWithCredit from '../components/CreatedWithCredit'
+import LegalFooterLinks from '../components/LegalFooterLinks'
 import PrintInvitationButton from '../components/PrintInvitationButton'
 import LocationMapsLinks from '../components/LocationMapsLinks'
 import CalendarExportButtons from '../components/CalendarExportButtons'
@@ -670,7 +672,14 @@ function InvitationPageContent() {
         <p className="font-serif text-xl text-charcoal mb-1">
           {wedding.partner1_name} <span className="text-gold italic">&</span> {wedding.partner2_name}
         </p>
-        <p className="text-xs mt-2 opacity-60">{t('common.createdWith')}</p>
+        <CreatedWithCredit />
+        <LegalFooterLinks
+          variant="light"
+          className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs"
+          impressumLabel={t('footer.impressum')}
+          privacyLabel={t('footer.privacy')}
+          websiteLabel={t('footer.website')}
+        />
       </footer>
       </div>
       </WeddingThemeWrapper>
