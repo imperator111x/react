@@ -22,6 +22,8 @@ export interface Wedding {
   story: string | null
   dress_code: string | null
   invitation_text: string | null
+  travel_info: string | null
+  theme_id: string | null
   email: string
   dashboard_token: string
   cover_image_url: string | null
@@ -36,6 +38,7 @@ export interface Guest {
   salutation: Salutation
   email: string | null
   guest_count: number
+  max_guest_count: number | null
   invite_token: string
   rsvp_id: string | null
   created_at: string
@@ -84,6 +87,8 @@ export interface UpdateWeddingInput {
   story?: string
   dress_code?: string
   invitation_text?: string
+  travel_info?: string
+  theme_id?: string
 }
 
 export interface CreateGuestInput {
@@ -91,6 +96,7 @@ export interface CreateGuestInput {
   salutation: Salutation
   email?: string
   guest_count?: number
+  max_guest_count?: number
 }
 
 export interface RsvpInput {
@@ -157,4 +163,20 @@ export interface FaqItem {
 export interface CreateFaqInput {
   question: string
   answer: string
+}
+
+export interface GuestbookEntry {
+  id: string
+  wedding_id: string
+  guest_id: string | null
+  guest_name: string
+  message: string
+  is_visible: boolean
+  created_at: string
+}
+
+export interface CreateGuestbookInput {
+  guest_name: string
+  message: string
+  guest_id?: string
 }

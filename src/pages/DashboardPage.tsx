@@ -4,9 +4,6 @@ import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
 import {
   Users,
-  CheckCircle,
-  XCircle,
-  Clock,
   Loader2,
   Share2,
   Copy,
@@ -26,7 +23,11 @@ import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken } from
 import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
 import { getFaqItems } from '../lib/faq'
+import { getGuestbookEntries } from '../lib/guestbook'
+import { getGuestRsvpMax } from '../lib/dashboard-stats'
+import DashboardStatsPanel from '../components/DashboardStatsPanel'
 import GalleryManager from '../components/GalleryManager'
+import GuestbookManager from '../components/GuestbookManager'
 import ItineraryManager from '../components/ItineraryManager'
 import FaqManager from '../components/FaqManager'
 import WeddingEditor from '../components/WeddingEditor'
@@ -34,7 +35,7 @@ import InviteQrCode from '../components/InviteQrCode'
 import PendingGuestsPanel from '../components/PendingGuestsPanel'
 import GuestExportBar from '../components/GuestExportBar'
 import WhatsAppShareButton from '../components/WhatsAppShareButton'
-import type { FaqItem, GalleryImage, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
+import type { FaqItem, GalleryImage, GuestbookEntry, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
@@ -45,6 +46,7 @@ export default function DashboardPage() {
   const [galleryImages, setGalleryImages] = useState<GalleryImage[]>([])
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
   const [faqItems, setFaqItems] = useState<FaqItem[]>([])
+  const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
@@ -53,6 +55,7 @@ export default function DashboardPage() {
     salutation: 'frau' as Salutation,
     email: '',
     guest_count: 1,
+    allow_plus_one: false,
   })
   const [guestError, setGuestError] = useState('')
   const [guestSearch, setGuestSearch] = useState('')
@@ -63,18 +66,20 @@ export default function DashboardPage() {
     const w = await getWeddingByToken(dashboardToken)
     setWedding(w)
     if (w) {
-      const [g, r, gallery, itinerary, faq] = await Promise.all([
+      const [g, r, gallery, itinerary, faq, guestbook] = await Promise.all([
         getGuests(w.id),
         getRsvps(w.id),
         getGalleryImages(w.id),
         getItineraryItems(w.id),
         getFaqItems(w.id),
+        getGuestbookEntries(w.id),
       ])
       setGuests(g)
       setRsvps(r)
       setGalleryImages(gallery)
       setItineraryItems(itinerary)
       setFaqItems(faq)
+      setGuestbookEntries(guestbook)
     }
   }
 
@@ -106,9 +111,6 @@ export default function DashboardPage() {
     )
   }
 
-  const accepted = rsvps.filter((r) => r.status === 'accepted')
-  const declined = rsvps.filter((r) => r.status === 'declined')
-  const pendingInvites = guests.filter((g) => !g.rsvp).length
   const deletionDate = getDeletionDate(wedding)
 
   const inviteUrl = `${window.location.origin}${import.meta.env.BASE_URL}e/${wedding.slug}`
@@ -141,8 +143,11 @@ export default function DashboardPage() {
         salutation: guestForm.salutation,
         email: guestForm.email.trim() || undefined,
         guest_count: guestForm.guest_count,
+        max_guest_count: guestForm.allow_plus_one
+          ? Math.min(guestForm.guest_count + 1, 5)
+          : guestForm.guest_count,
       })
-      setGuestForm({ name: '', salutation: 'frau', email: '', guest_count: 1 })
+      setGuestForm({ name: '', salutation: 'frau', email: '', guest_count: 1, allow_plus_one: false })
       if (token) await loadData(token)
     } catch (err) {
       setGuestError(err instanceof Error ? err.message : 'Gast konnte nicht hinzugefügt werden.')
@@ -190,20 +195,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: 'Eingeladen', value: guests.length, icon: Users, color: 'text-gold' },
-            { label: 'Zusagen', value: accepted.length, icon: CheckCircle, color: 'text-sage' },
-            { label: 'Absagen', value: declined.length, icon: XCircle, color: 'text-red-400' },
-            { label: 'Offen', value: pendingInvites, icon: Clock, color: 'text-warm-gray' },
-          ].map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="bg-white rounded-2xl p-5 border border-cream-dark">
-              <Icon className={`w-5 h-5 ${color} mb-2`} />
-              <div className="font-serif text-3xl font-semibold text-charcoal">{value}</div>
-              <div className="text-sm text-warm-gray">{label}</div>
-            </div>
-          ))}
-        </div>
+        <DashboardStatsPanel wedding={wedding} guests={guests} rsvps={rsvps} />
 
         <div className="bg-white rounded-2xl p-6 border border-cream-dark mb-8">
           <div className="flex items-center gap-2 mb-3">
@@ -234,6 +226,8 @@ export default function DashboardPage() {
         </div>
 
         <WeddingEditor wedding={wedding} onUpdate={() => token && loadData(token)} />
+
+        <GuestbookManager entries={guestbookEntries} onUpdate={() => token && loadData(token)} />
 
         <PendingGuestsPanel
           wedding={wedding}
@@ -316,7 +310,9 @@ export default function DashboardPage() {
                 <label className="block text-sm font-medium text-charcoal mb-1.5">Personen</label>
                 <select
                   value={guestForm.guest_count}
-                  onChange={(e) => setGuestForm((f) => ({ ...f, guest_count: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setGuestForm((f) => ({ ...f, guest_count: Number(e.target.value) }))
+                  }
                   className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                 >
                   {[1, 2, 3, 4, 5].map((n) => (
@@ -325,6 +321,20 @@ export default function DashboardPage() {
                     </option>
                   ))}
                 </select>
+              </div>
+              <div className="sm:col-span-6 flex items-center gap-2">
+                <input
+                  id="allow-plus-one"
+                  type="checkbox"
+                  checked={guestForm.allow_plus_one}
+                  onChange={(e) =>
+                    setGuestForm((f) => ({ ...f, allow_plus_one: e.target.checked }))
+                  }
+                  className="rounded border-cream-dark text-gold focus:ring-gold/40"
+                />
+                <label htmlFor="allow-plus-one" className="text-sm text-charcoal">
+                  Begleitung (+1) erlauben
+                </label>
               </div>
               <div className="sm:col-span-6">
                 {guestError && <p className="text-sm text-red-500 mb-2">{guestError}</p>}
@@ -422,6 +432,9 @@ export default function DashboardPage() {
                           </span>
                           {guest.guest_count > 1 && (
                             <span className="text-xs text-warm-gray">{guest.guest_count} Personen</span>
+                          )}
+                          {getGuestRsvpMax(guest) > guest.guest_count && (
+                            <span className="text-xs text-gold">+1 erlaubt</span>
                           )}
                         </div>
                         {guest.email && <p className="text-sm text-warm-gray">{guest.email}</p>}
