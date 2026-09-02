@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { ImageIcon, Loader2, Trash2, Upload } from 'lucide-react'
 import Button from './Button'
 import { uploadCoverImage, removeCoverImage } from '../lib/cover'
+import { resolveCoverImageUrl } from '../lib/cover-url'
 import { updateWedding } from '../lib/supabase'
 import type { Wedding } from '../types/wedding'
 
@@ -55,6 +56,8 @@ export default function CoverImageUpload({ wedding, onUpdate }: CoverImageUpload
     }
   }
 
+  const previewUrl = resolveCoverImageUrl(wedding.cover_image_url)
+
   return (
     <div>
       <h3 className="font-serif text-lg font-semibold text-charcoal mb-3 flex items-center gap-2">
@@ -65,10 +68,10 @@ export default function CoverImageUpload({ wedding, onUpdate }: CoverImageUpload
         Erscheint oben auf der Einladung als großes Foto (max. 5 MB).
       </p>
 
-      {wedding.cover_image_url && (
+      {previewUrl && (
         <div className="mb-4 rounded-2xl overflow-hidden border border-cream-dark aspect-[16/9] max-h-48">
           <img
-            src={wedding.cover_image_url}
+            src={previewUrl}
             alt="Titelbild Vorschau"
             className="w-full h-full object-cover"
           />
