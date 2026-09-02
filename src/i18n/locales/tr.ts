@@ -33,10 +33,12 @@ export const tr = {
     printInvitation: 'Davetiyeyi yazdır',
   },
   print: {
-    rsvpHint: 'Lütfen çevrimiçi katılım durumunuzu bildirin:',
+    rsvpHint: 'Lütfen çevrimiçi katılım durumunuzu bildirin',
     qrHint: 'Çevrimiçi davetiye ve RSVP için QR kodu tarayın',
     qrAlt: 'Davetiye QR kodu',
     footerCredit: 'UnsereHochzeit ile oluşturuldu',
+    headerHint:
+      'Yazdırma penceresinde “Üstbilgi ve altbilgi” seçeneğini kapatın (URL ve sayfa numarası kaybolur).',
   },
   countdown: {
     title: 'Büyük güne kalan süre',

@@ -33,10 +33,12 @@ export const en = {
     printInvitation: 'Print invitation',
   },
   print: {
-    rsvpHint: 'Please RSVP online at',
+    rsvpHint: 'Please RSVP online',
     qrHint: 'Scan the QR code for the online invitation and RSVP',
     qrAlt: 'QR code for the invitation',
     footerCredit: 'Created with UnsereHochzeit',
+    headerHint:
+      'In the print dialog: open “More settings” and disable “Headers and footers” to hide the URL and page number.',
   },
   countdown: {
     title: 'Countdown to the big day',
