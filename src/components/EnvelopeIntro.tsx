@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Heart } from 'lucide-react'
 
 interface EnvelopeIntroProps {
   partner1: string
@@ -9,7 +8,7 @@ interface EnvelopeIntroProps {
   onComplete: () => void
 }
 
-type Phase = 'closed' | 'opening' | 'done'
+type Phase = 'idle' | 'opening' | 'revealed' | 'exit'
 
 export default function EnvelopeIntro({
   partner1,
@@ -18,7 +17,7 @@ export default function EnvelopeIntro({
   storageKey,
   onComplete,
 }: EnvelopeIntroProps) {
-  const [phase, setPhase] = useState<Phase>('closed')
+  const [phase, setPhase] = useState<Phase>('idle')
   const [visible, setVisible] = useState(true)
 
   useEffect(() => {
@@ -29,31 +28,35 @@ export default function EnvelopeIntro({
   }, [storageKey, onComplete])
 
   const handleOpen = () => {
-    if (phase !== 'closed') return
+    if (phase !== 'idle') return
     setPhase('opening')
+
+    setTimeout(() => setPhase('revealed'), 1400)
     setTimeout(() => {
-      setPhase('done')
+      setPhase('exit')
       sessionStorage.setItem(storageKey, 'true')
-      setTimeout(() => {
-        setVisible(false)
-        onComplete()
-      }, 600)
-    }, 2200)
+    }, 2400)
+    setTimeout(() => {
+      setVisible(false)
+      onComplete()
+    }, 3100)
   }
 
   if (!visible) return null
 
+  const isAnimating = phase !== 'idle'
+
   return (
     <div
       className={`envelope-overlay fixed inset-0 z-[100] flex items-center justify-center transition-opacity duration-700 ${
-        phase === 'done' ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        phase === 'exit' ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
     >
       <div className="envelope-bokeh absolute inset-0" />
 
-      <div className="relative z-10 flex flex-col items-center px-6">
-        {personalGreeting && (
-          <p className="font-serif text-xl text-charcoal/80 mb-6 text-center animate-fade-in">
+      <div className="relative z-10 flex flex-col items-center px-6 w-full max-w-sm">
+        {personalGreeting && phase === 'idle' && (
+          <p className="font-serif text-2xl text-charcoal/90 mb-10 text-center animate-fade-in">
             {personalGreeting}
           </p>
         )}
@@ -61,46 +64,70 @@ export default function EnvelopeIntro({
         <button
           type="button"
           onClick={handleOpen}
-          disabled={phase !== 'closed'}
-          className="envelope-scene group focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 rounded-lg"
+          disabled={isAnimating}
+          className="envelope-scene focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40 rounded-sm"
           aria-label="Einladung öffnen"
         >
-          <div className={`envelope ${phase === 'opening' ? 'envelope--opening' : ''} ${phase === 'done' ? 'envelope--done' : ''}`}>
+          <div
+            className={[
+              'envelope',
+              phase === 'opening' && 'envelope--opening',
+              phase === 'revealed' && 'envelope--revealed',
+              phase === 'exit' && 'envelope--exit',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
             <div className="envelope__shadow" />
 
-            <div className="envelope__card">
-              <div className="envelope__card-inner">
-                <Heart className="w-5 h-5 text-gold mx-auto mb-2" />
-                <p className="font-serif text-lg text-charcoal leading-tight">
-                  {partner1}
-                  <span className="text-gold italic mx-1">&</span>
-                  {partner2}
-                </p>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-warm-gray mt-2">
-                  Hochzeit
-                </p>
+            <div className="envelope__body">
+              <div className="envelope__card">
+                <div className="envelope__card-content">
+                  <p className="envelope__card-label">Wir heiraten</p>
+                  <p className="envelope__card-names">
+                    {partner1}
+                    <span className="envelope__card-amp">&</span>
+                    {partner2}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div className="envelope__pocket" />
-            <div className="envelope__flap" />
+              <div className="envelope__pocket-left" />
+              <div className="envelope__pocket-right" />
+              <div className="envelope__pocket-bottom" />
 
-            <div className={`envelope__seal ${phase === 'opening' ? 'envelope__seal--break' : ''}`}>
-              <svg viewBox="0 0 48 48" className="w-10 h-10" aria-hidden>
-                <circle cx="24" cy="24" r="22" fill="#d4a5a5" />
-                <circle cx="24" cy="24" r="20" fill="#e8b4b4" />
-                <circle cx="18" cy="24" r="7" fill="none" stroke="#c9a96e" strokeWidth="2" />
-                <circle cx="30" cy="24" r="7" fill="none" stroke="#c9a96e" strokeWidth="2" />
-                <circle cx="18" cy="24" r="2" fill="#c9a96e" opacity="0.6" />
-                <circle cx="30" cy="24" r="2" fill="#c9a96e" opacity="0.6" />
-              </svg>
+              <div className="envelope__flap">
+                <div className="envelope__flap-inner" />
+              </div>
+
+              <div className="envelope__seal">
+                <svg viewBox="0 0 64 64" className="envelope__seal-svg" aria-hidden>
+                  <defs>
+                    <radialGradient id="sealGrad" cx="40%" cy="35%">
+                      <stop offset="0%" stopColor="#f0c4c4" />
+                      <stop offset="100%" stopColor="#d49090" />
+                    </radialGradient>
+                  </defs>
+                  <circle cx="32" cy="32" r="30" fill="url(#sealGrad)" />
+                  <circle cx="32" cy="32" r="28" fill="none" stroke="#c9a96e" strokeWidth="0.5" opacity="0.4" />
+                  <circle cx="24" cy="32" r="8" fill="none" stroke="#c9a96e" strokeWidth="1.8" />
+                  <circle cx="40" cy="32" r="8" fill="none" stroke="#c9a96e" strokeWidth="1.8" />
+                  <path
+                    d="M 24 32 L 40 32"
+                    stroke="#c9a96e"
+                    strokeWidth="1.2"
+                    fill="none"
+                    opacity="0.5"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </button>
 
         <p
-          className={`mt-8 font-serif text-sm text-warm-gray tracking-widest uppercase transition-opacity duration-500 ${
-            phase === 'closed' ? 'opacity-100 animate-pulse-soft' : 'opacity-0'
+          className={`mt-10 font-serif text-xs text-warm-gray tracking-[0.3em] uppercase transition-all duration-500 ${
+            phase === 'idle' ? 'opacity-70' : 'opacity-0 translate-y-2'
           }`}
         >
           Tippen zum Öffnen
