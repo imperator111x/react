@@ -40,30 +40,26 @@ function BotanicalCorner({ className }: { className?: string }) {
 function HeroDateBanner({ dateIso, locale }: { dateIso: string; locale: 'de' | 'en' }) {
   const date = new Date(dateIso)
   const dfLocale = getDateFnsLocale(locale)
-  const weekday = format(date, locale === 'en' ? 'EEEE' : 'EEEE', { locale: dfLocale }).toUpperCase()
+  const weekday = format(date, 'EEEE', { locale: dfLocale }).toUpperCase()
   const month = format(date, 'MMM', { locale: dfLocale }).toUpperCase()
   const day = format(date, 'd')
   const year = format(date, 'yyyy')
   const time = formatEventTime(dateIso, locale)
 
   return (
-    <div className="my-8 max-w-sm mx-auto">
-      <div className="flex items-center justify-between text-[0.65rem] sm:text-xs tracking-[0.2em] text-charcoal/70 uppercase">
+    <div className="my-6 max-w-xs mx-auto">
+      <div className="flex items-center justify-between text-[0.6rem] sm:text-[0.65rem] tracking-[0.22em] text-charcoal/75 uppercase">
         <span>{weekday}</span>
         <span>{time}</span>
       </div>
-      <div className="flex items-center gap-3 my-2">
-        <div className="flex-1 h-px bg-gold/30" />
+      <div className="flex items-center gap-2 my-1.5">
+        <div className="flex-1 h-px bg-charcoal/20" />
         <div className="text-center shrink-0 px-2">
-          <span className="block text-[0.65rem] sm:text-xs tracking-[0.25em] text-warm-gray uppercase">
-            {month}
-          </span>
-          <span className="block font-serif text-3xl sm:text-4xl text-charcoal leading-none my-0.5">
-            {day}
-          </span>
-          <span className="block text-xs sm:text-sm tracking-[0.2em] text-warm-gray">{year}</span>
+          <span className="block text-[0.6rem] tracking-[0.3em] text-warm-gray uppercase">{month}</span>
+          <span className="block font-serif text-4xl text-charcoal leading-none my-0.5">{day}</span>
+          <span className="block text-[0.65rem] tracking-[0.25em] text-warm-gray">{year}</span>
         </div>
-        <div className="flex-1 h-px bg-gold/30" />
+        <div className="flex-1 h-px bg-charcoal/20" />
       </div>
     </div>
   )
@@ -114,6 +110,77 @@ function HeroEventBlock({
   )
 }
 
+function CoverHeroLayout({
+  wedding,
+  personalGreeting,
+  ceremonyIso,
+  locale,
+  invitationLine,
+}: {
+  wedding: Wedding
+  personalGreeting?: string | null
+  ceremonyIso: string | undefined
+  locale: 'de' | 'en'
+  invitationLine: string
+}) {
+  const { t } = useLocale()
+
+  return (
+    <section className="invitation-hero invitation-hero--cover bg-cream pt-6 pb-12 sm:pt-8 sm:pb-16">
+      <div className="max-w-md mx-auto w-full px-3 sm:px-4">
+        <div className="invitation-hero__card invitation-hero__card--with-cover shadow-[0_20px_50px_rgba(44,44,44,0.12)]">
+          <div className="invitation-hero__cover">
+            <img src={wedding.cover_image_url!} alt="" />
+          </div>
+
+          <div className="invitation-hero__body invitation-hero__body--cover px-6 sm:px-8 py-8 sm:py-10 text-center">
+            {personalGreeting && (
+              <div className="mb-5 animate-fade-in">
+                <p className="font-serif text-lg sm:text-xl text-charcoal mb-1">{personalGreeting},</p>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 mb-1">
+              <span className="text-charcoal uppercase tracking-[0.35em] text-xs sm:text-sm font-medium">
+                {locale === 'de' ? 'Wir sagen' : 'We say'}
+              </span>
+              <span className="font-serif text-4xl sm:text-5xl text-gold italic leading-none">Ja!</span>
+            </div>
+
+            {ceremonyIso && <HeroDateBanner dateIso={ceremonyIso} locale={locale} />}
+
+            {!personalGreeting && (
+              <p className="text-warm-gray text-sm leading-relaxed max-w-sm mx-auto mb-6 font-light">
+                {invitationLine}
+              </p>
+            )}
+            {personalGreeting && (
+              <p className="text-warm-gray text-sm leading-relaxed max-w-sm mx-auto mb-6 font-light">
+                {invitationLine}
+              </p>
+            )}
+
+            <h1 className="font-serif text-3xl sm:text-4xl text-charcoal leading-snug italic">
+              {wedding.partner1_name}
+              <span className="text-gold not-italic mx-1">&</span>
+              {wedding.partner2_name}
+            </h1>
+          </div>
+        </div>
+
+        <a
+          href="#countdown"
+          className="mt-10 inline-flex flex-col items-center gap-2 text-warm-gray/70 hover:text-gold transition-colors group w-full"
+          aria-label="Weiter scrollen"
+        >
+          <span className="text-[0.65rem] uppercase tracking-[0.25em]">{t('common.scrollMore')}</span>
+          <ChevronDown className="w-5 h-5 animate-bounce group-hover:text-gold" />
+        </a>
+      </div>
+    </section>
+  )
+}
+
 export default function InvitationHero({
   wedding,
   personalGreeting,
@@ -124,6 +191,18 @@ export default function InvitationHero({
   const receptionIso = wedding.reception_date
   const hasCover = Boolean(wedding.cover_image_url)
   const invitationLine = getInvitationText(wedding.invitation_text, invitedGuest?.salutation, locale)
+
+  if (hasCover) {
+    return (
+      <CoverHeroLayout
+        wedding={wedding}
+        personalGreeting={personalGreeting}
+        ceremonyIso={ceremonyIso}
+        locale={locale}
+        invitationLine={invitationLine}
+      />
+    )
+  }
 
   return (
     <section className="invitation-hero relative min-h-[88vh] flex items-center justify-center overflow-hidden">
@@ -142,17 +221,13 @@ export default function InvitationHero({
       <div className="absolute bottom-20 right-[8%] w-80 h-80 bg-blush/40 rounded-full blur-3xl" />
       <div className="absolute top-1/3 right-[15%] w-40 h-40 bg-sage/10 rounded-full blur-2xl" />
 
-      {!hasCover && (
-        <>
-          <BotanicalCorner className="absolute top-8 left-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30" />
-          <BotanicalCorner className="absolute top-8 right-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30 scale-x-[-1]" />
-          <BotanicalCorner className="absolute bottom-24 left-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 rotate-180" />
-          <BotanicalCorner className="absolute bottom-24 right-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 scale-x-[-1] rotate-180" />
-        </>
-      )}
+      <BotanicalCorner className="absolute top-8 left-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30" />
+      <BotanicalCorner className="absolute top-8 right-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30 scale-x-[-1]" />
+      <BotanicalCorner className="absolute bottom-24 left-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 rotate-180" />
+      <BotanicalCorner className="absolute bottom-24 right-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 scale-x-[-1] rotate-180" />
 
       <div className="relative text-center px-4 py-16 sm:py-20 max-w-2xl mx-auto w-full">
-        {personalGreeting && !hasCover && (
+        {personalGreeting && (
           <div className="mb-8 animate-fade-in">
             <p className="font-serif text-2xl sm:text-3xl text-charcoal mb-4">
               {personalGreeting},
@@ -163,83 +238,33 @@ export default function InvitationHero({
           </div>
         )}
 
-        {!hasCover && (
-          <div className="invitation-ornament mb-8">
-            <p className="text-gold uppercase tracking-[0.4em] text-[0.65rem] sm:text-xs font-medium">
-              {t('hero.saveTheDate')}
-            </p>
-          </div>
-        )}
+        <div className="invitation-ornament mb-8">
+          <p className="text-gold uppercase tracking-[0.4em] text-[0.65rem] sm:text-xs font-medium">
+            {t('hero.saveTheDate')}
+          </p>
+        </div>
 
-        <div
-          className={`invitation-hero__card mx-auto max-w-2xl w-full ${
-            hasCover ? 'invitation-hero__card--with-cover' : ''
-          }`}
-        >
-          {hasCover && wedding.cover_image_url && (
-            <div className="invitation-hero__cover">
-              <img src={wedding.cover_image_url} alt="" />
-            </div>
-          )}
-
+        <div className="invitation-hero__card mx-auto max-w-2xl w-full">
           <div className="invitation-hero__body px-6 sm:px-10 py-8 sm:py-12">
             <div className="invitation-hero__corner invitation-hero__corner--tl" aria-hidden />
             <div className="invitation-hero__corner invitation-hero__corner--tr" aria-hidden />
             <div className="invitation-hero__corner invitation-hero__corner--bl" aria-hidden />
             <div className="invitation-hero__corner invitation-hero__corner--br" aria-hidden />
 
-            {personalGreeting && hasCover && (
-              <div className="mb-6 animate-fade-in">
-                <p className="font-serif text-xl sm:text-2xl text-charcoal mb-2">
-                  {personalGreeting},
-                </p>
-                <p className="text-charcoal text-sm sm:text-base leading-relaxed font-light">
-                  {invitationLine}
-                </p>
-              </div>
-            )}
+            <p className="text-gold/80 uppercase tracking-[0.35em] text-[0.6rem] sm:text-xs mb-6">
+              {t('hero.weMarry')}
+            </p>
 
-            {hasCover ? (
-              <>
-                <p className="text-charcoal uppercase tracking-[0.35em] text-xs sm:text-sm font-medium mb-1">
-                  {locale === 'de' ? 'Wir sagen' : 'We say'}
-                </p>
-                <p className="font-serif text-4xl sm:text-5xl text-gold italic mb-2">Ja!</p>
+            <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-tight">
+              {wedding.partner1_name}
+              <span className="block text-2xl sm:text-4xl lg:text-5xl text-gold italic my-3 sm:my-4 font-normal">
+                &
+              </span>
+              {wedding.partner2_name}
+            </h1>
 
-                {ceremonyIso && <HeroDateBanner dateIso={ceremonyIso} locale={locale} />}
-
-                {!personalGreeting && (
-                  <p className="text-warm-gray text-sm sm:text-base leading-relaxed max-w-md mx-auto mb-8 font-light">
-                    {invitationLine}
-                  </p>
-                )}
-
-                <h1 className="font-serif text-3xl sm:text-5xl text-charcoal leading-tight">
-                  {wedding.partner1_name}
-                  <span className="block text-2xl sm:text-3xl text-gold italic my-2 font-normal">
-                    &
-                  </span>
-                  {wedding.partner2_name}
-                </h1>
-              </>
-            ) : (
-              <>
-                <p className="text-gold/80 uppercase tracking-[0.35em] text-[0.6rem] sm:text-xs mb-6">
-                  {t('hero.weMarry')}
-                </p>
-
-                <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-tight">
-                  {wedding.partner1_name}
-                  <span className="block text-2xl sm:text-4xl lg:text-5xl text-gold italic my-3 sm:my-4 font-normal">
-                    &
-                  </span>
-                  {wedding.partner2_name}
-                </h1>
-              </>
-            )}
-
-            <div className={`${hasCover ? 'mt-10' : 'mt-8 sm:mt-10'} pt-8 border-t border-gold/15 space-y-8`}>
-              {!hasCover && ceremonyIso && (
+            <div className="mt-8 sm:mt-10 pt-8 border-t border-gold/15 space-y-8">
+              {ceremonyIso && (
                 <HeroEventBlock
                   label={t('hero.ceremony')}
                   dateIso={ceremonyIso}
@@ -249,31 +274,9 @@ export default function InvitationHero({
                 />
               )}
 
-              {hasCover && (wedding.ceremony_location || wedding.ceremony_address) && (
-                <div className="text-center">
-                  <p className="text-gold/70 uppercase tracking-[0.28em] text-[0.6rem] sm:text-xs mb-3">
-                    {t('hero.ceremony')}
-                  </p>
-                  {wedding.ceremony_location && (
-                    <p className="flex items-center justify-center gap-2 text-warm-gray text-sm sm:text-base">
-                      <MapPin className="w-4 h-4 text-gold/70 shrink-0" />
-                      <span>{wedding.ceremony_location}</span>
-                    </p>
-                  )}
-                  {wedding.ceremony_address && (
-                    <p className="text-warm-gray text-xs sm:text-sm mt-1">{wedding.ceremony_address}</p>
-                  )}
-                  <LocationMapsLinks
-                    address={wedding.ceremony_address}
-                    location={wedding.ceremony_location}
-                    className="mt-4 flex flex-wrap justify-center gap-2"
-                  />
-                </div>
-              )}
-
               {receptionIso && (
                 <>
-                  {(ceremonyIso || hasCover) && <div className="h-px bg-gold/10 max-w-xs mx-auto" />}
+                  {ceremonyIso && <div className="h-px bg-gold/10 max-w-xs mx-auto" />}
                   <HeroEventBlock
                     label={t('hero.reception')}
                     dateIso={receptionIso}
