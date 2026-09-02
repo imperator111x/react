@@ -1,10 +1,23 @@
 import { format } from 'date-fns'
-import { de, enUS } from 'date-fns/locale'
-import type { Locale } from '../i18n'
+import { getDateFnsLocale, type Locale } from '../i18n'
 import type { Wedding } from '../types/wedding'
 
-function getLocale(locale: Locale = 'de') {
-  return locale === 'en' ? enUS : de
+const EVENT_DATE_PATTERNS: Record<Locale, string> = {
+  de: 'EEEE, d. MMMM yyyy',
+  en: 'EEEE, MMMM d, yyyy',
+  tr: 'd MMMM yyyy, EEEE',
+}
+
+const RSVP_DEADLINE_PATTERNS: Record<Locale, string> = {
+  de: 'd. MMMM yyyy',
+  en: 'MMMM d, yyyy',
+  tr: 'd MMMM yyyy',
+}
+
+const BANNER_DATE_PATTERNS: Record<Locale, string> = {
+  de: 'd.M.yyyy',
+  en: 'd/M/yyyy',
+  tr: 'd.M.yyyy',
 }
 
 export function getCeremonyDate(wedding: Wedding): Date | null {
@@ -36,13 +49,21 @@ export function getDeletionDate(wedding: Wedding): Date {
 }
 
 export function formatEventDate(iso: string, locale: Locale = 'de'): string {
-  const pattern = locale === 'en' ? 'EEEE, MMMM d, yyyy' : 'EEEE, d. MMMM yyyy'
-  return format(new Date(iso), pattern, { locale: getLocale(locale) })
+  return format(new Date(iso), EVENT_DATE_PATTERNS[locale], { locale: getDateFnsLocale(locale) })
 }
 
 export function formatEventTime(iso: string, locale: Locale = 'de'): string {
-  const pattern = locale === 'en' ? 'h:mm a' : "HH:mm 'Uhr'"
-  return format(new Date(iso), pattern, { locale: getLocale(locale) })
+  const pattern = locale === 'en' ? 'h:mm a' : 'HH:mm'
+  const formatted = format(new Date(iso), pattern, { locale: getDateFnsLocale(locale) })
+  return locale === 'de' ? `${formatted} Uhr` : formatted
+}
+
+export function formatRsvpDeadline(date: Date, locale: Locale = 'de'): string {
+  return format(date, RSVP_DEADLINE_PATTERNS[locale], { locale: getDateFnsLocale(locale) })
+}
+
+export function formatBannerDate(iso: string, locale: Locale = 'de'): string {
+  return format(new Date(iso), BANNER_DATE_PATTERNS[locale], { locale: getDateFnsLocale(locale) })
 }
 
 export function toDatetimeLocalValue(iso: string): string {

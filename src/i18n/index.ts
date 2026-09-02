@@ -1,13 +1,22 @@
-export type Locale = 'de' | 'en'
+import { de as deLocale, enUS as enLocale, tr as trLocale } from 'date-fns/locale'
+import { de } from './locales/de'
+import { en } from './locales/en'
+import { tr } from './locales/tr'
 
-export type TranslationDict = typeof import('./locales/de').de
+export type Locale = 'de' | 'en' | 'tr'
+
+type StringDict = { [key: string]: string | StringDict }
+
+export type TranslationDict = StringDict
+
+const dictionaries: Record<Locale, StringDict> = { de, en, tr }
 
 export function translate(
   locale: Locale,
   key: string,
   params?: Record<string, string | number>
 ): string {
-  const dict = locale === 'en' ? en : de
+  const dict = dictionaries[locale] ?? de
   const parts = key.split('.')
   let value: unknown = dict
   for (const part of parts) {
@@ -27,21 +36,27 @@ export function translate(
   return result
 }
 
-import { de } from './locales/de'
-import { en } from './locales/en'
+export { de, en, tr }
 
-export { de, en }
-
-export function getDateFnsLocale(locale: Locale) {
-  return locale === 'en' ? enLocale : deLocale
+export function getDictionary(locale: Locale): TranslationDict {
+  return dictionaries[locale] ?? de
 }
 
-import { de as deLocale, enUS as enLocale } from 'date-fns/locale'
+export function getDateFnsLocale(locale: Locale) {
+  switch (locale) {
+    case 'en':
+      return enLocale
+    case 'tr':
+      return trLocale
+    default:
+      return deLocale
+  }
+}
 
 export function getStoredLocale(slug: string): Locale {
   try {
     const stored = localStorage.getItem(`locale-${slug}`)
-    if (stored === 'en' || stored === 'de') return stored
+    if (stored === 'en' || stored === 'de' || stored === 'tr') return stored
   } catch {
     /* ignore */
   }
