@@ -4,11 +4,14 @@ import { Heart, Loader2 } from 'lucide-react'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
+import BotCheckGate from '../components/BotCheckGate'
+import { isBotCheckVerified } from '../lib/bot-check'
 import { createWedding, isSupabaseConfigured } from '../lib/supabase'
 import type { CreateWeddingInput } from '../types/wedding'
 
 export default function CreateWeddingPage() {
   const navigate = useNavigate()
+  const [botVerified, setBotVerified] = useState(isBotCheckVerified)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -36,6 +39,12 @@ export default function CreateWeddingPage() {
 
     if (!form.partner1_name || !form.partner2_name || !form.ceremony_date || !form.email) {
       setError('Bitte füllt alle Pflichtfelder aus.')
+      return
+    }
+
+    if (!isBotCheckVerified()) {
+      setError('Bitte bestätigt zuerst die Bot-Prüfung.')
+      setBotVerified(false)
       return
     }
 
@@ -68,10 +77,16 @@ export default function CreateWeddingPage() {
             Eure Hochzeit erstellen
           </h1>
           <p className="text-warm-gray">
-            Füllt das Formular aus und erhaltet sofort euren persönlichen Einladungslink.
+            {botVerified
+              ? 'Füllt das Formular aus und erhaltet sofort euren persönlichen Einladungslink.'
+              : 'Ein kurzer Sicherheitscheck – danach geht es direkt weiter.'}
           </p>
         </div>
 
+        {!botVerified ? (
+          <BotCheckGate onVerified={() => setBotVerified(true)} />
+        ) : (
+          <>
         {!isSupabaseConfigured && (
           <div className="mb-8 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
             <strong>Hinweis:</strong> Supabase ist noch nicht konfiguriert. Kopiert{' '}
@@ -190,6 +205,8 @@ export default function CreateWeddingPage() {
             100% kostenlos, kein Abo.
           </p>
         </form>
+          </>
+        )}
       </div>
     </div>
   )
