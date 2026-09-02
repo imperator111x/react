@@ -159,7 +159,7 @@ export default function EnvelopeIntro({
           >
             <div className="letter-reveal__card">
               <Heart className="w-6 h-6 text-gold mx-auto mb-4" />
-              <p className="letter-reveal__label">Wir heiraten</p>
+              <p className="letter-reveal__label">{t('hero.weMarry')}</p>
               <h2 className="letter-reveal__names">
                 {partner1}
                 <span className="letter-reveal__amp">&</span>

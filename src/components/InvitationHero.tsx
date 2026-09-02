@@ -142,9 +142,11 @@ function CoverHeroLayout({
 
             <div className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1 mb-1">
               <span className="text-charcoal uppercase tracking-[0.35em] text-xs sm:text-sm font-medium">
-                {locale === 'de' ? 'Wir sagen' : 'We say'}
+                {t('hero.sayYesPrefix')}
               </span>
-              <span className="font-serif text-4xl sm:text-5xl text-gold italic leading-none">Ja!</span>
+              <span className="font-serif text-4xl sm:text-5xl text-gold italic leading-none">
+                {t('hero.sayYesEmphasis')}
+              </span>
             </div>
 
             {ceremonyIso && <HeroDateBanner dateIso={ceremonyIso} locale={locale} />}
@@ -171,7 +173,7 @@ function CoverHeroLayout({
         <a
           href="#countdown"
           className="mt-10 inline-flex flex-col items-center gap-2 text-warm-gray/70 hover:text-gold transition-colors group w-full"
-          aria-label="Weiter scrollen"
+          aria-label={t('common.scrollDown')}
         >
           <span className="text-[0.65rem] uppercase tracking-[0.25em]">{t('common.scrollMore')}</span>
           <ChevronDown className="w-5 h-5 animate-bounce group-hover:text-gold" />
@@ -294,7 +296,7 @@ export default function InvitationHero({
         <a
           href="#countdown"
           className="mt-12 inline-flex flex-col items-center gap-2 text-warm-gray/70 hover:text-gold transition-colors group"
-          aria-label="Weiter scrollen"
+          aria-label={t('common.scrollDown')}
         >
           <span className="text-[0.65rem] uppercase tracking-[0.25em]">{t('common.scrollMore')}</span>
           <ChevronDown className="w-5 h-5 animate-bounce group-hover:text-gold" />
