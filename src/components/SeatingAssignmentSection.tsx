@@ -1,7 +1,7 @@
 import { LayoutGrid } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useLocale } from '../context/LocaleContext'
-import { getGuestTable } from '../lib/seating'
+import { getGuestTable, getPublicTableName } from '../lib/seating'
 import type { Guest, SeatingTable } from '../types/wedding'
 
 interface SeatingAssignmentSectionProps {
@@ -37,7 +37,9 @@ export default function SeatingAssignmentSection({
             <p className="text-sm uppercase tracking-wider text-gold mb-1">
               {guest?.salutation === 'familie' ? t('seating.yourTable') : t('seating.yourTableSingular')}
             </p>
-            <p className="font-serif text-2xl font-semibold text-charcoal">{guestTable.name}</p>
+            <p className="font-serif text-2xl font-semibold text-charcoal">
+              {getPublicTableName(guestTable.name)}
+            </p>
           </div>
         ) : guest ? (
           <p className="text-warm-gray mb-4">{t('seating.noTable')}</p>

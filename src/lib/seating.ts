@@ -1,6 +1,17 @@
 import type { CreateSeatingTableInput, Guest, SeatingTable, SeatingTableWithGuests } from '../types/wedding'
 import { supabase } from './supabase'
 
+/** Maximal legbare Tische pro Hochzeit */
+export const MAX_SEATING_TABLES = 30
+
+/** Öffentliche Anzeige: nur „Tisch 1“, ohne „– Freunde“ o. Ä. */
+export function getPublicTableName(name: string, fallbackIndex?: number): string {
+  const trimmed = name.trim()
+  const withoutSuffix = trimmed.split(/\s+[–-]\s+/)[0]?.trim() ?? trimmed
+  if (withoutSuffix) return withoutSuffix
+  return fallbackIndex != null ? `Tisch ${fallbackIndex + 1}` : trimmed
+}
+
 export async function getSeatingTables(weddingId: string): Promise<SeatingTable[]> {
   if (!supabase) return []
 
@@ -38,6 +49,11 @@ export async function createSeatingTable(
   input: CreateSeatingTableInput
 ): Promise<SeatingTable> {
   if (!supabase) throw new Error('Supabase ist nicht konfiguriert')
+
+  const existingTables = await getSeatingTables(weddingId)
+  if (existingTables.length >= MAX_SEATING_TABLES) {
+    throw new Error(`Maximal ${MAX_SEATING_TABLES} Tische möglich.`)
+  }
 
   const { data: existing } = await supabase
     .from('seating_tables')

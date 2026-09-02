@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Heart, LayoutGrid, Loader2, Users } from 'lucide-react'
+import { Heart, LayoutGrid, Loader2 } from 'lucide-react'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import InviteQrCode from '../components/InviteQrCode'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
 import { getSeatingPlanUrl } from '../i18n'
 import { getGuestByInviteToken, getWeddingBySlug } from '../lib/supabase'
-import { getSeatingPlan, getGuestTable } from '../lib/seating'
+import { getSeatingPlan, getGuestTable, getPublicTableName } from '../lib/seating'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
 import { DEMO_TABLES } from '../lib/demo-seating'
@@ -34,9 +34,7 @@ function SeatingPlanContent() {
             guests:
               table.id === DEMO_GUEST.table_id
                 ? [{ id: DEMO_GUEST.id, name: DEMO_GUEST.name, salutation: DEMO_GUEST.salutation }]
-                : table.id === 'demo-table-1'
-                  ? [{ id: 'g1', name: 'Anna & Max (Brautpaar)', salutation: 'familie' as const }]
-                  : [],
+                : [],
           }))
         )
         setLoading(false)
@@ -98,7 +96,9 @@ function SeatingPlanContent() {
             <p className="text-sm uppercase tracking-wider text-gold mb-1">
               {guest?.salutation === 'familie' ? t('seating.yourTable') : t('seating.yourTableSingular')}
             </p>
-            <p className="font-serif text-2xl font-semibold text-charcoal">{guestTable.name}</p>
+            <p className="font-serif text-2xl font-semibold text-charcoal">
+              {getPublicTableName(guestTable.name)}
+            </p>
             <p className="text-sm text-warm-gray mt-2">{t('seating.highlighted')}</p>
           </div>
         )}
@@ -107,8 +107,9 @@ function SeatingPlanContent() {
           <p className="text-center text-warm-gray">{t('seating.unassigned')}</p>
         ) : (
           <div className="space-y-4 mb-10">
-            {plan.map((table) => {
+            {plan.map((table, index) => {
               const isHighlighted = guestTable?.id === table.id
+              const publicName = getPublicTableName(table.name, index)
               return (
                 <div
                   key={table.id}
@@ -118,21 +119,9 @@ function SeatingPlanContent() {
                       : 'border-cream-dark bg-white'
                   }`}
                 >
-                  <h2 className="font-serif text-xl font-semibold text-charcoal mb-3">{table.name}</h2>
-                  {table.guests.length === 0 ? (
-                    <p className="text-sm text-warm-gray italic">{t('seating.unassigned')}</p>
-                  ) : (
-                    <ul className="space-y-2">
-                      {table.guests.map((g) => (
-                        <li key={g.id} className="flex items-center gap-2 text-charcoal">
-                          <Users className="w-4 h-4 text-warm-gray shrink-0" />
-                          <span className={guest?.id === g.id ? 'font-semibold text-gold' : ''}>
-                            {g.name}
-                            {guest?.id === g.id ? ' ★' : ''}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                  <h2 className="font-serif text-xl font-semibold text-charcoal">{publicName}</h2>
+                  {isHighlighted && guest && (
+                    <p className="text-sm text-gold mt-2">{t('seating.highlighted')}</p>
                   )}
                 </div>
               )
