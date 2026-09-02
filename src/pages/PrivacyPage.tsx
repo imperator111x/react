@@ -80,24 +80,40 @@ export default function PrivacyPage() {
           <li>gewählte Sprache auf Einladungsseiten</li>
           <li>Status der Umschlag-Animation (bereits geöffnet)</li>
           <li>bestandene Bot-Prüfung vor der Registrierung</li>
+          <li>Ihre Cookie-Einstellungen (Einwilligung)</li>
         </ul>
         <p>
-          Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Nutzerfreundlichkeit). Die Daten verbleiben auf Ihrem
-          Gerät, bis Sie sie löschen oder der Browser-Speicher geleert wird.
+          Diese Speicherung ist technisch notwendig bzw. dient der Speicherung Ihrer Einwilligung.
+          Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse) bzw. Art. 6 Abs. 1 lit.
+          c DSGVO (Einwilligung für externe Schriftarten).
         </p>
       </section>
 
       <section>
-        <h2>7. Google Fonts</h2>
+        <h2>7. Cookie-Einwilligung</h2>
         <p>
-          Zur einheitlichen Darstellung laden wir Schriftarten von Google Fonts. Dabei kann Ihre IP-Adresse an
-          Google übermittelt werden. Anbieter: Google Ireland Limited. Rechtsgrundlage: Art. 6 Abs. 1 lit. f
-          DSGVO.
+          Beim ersten Besuch erscheint ein Cookie-Banner. Sie können zwischen „Nur notwendige“ und
+          „Alle akzeptieren“ wählen oder unter „Einstellungen“ einzelne Kategorien festlegen. Ihre
+          Wahl speichern wir in localStorage, bis Sie sie über „Cookie-Einstellungen“ im Footer
+          ändern oder Ihren Browser-Speicher löschen.
+        </p>
+        <p>
+          <strong>Externe Schriftarten (Google Fonts)</strong> werden erst nach Ihrer Einwilligung
+          geladen. Ohne Einwilligung nutzen wir Systemschriftarten.
         </p>
       </section>
 
       <section>
-        <h2>8. Google Maps</h2>
+        <h2>8. Google Fonts</h2>
+        <p>
+          Mit Ihrer Einwilligung laden wir Schriftarten von Google Fonts. Dabei kann Ihre IP-Adresse an
+          Google übermittelt werden. Anbieter: Google Ireland Limited. Rechtsgrundlage: Art. 6 Abs. 1 lit. a
+          DSGVO (Einwilligung). Ohne Einwilligung verwenden wir lokale Systemschriftarten.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Google Maps</h2>
         <p>
           Auf Einladungsseiten können Links zu Google Maps eingebunden sein. Erst beim Anklicken verlassen Sie
           unsere Website und es gelten die Datenschutzbestimmungen von Google.
@@ -105,7 +121,7 @@ export default function PrivacyPage() {
       </section>
 
       <section>
-        <h2>9. Speicherdauer & Löschung</h2>
+        <h2>10. Speicherdauer & Löschung</h2>
         <p>
           Hochzeitsdaten werden automatisch ca. 7 Tage nach dem letzten Hochzeitstermin gelöscht (siehe
           technische Konfiguration in der Datenbank). Sie können uns jederzeit zur vorzeitigen Löschung
@@ -114,7 +130,7 @@ export default function PrivacyPage() {
       </section>
 
       <section>
-        <h2>10. Ihre Rechte</h2>
+        <h2>11. Ihre Rechte</h2>
         <p>Sie haben gegenüber uns folgende Rechte bezüglich Ihrer personenbezogenen Daten:</p>
         <ul>
           <li>Auskunft (Art. 15 DSGVO)</li>
@@ -134,7 +150,7 @@ export default function PrivacyPage() {
       </section>
 
       <section>
-        <h2>11. Kein Tracking</h2>
+        <h2>12. Kein Tracking</h2>
         <p>
           {siteName} setzt keine Analyse- oder Marketing-Cookies ein und nutzt kein externes Tracking (z. B.
           Google Analytics).

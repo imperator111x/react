@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
+import { useCookieConsent } from '../context/CookieConsentContext'
 
 export default function Footer() {
+  const { openSettings } = useCookieConsent()
+
   return (
     <footer className="bg-charcoal text-cream/80 py-12">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -25,6 +28,13 @@ export default function Footer() {
           <Link to="/datenschutz" className="text-cream/70 hover:text-gold transition-colors">
             Datenschutz
           </Link>
+          <button
+            type="button"
+            onClick={openSettings}
+            className="text-cream/70 hover:text-gold transition-colors"
+          >
+            Cookie-Einstellungen
+          </button>
         </nav>
       </div>
     </footer>
