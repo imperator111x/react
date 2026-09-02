@@ -12,11 +12,20 @@ import {
 } from './wedding-dates'
 import type { Wedding } from '../types/wedding'
 
-const BOTANICAL_CORNER_SVG = `<svg viewBox="0 0 80 80" aria-hidden="true" fill="none" width="40" height="40">
+const BOTANICAL_CORNER_SVG = `<svg viewBox="0 0 80 80" aria-hidden="true" fill="none" width="48" height="48">
   <path d="M8 62 C18 48 28 38 42 34 C32 28 22 18 14 8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
   <ellipse cx="46" cy="30" rx="10" ry="4" fill="currentColor" opacity="0.35" transform="rotate(-25 46 30)"/>
   <ellipse cx="34" cy="42" rx="8" ry="3.5" fill="currentColor" opacity="0.25" transform="rotate(10 34 42)"/>
+  <ellipse cx="22" cy="24" rx="7" ry="3" fill="currentColor" opacity="0.2" transform="rotate(-40 22 24)"/>
 </svg>`
+
+function ornamentDivider(theme: ReturnType<typeof getWeddingTheme>): string {
+  return `<div class="ornament" aria-hidden="true">
+    <span class="ornament__line" style="background:${theme.blush}"></span>
+    <span class="ornament__diamond" style="color:${theme.gold}">✦</span>
+    <span class="ornament__line" style="background:${theme.blush}"></span>
+  </div>`
+}
 
 function escapeHtml(text: string): string {
   return text
@@ -63,9 +72,10 @@ function renderEventCard(
   dateIso: string,
   location: string | null | undefined,
   address: string | null | undefined,
-  locale: Locale
+  locale: Locale,
+  theme: ReturnType<typeof getWeddingTheme>
 ): string {
-  return `<article class="event-card">
+  return `<article class="event-card" style="border-top-color:${theme.gold}">
     <p class="event-label">${escapeHtml(label)}</p>
     <p class="event-date">${escapeHtml(formatEventDate(dateIso, locale))}</p>
     <p class="event-time">${escapeHtml(formatEventTime(dateIso, locale))}</p>
@@ -77,7 +87,7 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
   return `
     @page {
       size: A4 portrait;
-      margin: 8mm;
+      margin: 10mm;
     }
 
     * {
@@ -87,56 +97,53 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
     html, body {
       margin: 0;
       padding: 0;
+      height: auto;
     }
 
     body {
       font-family: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
       color: #2c2c2c;
-      background: white;
+      background: #faf7f2;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
 
     .print-root {
       width: 100%;
-      height: 281mm;
-      display: flex;
-      align-items: stretch;
-      justify-content: center;
       padding: 0;
     }
 
     .invitation-card {
       position: relative;
       width: 100%;
-      height: 100%;
-      max-height: 281mm;
-      overflow: hidden;
-      background: linear-gradient(180deg, #fffcf8 0%, #faf6f0 100%);
+      max-width: 178mm;
+      margin: 0 auto;
+      background: linear-gradient(165deg, #fffdfa 0%, #faf6f0 48%, #f5efe6 100%);
       border: 1px solid ${theme.gold};
-      box-shadow: inset 0 0 0 3px #fffcf8, inset 0 0 0 4px ${theme.blush};
-      padding: 10mm 12mm 8mm;
-      display: flex;
-      flex-direction: column;
+      outline: 3px solid #fffdfa;
+      outline-offset: -7px;
+      box-shadow: inset 0 0 0 1px ${theme.blush};
+      padding: 0 0 14px;
+      page-break-inside: avoid;
+      break-inside: avoid-page;
     }
 
     .corner {
       position: absolute;
       color: ${theme.gold};
-      opacity: 0.45;
+      opacity: 0.5;
       pointer-events: none;
+      z-index: 2;
     }
 
-    .corner--tl { top: 6px; left: 6px; }
-    .corner--tr { top: 6px; right: 6px; transform: scaleX(-1); }
-    .corner--bl { bottom: 6px; left: 6px; transform: scaleY(-1); }
-    .corner--br { bottom: 6px; right: 6px; transform: scale(-1); }
+    .corner--tl { top: 8px; left: 8px; }
+    .corner--tr { top: 8px; right: 8px; transform: scaleX(-1); }
+    .corner--bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+    .corner--br { bottom: 8px; right: 8px; transform: scale(-1); }
 
     .cover-wrap {
       position: relative;
-      flex-shrink: 0;
-      margin: -10mm -12mm 10px;
-      height: 72px;
+      height: 96px;
       overflow: hidden;
       border-bottom: 1px solid ${theme.blush};
     }
@@ -152,34 +159,50 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, transparent 35%, rgba(255, 252, 248, 0.88) 100%);
+      background: linear-gradient(180deg, rgba(255,253,250,0.05) 0%, rgba(255,253,250,0.55) 55%, #fffdfa 100%);
       pointer-events: none;
     }
 
-    .card-body {
-      flex: 1;
-      min-height: 0;
+    .card-inner {
+      padding: 16px 22px 0;
+    }
+
+    .ornament {
       display: flex;
-      flex-direction: column;
-      gap: 0;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 12px auto;
+      max-width: 220px;
+    }
+
+    .ornament__line {
+      flex: 1;
+      height: 1px;
+    }
+
+    .ornament__diamond {
+      font-size: 10px;
+      line-height: 1;
+      opacity: 0.85;
     }
 
     .eyebrow {
       text-align: center;
       color: ${theme.goldDark};
-      letter-spacing: 0.38em;
+      letter-spacing: 0.45em;
       text-transform: uppercase;
-      font-size: 8px;
+      font-size: 9px;
       font-weight: 600;
-      margin: 0 0 6px;
+      margin: 0 0 8px;
     }
 
     .headline {
       text-align: center;
-      font-size: 16px;
+      font-size: 19px;
       font-weight: 500;
-      letter-spacing: 0.03em;
-      margin: 0 0 4px;
+      letter-spacing: 0.02em;
+      margin: 0 0 6px;
       color: #3d3a36;
     }
 
@@ -190,187 +213,196 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
 
     .names {
       text-align: center;
-      font-size: 30px;
+      font-size: 38px;
       font-weight: 600;
-      line-height: 1.1;
-      margin: 0 0 4px;
-      letter-spacing: 0.02em;
+      line-height: 1.08;
+      margin: 0 0 10px;
+      letter-spacing: 0.03em;
     }
 
     .names .amp {
       display: inline-block;
-      margin: 0 0.1em;
+      margin: 0 0.08em;
       color: ${theme.gold};
       font-style: italic;
       font-weight: 500;
-      font-size: 0.75em;
+      font-size: 0.72em;
     }
 
     .date-banner {
       text-align: center;
-      margin: 8px auto 10px;
+      margin: 0 auto 14px;
     }
 
     .date-banner__meta {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 9px;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
       color: ${theme.goldDark};
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
 
     .date-banner__rule {
       flex: 1;
-      max-width: 48px;
+      max-width: 56px;
       height: 1px;
       background: ${theme.blush};
     }
 
     .date-banner__rule--short {
-      max-width: 20px;
+      max-width: 24px;
     }
 
     .date-banner__date {
       display: block;
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 600;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.1em;
       color: #2c2c2c;
     }
 
     .invitation-line {
       text-align: center;
-      font-size: 13px;
-      line-height: 1.45;
+      font-size: 15px;
+      line-height: 1.55;
       color: #5c5650;
-      margin: 0 auto 10px;
-      max-width: 100%;
+      margin: 0 auto 14px;
+      max-width: 92%;
       font-style: italic;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      padding: 0 8px;
     }
 
     .events {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
     .events--single {
       grid-template-columns: 1fr;
-      max-width: 240px;
+      max-width: 260px;
       margin-left: auto;
       margin-right: auto;
     }
 
     .event-card {
       text-align: center;
-      padding: 8px 6px;
+      padding: 12px 10px 11px;
       border: 1px solid ${theme.blush};
-      background: rgba(255, 255, 255, 0.55);
+      border-top: 2px solid ${theme.gold};
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 1px 0 rgba(255,255,255,0.8) inset;
     }
 
     .event-label {
-      margin: 0 0 4px;
+      margin: 0 0 6px;
       font-size: 8px;
-      letter-spacing: 0.28em;
+      letter-spacing: 0.34em;
       text-transform: uppercase;
       color: ${theme.goldDark};
     }
 
     .event-date {
-      margin: 0 0 4px;
-      font-size: 13px;
+      margin: 0 0 6px;
+      font-size: 14px;
       font-weight: 600;
-      line-height: 1.25;
+      line-height: 1.3;
       color: #2c2c2c;
     }
 
     .event-time {
       margin: 0;
       display: inline-block;
-      padding: 2px 8px;
-      border: 1px solid ${theme.gold}44;
-      background: ${theme.gold}14;
+      padding: 3px 12px;
+      border-radius: 999px;
+      border: 1px solid ${theme.gold}55;
+      background: ${theme.gold}18;
       color: ${theme.goldDark};
-      font-size: 11px;
+      font-size: 12px;
+      letter-spacing: 0.04em;
     }
 
     .event-location {
-      margin: 6px 0 0;
-      font-size: 12px;
+      margin: 10px 0 0;
+      font-size: 13px;
       color: #4a4540;
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
     .event-address {
-      margin: 2px 0 0;
-      font-size: 10px;
+      margin: 3px 0 0;
+      font-size: 11px;
       color: #7a746c;
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
-    .dresscode {
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px 24px;
+      margin-bottom: 14px;
+    }
+
+    .meta-chip {
       text-align: center;
-      margin: 0 auto 8px;
-      padding: 6px 10px;
+      flex: 1 1 140px;
+      max-width: 240px;
+      padding: 8px 12px;
       border-top: 1px solid ${theme.blush};
       border-bottom: 1px solid ${theme.blush};
-      max-width: 320px;
     }
 
-    .dresscode-label {
-      margin: 0 0 2px;
+    .meta-chip__label {
+      margin: 0 0 4px;
       font-size: 8px;
-      letter-spacing: 0.28em;
+      letter-spacing: 0.32em;
       text-transform: uppercase;
       color: ${theme.goldDark};
     }
 
-    .dresscode-text {
+    .meta-chip__text {
       margin: 0;
-      font-size: 13px;
+      font-size: 14px;
+      line-height: 1.4;
       color: #4a4540;
+      font-style: italic;
     }
 
     .story {
       text-align: center;
-      margin: 0 auto 8px;
-      max-width: 100%;
+      margin: 0 auto 14px;
+      max-width: 92%;
     }
 
     .story-title {
-      margin: 0 0 4px;
+      margin: 0 0 6px;
       font-size: 8px;
-      letter-spacing: 0.24em;
+      letter-spacing: 0.3em;
       text-transform: uppercase;
       color: ${theme.goldDark};
     }
 
     .story-text {
       margin: 0;
-      font-size: 12px;
-      line-height: 1.45;
+      font-size: 13px;
+      line-height: 1.5;
       color: #5c5650;
       font-style: italic;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
     }
 
     .rsvp {
-      margin-top: auto;
-      padding: 8px 10px;
-      background: ${theme.gold}10;
-      border: 1px dashed ${theme.gold}66;
+      margin: 0 22px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, ${theme.gold}12 0%, rgba(255,255,255,0.65) 100%);
+      border: 1px solid ${theme.gold}44;
+      border-radius: 8px;
     }
 
     .rsvp-inner {
@@ -378,15 +410,16 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
       flex-direction: row;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .rsvp-qr {
-      width: 68px;
-      height: 68px;
+      width: 72px;
+      height: 72px;
       padding: 4px;
       background: white;
       border: 1px solid ${theme.blush};
+      border-radius: 4px;
       flex-shrink: 0;
     }
 
@@ -397,58 +430,61 @@ function buildPrintStyles(theme: ReturnType<typeof getWeddingTheme>): string {
     }
 
     .rsvp-label {
-      margin: 0 0 3px;
-      font-size: 12px;
-      color: #4a4540;
+      margin: 0 0 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #3d3a36;
       line-height: 1.3;
     }
 
     .rsvp-url {
-      margin: 0 0 3px;
+      margin: 0 0 4px;
       font-size: 9px;
-      letter-spacing: 0.01em;
       color: ${theme.goldDark};
       word-break: break-all;
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
     .rsvp-qr-hint {
       margin: 0;
-      font-size: 10px;
+      font-size: 11px;
       color: #7a746c;
       font-style: italic;
-      line-height: 1.3;
+      line-height: 1.35;
     }
 
     .footer {
       text-align: center;
       font-size: 8px;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: #9a948c;
-      margin: 6px 0 0;
-      padding-top: 6px;
-      border-top: 1px solid ${theme.blush};
-      flex-shrink: 0;
+      margin: 12px 0 0;
+      padding-top: 10px;
     }
 
     @media print {
       html, body {
-        width: 210mm;
-        height: 297mm;
-        overflow: hidden;
+        height: auto !important;
+        overflow: visible !important;
+        background: white;
       }
 
       .print-root {
-        height: 281mm;
-        page-break-after: avoid;
-        page-break-inside: avoid;
+        height: auto !important;
+        page-break-after: avoid !important;
       }
 
       .invitation-card {
         box-shadow: none;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        max-width: none;
+        page-break-inside: avoid !important;
+        break-inside: avoid-page !important;
+      }
+
+      .rsvp, .event-card, .cover-wrap {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
     }
   `
@@ -472,7 +508,7 @@ function openPrintWindow(html: string): void {
   const waitForImages = () => {
     const imgs = Array.from(win.document.images)
     if (imgs.length === 0) {
-      triggerPrint()
+      setTimeout(triggerPrint, 100)
       return
     }
 
@@ -487,7 +523,7 @@ function openPrintWindow(html: string): void {
             }
           })
       )
-    ).then(() => setTimeout(triggerPrint, 200))
+    ).then(() => setTimeout(triggerPrint, 250))
   }
 
   if (win.document.readyState === 'complete') {
@@ -495,8 +531,6 @@ function openPrintWindow(html: string): void {
   } else {
     win.addEventListener('load', waitForImages)
   }
-
-  setTimeout(triggerPrint, 3000)
 }
 
 export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): Promise<void> {
@@ -512,7 +546,7 @@ export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): 
   let qrDataUrl = ''
   try {
     qrDataUrl = await QRCode.toDataURL(invitationUrl, {
-      width: 180,
+      width: 200,
       margin: 1,
       color: { dark: theme.goldDark, light: '#ffffff' },
     })
@@ -536,7 +570,8 @@ export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): 
         ceremonyIso,
         wedding.ceremony_location,
         wedding.ceremony_address,
-        locale
+        locale,
+        theme
       )
     : ''
 
@@ -546,18 +581,23 @@ export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): 
         receptionIso,
         wedding.reception_location,
         wedding.reception_address,
-        locale
+        locale,
+        theme
       )
     : ''
 
   const eventCount = [ceremonyBlock, receptionBlock].filter(Boolean).length
   const eventsClass = eventCount <= 1 ? 'events events--single' : 'events'
 
-  const dressBlock = wedding.dress_code
-    ? `<div class="dresscode">
-        <p class="dresscode-label">${escapeHtml(translate(locale, 'details.dresscode'))}</p>
-        <p class="dresscode-text">${escapeHtml(wedding.dress_code)}</p>
-      </div>`
+  const metaParts: string[] = []
+  if (wedding.dress_code) {
+    metaParts.push(`<div class="meta-chip">
+      <p class="meta-chip__label">${escapeHtml(translate(locale, 'details.dresscode'))}</p>
+      <p class="meta-chip__text">${escapeHtml(wedding.dress_code)}</p>
+    </div>`)
+  }
+  const metaRow = metaParts.length
+    ? `<div class="meta-row">${metaParts.join('')}</div>`
     : ''
 
   const storyBlock = wedding.story
@@ -597,7 +637,7 @@ export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): 
 
       ${coverBlock}
 
-      <div class="card-body">
+      <div class="card-inner">
         <p class="eyebrow">${escapeHtml(translate(locale, 'hero.saveTheDate'))}</p>
 
         <p class="headline">
@@ -626,6 +666,8 @@ export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): 
           <span class="date-banner__date">${escapeHtml(bannerDate)}</span>
         </div>
 
+        ${ornamentDivider(theme)}
+
         <p class="invitation-line">${escapeHtml(invitationLine)}</p>
 
         <div class="${eventsClass}">
@@ -633,8 +675,10 @@ export async function printInvitation(wedding: Wedding, locale: Locale = 'de'): 
           ${receptionBlock}
         </div>
 
-        ${dressBlock}
+        ${metaRow}
         ${storyBlock}
+
+        ${ornamentDivider(theme)}
 
         <div class="rsvp">
           <div class="rsvp-inner">
