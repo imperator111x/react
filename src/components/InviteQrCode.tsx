@@ -6,9 +6,16 @@ import Button from './Button'
 interface InviteQrCodeProps {
   url: string
   label?: string
+  downloadFilename?: string
+  hint?: string
 }
 
-export default function InviteQrCode({ url, label = 'Einladungslink' }: InviteQrCodeProps) {
+export default function InviteQrCode({
+  url,
+  label = 'Einladungslink',
+  downloadFilename = 'hochzeit-einladung-qr.png',
+  hint = 'Druckt den QR-Code auf Save-the-Date-Karten oder Tischkärtchen – Gäste scannen und landen direkt auf eurer Einladung.',
+}: InviteQrCodeProps) {
   const [dataUrl, setDataUrl] = useState<string | null>(null)
 
   useEffect(() => {
@@ -25,7 +32,7 @@ export default function InviteQrCode({ url, label = 'Einladungslink' }: InviteQr
     if (!dataUrl) return
     const link = document.createElement('a')
     link.href = dataUrl
-    link.download = 'hochzeit-einladung-qr.png'
+    link.download = downloadFilename
     link.click()
   }
 
@@ -45,10 +52,7 @@ export default function InviteQrCode({ url, label = 'Einladungslink' }: InviteQr
         </p>
       </div>
       <div className="text-sm text-warm-gray max-w-xs text-center sm:text-left">
-        <p className="mb-3">
-          Druckt den QR-Code auf Save-the-Date-Karten oder Tischkärtchen – Gäste scannen und landen direkt
-          auf eurer Einladung.
-        </p>
+        <p className="mb-3">{hint}</p>
         <Button type="button" variant="outline" size="sm" onClick={handleDownload}>
           <Download className="w-4 h-4" />
           QR-Code speichern

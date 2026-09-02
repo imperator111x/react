@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
+import { useLocale } from '../context/LocaleContext'
 import { getGalleryImageUrl } from '../lib/gallery'
 import type { GalleryImage } from '../types/wedding'
 
@@ -8,6 +9,7 @@ interface GallerySectionProps {
 }
 
 export default function GallerySection({ images }: GallerySectionProps) {
+  const { t } = useLocale()
   const [lightbox, setLightbox] = useState<GalleryImage | null>(null)
 
   if (images.length === 0) return null
@@ -18,7 +20,7 @@ export default function GallerySection({ images }: GallerySectionProps) {
         <div className="max-w-4xl mx-auto px-4">
           <div className="invitation-ornament mb-10">
             <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal text-center">
-              Unsere Momente
+              {t('gallery.title')}
             </h2>
           </div>
 

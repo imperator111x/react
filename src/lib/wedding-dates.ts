@@ -1,6 +1,11 @@
 import { format } from 'date-fns'
-import { de } from 'date-fns/locale'
+import { de, enUS } from 'date-fns/locale'
+import type { Locale } from '../i18n'
 import type { Wedding } from '../types/wedding'
+
+function getLocale(locale: Locale = 'de') {
+  return locale === 'en' ? enUS : de
+}
 
 export function getCeremonyDate(wedding: Wedding): Date | null {
   const iso = wedding.ceremony_date ?? wedding.wedding_date
@@ -30,12 +35,14 @@ export function getDeletionDate(wedding: Wedding): Date {
   return date
 }
 
-export function formatEventDate(iso: string): string {
-  return format(new Date(iso), 'EEEE, d. MMMM yyyy', { locale: de })
+export function formatEventDate(iso: string, locale: Locale = 'de'): string {
+  const pattern = locale === 'en' ? 'EEEE, MMMM d, yyyy' : 'EEEE, d. MMMM yyyy'
+  return format(new Date(iso), pattern, { locale: getLocale(locale) })
 }
 
-export function formatEventTime(iso: string): string {
-  return format(new Date(iso), "HH:mm 'Uhr'", { locale: de })
+export function formatEventTime(iso: string, locale: Locale = 'de'): string {
+  const pattern = locale === 'en' ? 'h:mm a' : "HH:mm 'Uhr'"
+  return format(new Date(iso), pattern, { locale: getLocale(locale) })
 }
 
 export function toDatetimeLocalValue(iso: string): string {

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocale } from '../context/LocaleContext'
 
 interface CountdownProps {
   targetDate: string
@@ -24,6 +25,7 @@ function calculateTimeLeft(targetDate: string): TimeLeft | null {
 }
 
 export default function Countdown({ targetDate }: CountdownProps) {
+  const { t } = useLocale()
   const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(() => calculateTimeLeft(targetDate))
 
   useEffect(() => {
@@ -34,16 +36,14 @@ export default function Countdown({ targetDate }: CountdownProps) {
   }, [targetDate])
 
   if (!timeLeft) {
-    return (
-      <p className="font-serif text-2xl text-gold italic">Der große Tag ist da!</p>
-    )
+    return <p className="font-serif text-2xl text-gold italic">{t('countdown.past')}</p>
   }
 
   const units = [
-    { value: timeLeft.days, label: 'Tage' },
-    { value: timeLeft.hours, label: 'Stunden' },
-    { value: timeLeft.minutes, label: 'Minuten' },
-    { value: timeLeft.seconds, label: 'Sekunden' },
+    { value: timeLeft.days, label: t('countdown.days') },
+    { value: timeLeft.hours, label: t('countdown.hours') },
+    { value: timeLeft.minutes, label: t('countdown.minutes') },
+    { value: timeLeft.seconds, label: t('countdown.seconds') },
   ]
 
   return (

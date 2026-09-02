@@ -1,17 +1,34 @@
+import type { Locale } from '../i18n'
 import type { Salutation } from '../types/wedding'
 
 export function getFirstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] || fullName
 }
 
-export function getPersonalGreeting(name: string, salutation: Salutation): string {
+export function getPersonalGreeting(
+  name: string,
+  salutation: Salutation,
+  locale: Locale = 'de'
+): string {
   const trimmed = name.trim()
+  const first = getFirstName(trimmed)
+
+  if (locale === 'en') {
+    switch (salutation) {
+      case 'herr':
+        return `Dear ${first}`
+      case 'frau':
+        return `Dear ${first}`
+      case 'familie':
+        return `Dear ${trimmed} family`
+    }
+  }
 
   switch (salutation) {
     case 'herr':
-      return `Lieber ${getFirstName(trimmed)}`
+      return `Lieber ${first}`
     case 'frau':
-      return `Liebe ${getFirstName(trimmed)}`
+      return `Liebe ${first}`
     case 'familie':
       return `Liebe Familie ${trimmed}`
   }

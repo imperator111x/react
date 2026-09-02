@@ -24,10 +24,12 @@ import { getGalleryImages } from '../lib/gallery'
 import { getItineraryItems } from '../lib/itinerary'
 import { getFaqItems } from '../lib/faq'
 import { getGuestbookEntries } from '../lib/guestbook'
+import { getSeatingPlan, getSeatingTables } from '../lib/seating'
 import { getGuestRsvpMax } from '../lib/dashboard-stats'
 import DashboardStatsPanel from '../components/DashboardStatsPanel'
 import GalleryManager from '../components/GalleryManager'
 import GuestbookManager from '../components/GuestbookManager'
+import SeatingManager from '../components/SeatingManager'
 import ItineraryManager from '../components/ItineraryManager'
 import FaqManager from '../components/FaqManager'
 import WeddingEditor from '../components/WeddingEditor'
@@ -35,7 +37,7 @@ import InviteQrCode from '../components/InviteQrCode'
 import PendingGuestsPanel from '../components/PendingGuestsPanel'
 import GuestExportBar from '../components/GuestExportBar'
 import WhatsAppShareButton from '../components/WhatsAppShareButton'
-import type { FaqItem, GalleryImage, GuestbookEntry, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
+import type { FaqItem, GalleryImage, GuestbookEntry, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, SeatingTable, SeatingTableWithGuests, Wedding } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
@@ -47,6 +49,8 @@ export default function DashboardPage() {
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([])
   const [faqItems, setFaqItems] = useState<FaqItem[]>([])
   const [guestbookEntries, setGuestbookEntries] = useState<GuestbookEntry[]>([])
+  const [seatingTables, setSeatingTables] = useState<SeatingTable[]>([])
+  const [seatingPlan, setSeatingPlan] = useState<SeatingTableWithGuests[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
@@ -66,13 +70,15 @@ export default function DashboardPage() {
     const w = await getWeddingByToken(dashboardToken)
     setWedding(w)
     if (w) {
-      const [g, r, gallery, itinerary, faq, guestbook] = await Promise.all([
+      const [g, r, gallery, itinerary, faq, guestbook, tables, plan] = await Promise.all([
         getGuests(w.id),
         getRsvps(w.id),
         getGalleryImages(w.id),
         getItineraryItems(w.id),
         getFaqItems(w.id),
         getGuestbookEntries(w.id),
+        getSeatingTables(w.id),
+        getSeatingPlan(w.id),
       ])
       setGuests(g)
       setRsvps(r)
@@ -80,6 +86,8 @@ export default function DashboardPage() {
       setItineraryItems(itinerary)
       setFaqItems(faq)
       setGuestbookEntries(guestbook)
+      setSeatingTables(tables)
+      setSeatingPlan(plan)
     }
   }
 
@@ -228,6 +236,15 @@ export default function DashboardPage() {
         <WeddingEditor wedding={wedding} onUpdate={() => token && loadData(token)} />
 
         <GuestbookManager entries={guestbookEntries} onUpdate={() => token && loadData(token)} />
+
+        <SeatingManager
+          weddingId={wedding.id}
+          weddingSlug={wedding.slug}
+          tables={seatingTables}
+          plan={seatingPlan}
+          guests={guests}
+          onUpdate={() => token && loadData(token)}
+        />
 
         <PendingGuestsPanel
           wedding={wedding}

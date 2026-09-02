@@ -1,5 +1,6 @@
 import { CalendarPlus } from 'lucide-react'
 import Button from './Button'
+import { useLocale } from '../context/LocaleContext'
 import { downloadCalendarEvent } from '../lib/calendar'
 import type { Wedding } from '../types/wedding'
 
@@ -14,6 +15,7 @@ export default function CalendarExportButtons({
   className = '',
   compact = false,
 }: CalendarExportButtonsProps) {
+  const { t } = useLocale()
   const hasCeremony = Boolean(wedding.ceremony_date ?? wedding.wedding_date)
   const hasReception = Boolean(wedding.reception_date)
   const hasBoth = hasCeremony && hasReception
@@ -30,7 +32,7 @@ export default function CalendarExportButtons({
           onClick={() => downloadCalendarEvent(wedding, 'ceremony')}
         >
           <CalendarPlus className="w-4 h-4" />
-          {compact ? 'Trauung' : 'Trauung speichern'}
+          {compact ? t('hero.ceremony') : t('details.calendarCeremony')}
         </Button>
       )}
       {hasReception && (
@@ -41,7 +43,7 @@ export default function CalendarExportButtons({
           onClick={() => downloadCalendarEvent(wedding, 'reception')}
         >
           <CalendarPlus className="w-4 h-4" />
-          {compact ? 'Feier' : 'Feier speichern'}
+          {compact ? t('hero.reception') : t('details.calendarReception')}
         </Button>
       )}
       {hasBoth && (
@@ -52,7 +54,7 @@ export default function CalendarExportButtons({
           onClick={() => downloadCalendarEvent(wedding, 'all')}
         >
           <CalendarPlus className="w-4 h-4" />
-          Beide Termine
+          {t('details.calendarBoth')}
         </Button>
       )}
     </div>
