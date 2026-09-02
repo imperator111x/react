@@ -396,6 +396,37 @@ body {
   border-right: 1.5px solid;
 }
 
+/* Legal pages */
+.legal-content h2 {
+  font-family: var(--font-serif, 'Cormorant Garamond', serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--color-charcoal);
+  margin-top: 0.25rem;
+}
+
+.legal-content p {
+  color: var(--color-warm-gray);
+}
+
+.legal-content ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  color: var(--color-warm-gray);
+}
+
+.legal-content li + li {
+  margin-top: 0.35rem;
+}
+
+.legal-content a {
+  color: var(--color-gold-dark);
+}
+
+.legal-content a:hover {
+  text-decoration: underline;
+}
+
 /* Bot-check honeypot – hidden from humans */
 .bot-check-honeypot {
   position: absolute;

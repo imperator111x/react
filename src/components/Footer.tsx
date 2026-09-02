@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Heart } from 'lucide-react'
 
 export default function Footer() {
@@ -13,6 +14,18 @@ export default function Footer() {
             Kostenlose digitale Hochzeitseinladungen – mit Liebe gemacht.
           </p>
         </div>
+
+        <nav
+          className="mt-8 pt-6 border-t border-cream/10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
+          aria-label="Rechtliches"
+        >
+          <Link to="/impressum" className="text-cream/70 hover:text-gold transition-colors">
+            Impressum
+          </Link>
+          <Link to="/datenschutz" className="text-cream/70 hover:text-gold transition-colors">
+            Datenschutz
+          </Link>
+        </nav>
       </div>
     </footer>
   )

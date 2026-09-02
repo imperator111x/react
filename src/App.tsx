@@ -8,6 +8,8 @@ import DashboardRecoverPage from './pages/DashboardRecoverPage'
 import SeatingPlanPage from './pages/SeatingPlanPage'
 import SuccessPage from './pages/SuccessPage'
 import GuestPhotosPage from './pages/GuestPhotosPage'
+import PrivacyPage from './pages/PrivacyPage'
+import ImprintPage from './pages/ImprintPage'
 
 export default function App() {
   return (
@@ -17,6 +19,8 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/erstellen" element={<CreateWeddingPage />} />
           <Route path="/erfolg/:slug" element={<SuccessPage />} />
+          <Route path="/datenschutz" element={<PrivacyPage />} />
+          <Route path="/impressum" element={<ImprintPage />} />
         </Route>
         <Route path="/e/:slug" element={<InvitationPage />} />
         <Route path="/e/:slug/g/:guestToken" element={<InvitationPage />} />
