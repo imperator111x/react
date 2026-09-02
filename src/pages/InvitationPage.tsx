@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { format } from 'date-fns'
 import { de } from 'date-fns/locale'
@@ -12,6 +12,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import Countdown from '../components/Countdown'
+import EnvelopeIntro from '../components/EnvelopeIntro'
 import Button from '../components/Button'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
@@ -36,6 +37,15 @@ export default function InvitationPage() {
   const [guestCount, setGuestCount] = useState(1)
   const [dietaryNotes, setDietaryNotes] = useState('')
   const [message, setMessage] = useState('')
+  const envelopeKey = `envelope-${slug}-${guestToken ?? 'general'}`
+  const [showContent, setShowContent] = useState(() => {
+    try {
+      return sessionStorage.getItem(`envelope-${slug}-${guestToken ?? 'general'}`) === 'true'
+    } catch {
+      return false
+    }
+  })
+  const handleEnvelopeComplete = useCallback(() => setShowContent(true), [])
 
   const isPersonalLink = Boolean(guestToken)
   const isDemo = slug === 'demo'
@@ -142,106 +152,150 @@ export default function InvitationPage() {
     : null
 
   return (
-    <div className="min-h-screen">
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-blush/40 via-cream to-cream" />
-        <div className="absolute top-10 left-1/4 w-64 h-64 bg-gold/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-sage/10 rounded-full blur-3xl" />
+    <>
+      <EnvelopeIntro
+        partner1={wedding.partner1_name}
+        partner2={wedding.partner2_name}
+        personalGreeting={personalGreeting}
+        storageKey={envelopeKey}
+        onComplete={handleEnvelopeComplete}
+      />
 
-        <div className="relative text-center px-4 py-20 max-w-3xl mx-auto">
-          {personalGreeting && (
-            <p className="text-warm-gray text-lg mb-4">{personalGreeting},</p>
-          )}
-          <p className="text-gold uppercase tracking-[0.3em] text-sm mb-6">Wir heiraten</p>
-          <h1 className="font-serif text-5xl sm:text-7xl font-semibold text-charcoal mb-4">
-            {wedding.partner1_name}
-            <span className="block text-3xl sm:text-4xl text-gold italic my-2">&</span>
-            {wedding.partner2_name}
-          </h1>
-          <p className="text-warm-gray text-lg sm:text-xl">
-            {format(weddingDate, "EEEE, d. MMMM yyyy 'um' HH:mm 'Uhr'", { locale: de })}
-          </p>
-          {personalGreeting && (
-            <p className="text-charcoal mt-6 text-lg max-w-xl mx-auto leading-relaxed">
-              {invitedGuest?.salutation === 'familie'
-                ? 'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!'
-                : 'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!'}
+      <div
+        className={`min-h-screen transition-all duration-1000 ${
+          showContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}
+      >
+        <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blush/50 via-cream to-cream" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+          <div className="absolute top-10 left-1/4 w-72 h-72 bg-gold/10 rounded-full blur-3xl animate-pulse-soft" />
+          <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-blush/30 rounded-full blur-3xl" />
+
+          <div className="relative text-center px-4 py-24 max-w-3xl mx-auto">
+            {personalGreeting && (
+              <p className="font-serif text-2xl sm:text-3xl text-charcoal mb-6">{personalGreeting},</p>
+            )}
+            <div className="invitation-ornament mb-6">
+              <p className="text-gold uppercase tracking-[0.35em] text-xs sm:text-sm">Wir heiraten</p>
+            </div>
+            <h1 className="font-serif text-5xl sm:text-7xl lg:text-8xl font-semibold text-charcoal mb-6 leading-tight">
+              {wedding.partner1_name}
+              <span className="block text-3xl sm:text-5xl text-gold italic my-3 font-normal">&</span>
+              {wedding.partner2_name}
+            </h1>
+            <p className="text-warm-gray text-lg sm:text-xl font-light">
+              {format(weddingDate, "EEEE, d. MMMM yyyy", { locale: de })}
             </p>
-          )}
-        </div>
-      </section>
-
-      <section className="py-16 bg-white">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="font-serif text-2xl text-warm-gray mb-8">Noch bis zum großen Tag</h2>
-          <Countdown targetDate={wedding.wedding_date} />
-        </div>
-      </section>
-
-      {wedding.story && (
-        <section className="py-16">
-          <div className="max-w-2xl mx-auto px-4 text-center">
-            <Heart className="w-6 h-6 text-gold mx-auto mb-4" />
-            <h2 className="font-serif text-3xl font-semibold text-charcoal mb-6">Unsere Geschichte</h2>
-            <p className="text-warm-gray leading-relaxed text-lg">{wedding.story}</p>
+            <p className="text-gold text-base mt-2">
+              {format(weddingDate, "HH:mm 'Uhr'", { locale: de })}
+            </p>
+            {personalGreeting && (
+              <p className="text-charcoal mt-8 text-lg max-w-lg mx-auto leading-relaxed font-light">
+                {invitedGuest?.salutation === 'familie'
+                  ? 'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!'
+                  : 'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!'}
+              </p>
+            )}
+            <div className="mt-12 flex justify-center">
+              <div className="w-px h-16 bg-gradient-to-b from-gold/60 to-transparent" />
+            </div>
           </div>
         </section>
-      )}
 
-      <section className="py-16 bg-white">
-        <div className="max-w-2xl mx-auto px-4 space-y-10">
-          <h2 className="font-serif text-3xl font-semibold text-charcoal text-center mb-8">Details</h2>
-
-          {wedding.ceremony_location && (
-            <div className="flex gap-4 p-6 rounded-2xl bg-cream">
-              <Calendar className="w-6 h-6 text-gold shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-charcoal mb-1">Trauung</h3>
-                <p className="text-charcoal">{wedding.ceremony_location}</p>
-                {wedding.ceremony_address && (
-                  <p className="text-warm-gray text-sm mt-1 flex items-start gap-1">
-                    <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
-                    {wedding.ceremony_address}
-                  </p>
-                )}
-              </div>
+        <section className="py-20 bg-white relative">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/20 to-transparent" />
+          <div className="max-w-3xl mx-auto px-4 text-center">
+            <div className="invitation-ornament mb-8">
+              <h2 className="font-serif text-2xl text-warm-gray">Noch bis zum großen Tag</h2>
             </div>
-          )}
+            <Countdown targetDate={wedding.wedding_date} />
+          </div>
+        </section>
 
-          {wedding.reception_location && (
-            <div className="flex gap-4 p-6 rounded-2xl bg-cream">
-              <Heart className="w-6 h-6 text-gold shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-charcoal mb-1">Feier</h3>
-                <p className="text-charcoal">{wedding.reception_location}</p>
-                {wedding.reception_address && (
-                  <p className="text-warm-gray text-sm mt-1 flex items-start gap-1">
-                    <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
-                    {wedding.reception_address}
-                  </p>
-                )}
+        {wedding.story && (
+          <section className="py-20 relative">
+            <div className="max-w-2xl mx-auto px-4 text-center">
+              <Heart className="w-7 h-7 text-gold mx-auto mb-5" />
+              <div className="invitation-ornament mb-8">
+                <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">
+                  Unsere Geschichte
+                </h2>
               </div>
+              <p className="text-warm-gray leading-relaxed text-lg font-light">{wedding.story}</p>
             </div>
-          )}
+          </section>
+        )}
 
-          {wedding.dress_code && (
-            <div className="flex gap-4 p-6 rounded-2xl bg-cream">
-              <Shirt className="w-6 h-6 text-gold shrink-0 mt-1" />
-              <div>
-                <h3 className="font-semibold text-charcoal mb-1">Dresscode</h3>
-                <p className="text-warm-gray">{wedding.dress_code}</p>
+        <section className="py-20 bg-white">
+          <div className="max-w-2xl mx-auto px-4 space-y-6">
+            <div className="invitation-ornament mb-10">
+              <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">Details</h2>
+            </div>
+
+            {wedding.ceremony_location && (
+              <div className="flex gap-5 p-7 rounded-2xl bg-cream border border-cream-dark/80 shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+                  <Calendar className="w-5 h-5 text-gold" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-semibold text-charcoal mb-1">Trauung</h3>
+                  <p className="text-charcoal">{wedding.ceremony_location}</p>
+                  {wedding.ceremony_address && (
+                    <p className="text-warm-gray text-sm mt-2 flex items-start gap-1.5">
+                      <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-gold/70" />
+                      {wedding.ceremony_address}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      </section>
+            )}
 
-      <section className="py-16 sm:py-24" id="rsvp">
-        <div className="max-w-lg mx-auto px-4">
+            {wedding.reception_location && (
+              <div className="flex gap-5 p-7 rounded-2xl bg-cream border border-cream-dark/80 shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+                  <Heart className="w-5 h-5 text-gold" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-semibold text-charcoal mb-1">Feier</h3>
+                  <p className="text-charcoal">{wedding.reception_location}</p>
+                  {wedding.reception_address && (
+                    <p className="text-warm-gray text-sm mt-2 flex items-start gap-1.5">
+                      <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-gold/70" />
+                      {wedding.reception_address}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {wedding.dress_code && (
+              <div className="flex gap-5 p-7 rounded-2xl bg-cream border border-cream-dark/80 shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-gold/10 flex items-center justify-center shrink-0">
+                  <Shirt className="w-5 h-5 text-gold" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-xl font-semibold text-charcoal mb-1">Dresscode</h3>
+                  <p className="text-warm-gray">{wedding.dress_code}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+
+      <section className="py-20 sm:py-28 relative" id="rsvp">
+        <div className="absolute inset-0 bg-gradient-to-b from-cream via-blush/20 to-cream" />
+        <div className="relative max-w-lg mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal mb-3">
-              {personalGreeting ? `${personalGreeting}, seid ihr dabei?` : 'Seid ihr dabei?'}
-            </h2>
+            <div className="invitation-ornament mb-6">
+              <h2 className="font-serif text-3xl sm:text-4xl font-semibold text-charcoal">
+                {personalGreeting
+                  ? invitedGuest?.salutation === 'familie'
+                    ? `${personalGreeting}, seid ihr dabei?`
+                    : `${personalGreeting}, bist du dabei?`
+                  : 'Seid ihr dabei?'}
+              </h2>
+            </div>
             <p className="text-warm-gray">
               Bitte gebt uns bis zum{' '}
               {format(new Date(weddingDate.getTime() - 30 * 24 * 60 * 60 * 1000), 'd. MMMM yyyy', {
@@ -266,7 +320,7 @@ export default function InvitationPage() {
           ) : (
             <form
               onSubmit={handleRsvp}
-              className="bg-white rounded-2xl p-6 sm:p-8 border border-cream-dark space-y-6"
+              className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 sm:p-8 border border-cream-dark shadow-lg space-y-6"
             >
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -371,12 +425,13 @@ export default function InvitationPage() {
         </div>
       </section>
 
-      <footer className="py-8 text-center text-sm text-warm-gray border-t border-cream-dark">
-        <p className="font-serif text-lg text-charcoal mb-1">
-          {wedding.partner1_name} & {wedding.partner2_name}
+      <footer className="py-10 text-center text-sm text-warm-gray border-t border-cream-dark bg-white">
+        <p className="font-serif text-xl text-charcoal mb-1">
+          {wedding.partner1_name} <span className="text-gold italic">&</span> {wedding.partner2_name}
         </p>
-        <p>Mit Liebe erstellt mit UnsereHochzeit</p>
+        <p className="text-xs mt-2 opacity-60">Mit Liebe erstellt mit UnsereHochzeit</p>
       </footer>
-    </div>
+      </div>
+    </>
   )
 }
