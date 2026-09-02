@@ -332,41 +332,26 @@ body {
 
 .hero-date-banner__core {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  padding: 0.5rem 1rem;
+  justify-content: center;
+  padding: 0.65rem 1.25rem;
   border-radius: 9999px;
   background: linear-gradient(180deg, rgba(201, 169, 110, 0.08) 0%, transparent 100%);
 }
 
-.hero-date-banner__month {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--color-warm-gray);
-}
-
-.hero-date-banner__day {
+.hero-date-banner__date {
   font-family: var(--font-serif, 'Cormorant Garamond', serif);
-  font-size: 3.25rem;
+  font-size: 2rem;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.1;
+  letter-spacing: 0.04em;
   color: var(--color-charcoal);
-}
-
-.hero-date-banner__year {
-  font-size: 0.8rem;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  color: var(--color-charcoal);
-  opacity: 0.75;
+  white-space: nowrap;
 }
 
 @media (min-width: 640px) {
-  .hero-date-banner__day {
-    font-size: 3.75rem;
+  .hero-date-banner__date {
+    font-size: 2.35rem;
   }
 
   .hero-date-banner__weekday,

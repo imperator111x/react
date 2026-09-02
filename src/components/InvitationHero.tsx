@@ -42,9 +42,7 @@ function HeroDateBanner({ dateIso, locale }: { dateIso: string; locale: 'de' | '
   const date = new Date(dateIso)
   const dfLocale = getDateFnsLocale(locale)
   const weekday = format(date, 'EEEE', { locale: dfLocale })
-  const month = format(date, 'MMM', { locale: dfLocale }).replace('.', '')
-  const day = format(date, 'd')
-  const year = format(date, 'yyyy')
+  const dateLine = format(date, locale === 'en' ? 'd/M/yyyy' : 'd.M.yyyy', { locale: dfLocale })
   const time = formatEventTime(dateIso, locale)
 
   return (
@@ -58,9 +56,7 @@ function HeroDateBanner({ dateIso, locale }: { dateIso: string; locale: 'de' | '
       </div>
 
       <div className="hero-date-banner__core">
-        <span className="hero-date-banner__month">{month}</span>
-        <span className="hero-date-banner__day">{day}</span>
-        <span className="hero-date-banner__year">{year}</span>
+        <span className="hero-date-banner__date">{dateLine}</span>
       </div>
     </div>
   )
