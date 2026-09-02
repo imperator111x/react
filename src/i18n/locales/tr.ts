@@ -13,6 +13,10 @@ export const tr = {
     skipToContent: 'İçeriğe atla',
     close: 'Kapat',
     createdWith: 'UnsereHochzeit ile sevgiyle hazırlandı',
+    backHome: 'Ana sayfaya dön',
+    pageNotFound: 'Sayfa bulunamadı',
+    pageNotFoundDesc:
+      'Bu sayfa mevcut değil – bağlantı eski veya yanlış yazılmış olabilir.',
   },
   footer: {
     website: 'UnsereHochzeit',

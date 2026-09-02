@@ -13,6 +13,10 @@ export const de = {
     skipToContent: 'Zum Inhalt springen',
     close: 'Schließen',
     createdWith: 'Mit Liebe erstellt mit UnsereHochzeit',
+    backHome: 'Zur Startseite',
+    pageNotFound: 'Seite nicht gefunden',
+    pageNotFoundDesc:
+      'Diese Seite existiert leider nicht – vielleicht ist der Link veraltet oder falsch geschrieben.',
   },
   footer: {
     website: 'UnsereHochzeit',

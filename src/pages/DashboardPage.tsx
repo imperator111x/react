@@ -139,16 +139,25 @@ export default function DashboardPage() {
   if (!wedding) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
+        <p className="text-gold tracking-[0.35em] uppercase text-xs font-medium mb-4">404</p>
         <h1 className="font-serif text-3xl font-semibold text-charcoal mb-2">
           Dashboard nicht gefunden
         </h1>
-        <p className="text-warm-gray">Der Link ist ungültig oder abgelaufen.</p>
-        <Link
-          to="/dashboard/wiederherstellen"
-          className="mt-4 text-gold hover:underline text-sm inline-block"
-        >
-          Dashboard-Link per E-Mail wiederherstellen
-        </Link>
+        <p className="text-warm-gray mb-6">Der Link ist ungültig oder abgelaufen.</p>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link
+            to="/dashboard/wiederherstellen"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-gold text-white font-medium hover:bg-gold-dark transition-colors"
+          >
+            Link wiederherstellen
+          </Link>
+          <Link
+            to="/"
+            className="inline-flex items-center justify-center px-6 py-3 rounded-full border-2 border-gold text-gold font-medium hover:bg-gold hover:text-white transition-colors"
+          >
+            Zur Startseite
+          </Link>
+        </div>
       </div>
     )
   }

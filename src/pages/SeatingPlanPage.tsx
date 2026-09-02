@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { Heart, LayoutGrid, Loader2, Search, Users } from 'lucide-react'
+import { LayoutGrid, Loader2, Search, Users } from 'lucide-react'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import InviteQrCode from '../components/InviteQrCode'
 import Input from '../components/Input'
 import Button from '../components/Button'
+import NotFoundState from '../components/NotFoundState'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
 import { getSeatingPlanUrl } from '../i18n'
 import { getGuestByInviteToken, getWeddingBySlug } from '../lib/supabase'
@@ -102,10 +103,11 @@ function SeatingPlanContent() {
 
   if (!wedding) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 text-center">
-        <Heart className="w-12 h-12 text-gold/30 mb-4" />
-        <h1 className="font-serif text-3xl font-semibold text-charcoal mb-2">{t('common.notFound')}</h1>
-      </div>
+      <NotFoundState
+        title={t('common.notFound')}
+        description={t('common.notFoundDesc')}
+        homeLabel={t('common.backHome')}
+      />
     )
   }
 

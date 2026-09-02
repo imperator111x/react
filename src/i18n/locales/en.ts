@@ -13,6 +13,10 @@ export const en = {
     skipToContent: 'Skip to content',
     close: 'Close',
     createdWith: 'Made with love using UnsereHochzeit',
+    backHome: 'Back to homepage',
+    pageNotFound: 'Page not found',
+    pageNotFoundDesc:
+      'This page does not exist – the link may be outdated or mistyped.',
   },
   footer: {
     website: 'UnsereHochzeit',
