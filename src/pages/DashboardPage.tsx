@@ -27,6 +27,10 @@ import { getFaqItems } from '../lib/faq'
 import GalleryManager from '../components/GalleryManager'
 import ItineraryManager from '../components/ItineraryManager'
 import FaqManager from '../components/FaqManager'
+import WeddingEditor from '../components/WeddingEditor'
+import InviteQrCode from '../components/InviteQrCode'
+import PendingGuestsPanel from '../components/PendingGuestsPanel'
+import GuestExportBar from '../components/GuestExportBar'
 import type { FaqItem, GalleryImage, GuestWithRsvp, ItineraryItem, Rsvp, Salutation, Wedding } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
@@ -213,7 +217,17 @@ export default function DashboardPage() {
               </Button>
             </a>
           </div>
+          <InviteQrCode url={inviteUrl} />
         </div>
+
+        <WeddingEditor wedding={wedding} onUpdate={() => token && loadData(token)} />
+
+        <PendingGuestsPanel
+          wedding={wedding}
+          guests={guests}
+          copied={copied}
+          onCopy={copyText}
+        />
 
         {wedding && (
           <FaqManager
@@ -241,11 +255,14 @@ export default function DashboardPage() {
 
         <div className="bg-white rounded-2xl border border-cream-dark overflow-hidden mb-8">
           <div className="p-6 border-b border-cream-dark">
-            <div className="flex items-center gap-2 mb-4">
-              <UserPlus className="w-5 h-5 text-sage" />
-              <h2 className="font-serif text-xl font-semibold text-charcoal">
-                Gäste anlegen ({guests.length})
-              </h2>
+            <div className="flex items-center justify-between gap-4 mb-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-sage" />
+                <h2 className="font-serif text-xl font-semibold text-charcoal">
+                  Gäste anlegen ({guests.length})
+                </h2>
+              </div>
+              <GuestExportBar wedding={wedding} guests={guests} />
             </div>
             <form onSubmit={handleAddGuest} className="grid sm:grid-cols-6 gap-3 items-end">
               <div>

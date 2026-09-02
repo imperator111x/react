@@ -73,6 +73,17 @@ export interface CreateWeddingInput {
   email: string
 }
 
+export interface UpdateWeddingInput {
+  ceremony_date?: string
+  reception_date?: string
+  ceremony_location?: string
+  ceremony_address?: string
+  reception_location?: string
+  reception_address?: string
+  story?: string
+  dress_code?: string
+}
+
 export interface CreateGuestInput {
   name: string
   salutation: Salutation

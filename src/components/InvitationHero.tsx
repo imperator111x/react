@@ -3,6 +3,7 @@ import {
   formatEventDate,
   formatEventTime,
 } from '../lib/wedding-dates'
+import LocationMapsLinks from './LocationMapsLinks'
 import type { Guest, Wedding } from '../types/wedding'
 
 interface InvitationHeroProps {
@@ -36,10 +37,12 @@ function HeroEventBlock({
   label,
   dateIso,
   location,
+  address,
 }: {
   label: string
   dateIso: string
   location?: string | null
+  address?: string | null
 }) {
   return (
     <div className="text-center">
@@ -58,6 +61,17 @@ function HeroEventBlock({
           <span>{location}</span>
         </p>
       )}
+      {address && !location && (
+        <p className="mt-4 text-warm-gray text-sm">{address}</p>
+      )}
+      {address && location && (
+        <p className="mt-1 text-warm-gray text-xs sm:text-sm">{address}</p>
+      )}
+      <LocationMapsLinks
+        address={address}
+        location={location}
+        className="mt-4 flex flex-wrap justify-center gap-2"
+      />
     </div>
   )
 }
@@ -136,6 +150,7 @@ export default function InvitationHero({
                 label="Trauung"
                 dateIso={ceremonyIso}
                 location={wedding.ceremony_location}
+                address={wedding.ceremony_address}
               />
             )}
 
@@ -146,6 +161,7 @@ export default function InvitationHero({
                   label="Feier"
                   dateIso={receptionIso}
                   location={wedding.reception_location}
+                  address={wedding.reception_address}
                 />
               </>
             )}

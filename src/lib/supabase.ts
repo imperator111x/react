@@ -9,6 +9,7 @@ import type {
   CreateWeddingInput,
   CreateGuestInput,
   RsvpInput,
+  UpdateWeddingInput,
 } from '../types/wedding'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
@@ -93,6 +94,50 @@ export async function getWeddingByToken(token: string): Promise<Wedding | null> 
     .single()
 
   if (error) return null
+  return data as Wedding
+}
+
+export async function updateWedding(
+  weddingId: string,
+  input: UpdateWeddingInput
+): Promise<Wedding> {
+  if (!supabase) throw new Error('Supabase ist nicht konfiguriert')
+
+  const payload: Record<string, string | null> = {}
+
+  if (input.ceremony_date !== undefined) {
+    const ceremonyIso = datetimeLocalToIso(input.ceremony_date)
+    payload.ceremony_date = ceremonyIso
+    payload.wedding_date = ceremonyIso
+  }
+  if (input.reception_date !== undefined) {
+    payload.reception_date = input.reception_date
+      ? datetimeLocalToIso(input.reception_date)
+      : null
+  }
+  if (input.ceremony_location !== undefined) {
+    payload.ceremony_location = input.ceremony_location.trim() || null
+  }
+  if (input.ceremony_address !== undefined) {
+    payload.ceremony_address = input.ceremony_address.trim() || null
+  }
+  if (input.reception_location !== undefined) {
+    payload.reception_location = input.reception_location.trim() || null
+  }
+  if (input.reception_address !== undefined) {
+    payload.reception_address = input.reception_address.trim() || null
+  }
+  if (input.story !== undefined) payload.story = input.story.trim() || null
+  if (input.dress_code !== undefined) payload.dress_code = input.dress_code.trim() || null
+
+  const { data, error } = await supabase
+    .from('weddings')
+    .update(payload)
+    .eq('id', weddingId)
+    .select()
+    .single()
+
+  if (error) throw error
   return data as Wedding
 }
 
