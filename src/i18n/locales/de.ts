@@ -193,4 +193,11 @@ export const de = {
     emptyPublic: 'Noch keine Gäste-Fotos – seid die Ersten!',
     pendingNote: 'Neue Fotos erscheinen nach Freigabe durch uns.',
   },
+  liveWall: {
+    title: 'Gäste-Fotos',
+    live: 'Live',
+    empty: 'Sobald Gäste Fotos hochladen, erscheinen sie hier automatisch auf dem Screen.',
+    demoHint: 'Demo-Modus – in eurer echten Hochzeit erscheinen hier live die Gäste-Fotos.',
+    fullscreenHint: 'Tipp: F für Vollbild',
+  },
 } as const

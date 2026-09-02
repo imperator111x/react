@@ -50,6 +50,7 @@ const sqlFiles = [
   'supabase/migration-v10-seating.sql',
   'supabase/migration-v11-music-wishlist.sql',
   'supabase/migration-v12-guest-photos.sql',
+  'supabase/migration-v13-guest-photos-realtime.sql',
 ]
 
 try {

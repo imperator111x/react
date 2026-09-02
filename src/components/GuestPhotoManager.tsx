@@ -6,6 +6,7 @@ import {
   deleteGuestPhoto,
   getGuestPhotoUrl,
   getGuestPhotosPageUrl,
+  getLivePhotoWallUrl,
   setGuestPhotoApproved,
 } from '../lib/guest-photos'
 import type { GuestPhoto } from '../types/wedding'
@@ -23,6 +24,7 @@ export default function GuestPhotoManager({
 }: GuestPhotoManagerProps) {
   const [busyId, setBusyId] = useState<string | null>(null)
   const photosUrl = getGuestPhotosPageUrl(weddingSlug)
+  const wallUrl = getLivePhotoWallUrl(weddingSlug)
 
   const handleToggleApproved = async (photo: GuestPhoto) => {
     setBusyId(photo.id)
@@ -49,7 +51,8 @@ export default function GuestPhotoManager({
     <div className="bg-white rounded-2xl border border-cream-dark p-6 mb-8">
       <h2 className="font-serif text-xl font-semibold text-charcoal mb-2">Gäste-Fotos</h2>
       <p className="text-sm text-warm-gray mb-4">
-        Gäste laden über die Foto-Seite Bilder hoch. Freigegebene Fotos erscheinen auf der Dankeskarte.
+        Gäste laden über die Foto-Seite Bilder hoch. Freigegebene Fotos erscheinen auf der Dankeskarte –
+        auf der Live-Fotowand erscheinen neue Uploads sofort.
       </p>
 
       <InviteQrCode
@@ -57,6 +60,13 @@ export default function GuestPhotoManager({
         label="Foto-Upload Link"
         downloadFilename={`fotos-${weddingSlug}`}
         hint="QR-Code auf dem Tisch oder der Dankeskarte – Gäste scannen und laden Fotos hoch."
+      />
+
+      <InviteQrCode
+        url={wallUrl}
+        label="Live-Fotowand"
+        downloadFilename={`fotowand-${weddingSlug}`}
+        hint="Diesen Link auf Beamer, TV oder Tablet öffnen – neue Gäste-Fotos erscheinen automatisch."
       />
 
       {photos.length === 0 ? (

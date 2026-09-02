@@ -193,4 +193,11 @@ export const en = {
     emptyPublic: 'No guest photos yet – be the first!',
     pendingNote: 'New photos appear after we approve them.',
   },
+  liveWall: {
+    title: 'Guest photos',
+    live: 'Live',
+    empty: 'When guests upload photos, they will appear here automatically on the screen.',
+    demoHint: 'Demo mode – at your real wedding, guest photos will appear here live.',
+    fullscreenHint: 'Tip: press F for fullscreen',
+  },
 } as const

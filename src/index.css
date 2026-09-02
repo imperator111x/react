@@ -438,6 +438,217 @@ body {
   pointer-events: none;
 }
 
+/* Live photo wall */
+.live-wall {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(165deg, #1a1918 0%, #252220 45%, #1e1c1a 100%);
+  color: #faf7f2;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.25rem 0.75rem;
+  overflow: hidden;
+}
+
+.live-wall--loading,
+.live-wall--empty {
+  align-items: center;
+  justify-content: center;
+}
+
+.live-wall__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-shrink: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+}
+
+.live-wall__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-serif, 'Cormorant Garamond', serif);
+  font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+  letter-spacing: 0.02em;
+}
+
+.live-wall__meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: rgba(250, 247, 242, 0.75);
+}
+
+.live-wall__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #c9a96e;
+}
+
+.live-wall__live-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #e57373;
+  box-shadow: 0 0 0 0 rgba(229, 115, 115, 0.6);
+  animation: live-wall-pulse 2s ease-out infinite;
+}
+
+@keyframes live-wall-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(229, 115, 115, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(229, 115, 115, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 115, 115, 0); }
+}
+
+.live-wall__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.live-wall__demo-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(250, 247, 242, 0.45);
+  margin: 0.5rem 0 0;
+}
+
+.live-wall__empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.live-wall__layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .live-wall__layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(220px, 38vh) 1fr;
+  }
+}
+
+.live-wall__hero {
+  min-height: 0;
+  display: flex;
+}
+
+.live-wall__hero-frame {
+  position: relative;
+  flex: 1;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(201, 169, 110, 0.25);
+  background: #111;
+  animation: live-wall-fade-in 0.6s ease;
+}
+
+.live-wall__hero-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.live-wall__hero-frame figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+}
+
+.live-wall__caption-name {
+  display: block;
+  font-family: var(--font-serif, 'Cormorant Garamond', serif);
+  font-size: 1.35rem;
+}
+
+.live-wall__caption-text {
+  display: block;
+  font-size: 0.9rem;
+  color: rgba(250, 247, 242, 0.75);
+  margin-top: 0.15rem;
+}
+
+.live-wall__hero-frame--new,
+.live-wall__tile--new {
+  box-shadow: 0 0 0 2px #c9a96e, 0 0 24px rgba(201, 169, 110, 0.35);
+}
+
+.live-wall__grid {
+  min-height: 0;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.65rem;
+  align-content: start;
+  padding-right: 0.25rem;
+}
+
+.live-wall__tile {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.65rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  animation: live-wall-fade-in 0.5s ease;
+}
+
+.live-wall__tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.live-wall__tile figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.65rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.live-wall__hint {
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: rgba(250, 247, 242, 0.28);
+  margin: 0.5rem 0 0;
+}
+
+@keyframes live-wall-fade-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 /* Accessibility: reduced motion */
 @media (prefers-reduced-motion: reduce) {
   html {
