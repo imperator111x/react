@@ -35,9 +35,9 @@ export default function App() {
           <Route path="/dashboard/wiederherstellen" element={<DashboardRecoverPage />} />
           <Route path="/dashboard/:token" element={<DashboardPage />} />
         </Routes>
+        <CookieBanner />
+        <CookieSettingsButton />
       </BrowserRouter>
-      <CookieBanner />
-      <CookieSettingsButton />
     </CookieConsentProvider>
   )
 }
