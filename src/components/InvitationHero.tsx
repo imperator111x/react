@@ -1,9 +1,11 @@
 import { ChevronDown, MapPin } from 'lucide-react'
+import { format } from 'date-fns'
 import {
   formatEventDate,
   formatEventTime,
 } from '../lib/wedding-dates'
 import { useLocale } from '../context/LocaleContext'
+import { getDateFnsLocale } from '../i18n'
 import { getInvitationText } from '../lib/invitation-text'
 import LocationMapsLinks from './LocationMapsLinks'
 import type { Guest, Wedding } from '../types/wedding'
@@ -32,6 +34,38 @@ function BotanicalCorner({ className }: { className?: string }) {
       <ellipse cx="34" cy="42" rx="8" ry="3.5" fill="currentColor" opacity="0.25" transform="rotate(10 34 42)" />
       <ellipse cx="22" cy="24" rx="7" ry="3" fill="currentColor" opacity="0.2" transform="rotate(-40 22 24)" />
     </svg>
+  )
+}
+
+function HeroDateBanner({ dateIso, locale }: { dateIso: string; locale: 'de' | 'en' }) {
+  const date = new Date(dateIso)
+  const dfLocale = getDateFnsLocale(locale)
+  const weekday = format(date, locale === 'en' ? 'EEEE' : 'EEEE', { locale: dfLocale }).toUpperCase()
+  const month = format(date, 'MMM', { locale: dfLocale }).toUpperCase()
+  const day = format(date, 'd')
+  const year = format(date, 'yyyy')
+  const time = formatEventTime(dateIso, locale)
+
+  return (
+    <div className="my-8 max-w-sm mx-auto">
+      <div className="flex items-center justify-between text-[0.65rem] sm:text-xs tracking-[0.2em] text-charcoal/70 uppercase">
+        <span>{weekday}</span>
+        <span>{time}</span>
+      </div>
+      <div className="flex items-center gap-3 my-2">
+        <div className="flex-1 h-px bg-gold/30" />
+        <div className="text-center shrink-0 px-2">
+          <span className="block text-[0.65rem] sm:text-xs tracking-[0.25em] text-warm-gray uppercase">
+            {month}
+          </span>
+          <span className="block font-serif text-3xl sm:text-4xl text-charcoal leading-none my-0.5">
+            {day}
+          </span>
+          <span className="block text-xs sm:text-sm tracking-[0.2em] text-warm-gray">{year}</span>
+        </div>
+        <div className="flex-1 h-px bg-gold/30" />
+      </div>
+    </div>
   )
 }
 
@@ -88,6 +122,8 @@ export default function InvitationHero({
   const { locale, t } = useLocale()
   const ceremonyIso = wedding.ceremony_date ?? wedding.wedding_date
   const receptionIso = wedding.reception_date
+  const hasCover = Boolean(wedding.cover_image_url)
+  const invitationLine = getInvitationText(wedding.invitation_text, invitedGuest?.salutation, locale)
 
   return (
     <section className="invitation-hero relative min-h-[88vh] flex items-center justify-center overflow-hidden">
@@ -106,82 +142,148 @@ export default function InvitationHero({
       <div className="absolute bottom-20 right-[8%] w-80 h-80 bg-blush/40 rounded-full blur-3xl" />
       <div className="absolute top-1/3 right-[15%] w-40 h-40 bg-sage/10 rounded-full blur-2xl" />
 
-      <BotanicalCorner className="absolute top-8 left-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30" />
-      <BotanicalCorner className="absolute top-8 right-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30 scale-x-[-1]" />
-      <BotanicalCorner className="absolute bottom-24 left-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 rotate-180" />
-      <BotanicalCorner className="absolute bottom-24 right-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 scale-x-[-1] rotate-180" />
+      {!hasCover && (
+        <>
+          <BotanicalCorner className="absolute top-8 left-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30" />
+          <BotanicalCorner className="absolute top-8 right-6 w-16 h-16 sm:w-20 sm:h-20 text-sage/30 scale-x-[-1]" />
+          <BotanicalCorner className="absolute bottom-24 left-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 rotate-180" />
+          <BotanicalCorner className="absolute bottom-24 right-8 w-14 h-14 sm:w-18 sm:h-18 text-sage/20 scale-x-[-1] rotate-180" />
+        </>
+      )}
 
-      <div className="relative text-center px-4 py-20 sm:py-24 max-w-3xl mx-auto w-full">
-        {personalGreeting && (
+      <div className="relative text-center px-4 py-16 sm:py-20 max-w-2xl mx-auto w-full">
+        {personalGreeting && !hasCover && (
           <div className="mb-8 animate-fade-in">
             <p className="font-serif text-2xl sm:text-3xl text-charcoal mb-4">
               {personalGreeting},
             </p>
             <p className="text-charcoal text-base sm:text-lg max-w-lg mx-auto leading-relaxed font-light px-2">
-              {getInvitationText(wedding.invitation_text, invitedGuest?.salutation, locale)}
+              {invitationLine}
             </p>
           </div>
         )}
 
-        {wedding.cover_image_url && (
-          <div className="mb-10 mx-auto max-w-3xl w-full">
-            <div className="rounded-2xl overflow-hidden shadow-xl ring-1 ring-gold/25 aspect-[16/10] sm:aspect-[2/1]">
-              <img
-                src={wedding.cover_image_url}
-                alt=""
-                className="w-full h-full object-cover"
-              />
-            </div>
+        {!hasCover && (
+          <div className="invitation-ornament mb-8">
+            <p className="text-gold uppercase tracking-[0.4em] text-[0.65rem] sm:text-xs font-medium">
+              {t('hero.saveTheDate')}
+            </p>
           </div>
         )}
 
-        <div className="invitation-ornament mb-8">
-          <p className="text-gold uppercase tracking-[0.4em] text-[0.65rem] sm:text-xs font-medium">
-            {t('hero.saveTheDate')}
-          </p>
-        </div>
+        <div
+          className={`invitation-hero__card mx-auto max-w-2xl w-full ${
+            hasCover ? 'invitation-hero__card--with-cover' : ''
+          }`}
+        >
+          {hasCover && wedding.cover_image_url && (
+            <div className="invitation-hero__cover">
+              <img src={wedding.cover_image_url} alt="" />
+            </div>
+          )}
 
-        <div className="invitation-hero__card mx-auto max-w-2xl px-8 sm:px-12 py-10 sm:py-14">
-          <div className="invitation-hero__corner invitation-hero__corner--tl" aria-hidden />
-          <div className="invitation-hero__corner invitation-hero__corner--tr" aria-hidden />
-          <div className="invitation-hero__corner invitation-hero__corner--bl" aria-hidden />
-          <div className="invitation-hero__corner invitation-hero__corner--br" aria-hidden />
+          <div className="invitation-hero__body px-6 sm:px-10 py-8 sm:py-12">
+            <div className="invitation-hero__corner invitation-hero__corner--tl" aria-hidden />
+            <div className="invitation-hero__corner invitation-hero__corner--tr" aria-hidden />
+            <div className="invitation-hero__corner invitation-hero__corner--bl" aria-hidden />
+            <div className="invitation-hero__corner invitation-hero__corner--br" aria-hidden />
 
-          <p className="text-gold/80 uppercase tracking-[0.35em] text-[0.6rem] sm:text-xs mb-6">
-            {t('hero.weMarry')}
-          </p>
-
-          <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-tight">
-            {wedding.partner1_name}
-            <span className="block text-2xl sm:text-4xl lg:text-5xl text-gold italic my-3 sm:my-4 font-normal">
-              &
-            </span>
-            {wedding.partner2_name}
-          </h1>
-
-          <div className="mt-8 sm:mt-10 pt-8 border-t border-gold/15 space-y-8">
-            {ceremonyIso && (
-              <HeroEventBlock
-                label={t('hero.ceremony')}
-                dateIso={ceremonyIso}
-                location={wedding.ceremony_location}
-                address={wedding.ceremony_address}
-                locale={locale}
-              />
+            {personalGreeting && hasCover && (
+              <div className="mb-6 animate-fade-in">
+                <p className="font-serif text-xl sm:text-2xl text-charcoal mb-2">
+                  {personalGreeting},
+                </p>
+                <p className="text-charcoal text-sm sm:text-base leading-relaxed font-light">
+                  {invitationLine}
+                </p>
+              </div>
             )}
 
-            {receptionIso && (
+            {hasCover ? (
               <>
-                {ceremonyIso && <div className="h-px bg-gold/10 max-w-xs mx-auto" />}
-                <HeroEventBlock
-                  label={t('hero.reception')}
-                  dateIso={receptionIso}
-                  location={wedding.reception_location}
-                  address={wedding.reception_address}
-                  locale={locale}
-                />
+                <p className="text-charcoal uppercase tracking-[0.35em] text-xs sm:text-sm font-medium mb-1">
+                  {locale === 'de' ? 'Wir sagen' : 'We say'}
+                </p>
+                <p className="font-serif text-4xl sm:text-5xl text-gold italic mb-2">Ja!</p>
+
+                {ceremonyIso && <HeroDateBanner dateIso={ceremonyIso} locale={locale} />}
+
+                {!personalGreeting && (
+                  <p className="text-warm-gray text-sm sm:text-base leading-relaxed max-w-md mx-auto mb-8 font-light">
+                    {invitationLine}
+                  </p>
+                )}
+
+                <h1 className="font-serif text-3xl sm:text-5xl text-charcoal leading-tight">
+                  {wedding.partner1_name}
+                  <span className="block text-2xl sm:text-3xl text-gold italic my-2 font-normal">
+                    &
+                  </span>
+                  {wedding.partner2_name}
+                </h1>
+              </>
+            ) : (
+              <>
+                <p className="text-gold/80 uppercase tracking-[0.35em] text-[0.6rem] sm:text-xs mb-6">
+                  {t('hero.weMarry')}
+                </p>
+
+                <h1 className="font-serif text-4xl sm:text-6xl lg:text-7xl font-semibold text-charcoal leading-tight">
+                  {wedding.partner1_name}
+                  <span className="block text-2xl sm:text-4xl lg:text-5xl text-gold italic my-3 sm:my-4 font-normal">
+                    &
+                  </span>
+                  {wedding.partner2_name}
+                </h1>
               </>
             )}
+
+            <div className={`${hasCover ? 'mt-10' : 'mt-8 sm:mt-10'} pt-8 border-t border-gold/15 space-y-8`}>
+              {!hasCover && ceremonyIso && (
+                <HeroEventBlock
+                  label={t('hero.ceremony')}
+                  dateIso={ceremonyIso}
+                  location={wedding.ceremony_location}
+                  address={wedding.ceremony_address}
+                  locale={locale}
+                />
+              )}
+
+              {hasCover && (wedding.ceremony_location || wedding.ceremony_address) && (
+                <div className="text-center">
+                  <p className="text-gold/70 uppercase tracking-[0.28em] text-[0.6rem] sm:text-xs mb-3">
+                    {t('hero.ceremony')}
+                  </p>
+                  {wedding.ceremony_location && (
+                    <p className="flex items-center justify-center gap-2 text-warm-gray text-sm sm:text-base">
+                      <MapPin className="w-4 h-4 text-gold/70 shrink-0" />
+                      <span>{wedding.ceremony_location}</span>
+                    </p>
+                  )}
+                  {wedding.ceremony_address && (
+                    <p className="text-warm-gray text-xs sm:text-sm mt-1">{wedding.ceremony_address}</p>
+                  )}
+                  <LocationMapsLinks
+                    address={wedding.ceremony_address}
+                    location={wedding.ceremony_location}
+                    className="mt-4 flex flex-wrap justify-center gap-2"
+                  />
+                </div>
+              )}
+
+              {receptionIso && (
+                <>
+                  {(ceremonyIso || hasCover) && <div className="h-px bg-gold/10 max-w-xs mx-auto" />}
+                  <HeroEventBlock
+                    label={t('hero.reception')}
+                    dateIso={receptionIso}
+                    location={wedding.reception_location}
+                    address={wedding.reception_address}
+                    locale={locale}
+                  />
+                </>
+              )}
+            </div>
           </div>
         </div>
 
