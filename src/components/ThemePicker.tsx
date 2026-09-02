@@ -13,7 +13,7 @@ export default function ThemePicker({ value, onChange }: ThemePickerProps) {
         <Palette className="w-4 h-4 text-gold" />
         Farbschema der Einladung
       </label>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-3">
         {WEDDING_THEMES.map((theme) => {
           const selected = (value || 'gold') === theme.id
           return (

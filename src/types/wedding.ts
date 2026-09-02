@@ -128,6 +128,23 @@ export interface GalleryImage {
   created_at: string
 }
 
+export interface GuestPhoto {
+  id: string
+  wedding_id: string
+  guest_id: string | null
+  guest_name: string
+  storage_path: string
+  caption: string | null
+  is_approved: boolean
+  created_at: string
+}
+
+export interface CreateGuestPhotoInput {
+  guest_name: string
+  caption?: string
+  guest_id?: string
+}
+
 export type ItineraryIconName =
   | 'church'
   | 'champagne'

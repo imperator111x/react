@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage'
 import DashboardRecoverPage from './pages/DashboardRecoverPage'
 import SeatingPlanPage from './pages/SeatingPlanPage'
 import SuccessPage from './pages/SuccessPage'
+import GuestPhotosPage from './pages/GuestPhotosPage'
 
 export default function App() {
   return (
@@ -21,6 +22,8 @@ export default function App() {
         <Route path="/e/:slug/g/:guestToken" element={<InvitationPage />} />
         <Route path="/e/:slug/tischplan" element={<SeatingPlanPage />} />
         <Route path="/e/:slug/tischplan/g/:guestToken" element={<SeatingPlanPage />} />
+        <Route path="/e/:slug/fotos" element={<GuestPhotosPage />} />
+        <Route path="/e/:slug/fotos/g/:guestToken" element={<GuestPhotosPage />} />
         <Route path="/dashboard/wiederherstellen" element={<DashboardRecoverPage />} />
         <Route path="/dashboard/:token" element={<DashboardPage />} />
       </Routes>

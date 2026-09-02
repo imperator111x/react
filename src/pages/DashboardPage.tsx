@@ -24,6 +24,7 @@ import { getGeneralInviteShareMessage, getPersonalInviteShareMessage } from '../
 import { getDeletionDate, formatEventDate, formatEventTime } from '../lib/wedding-dates'
 import { createGuest, deleteGuest, getGuests, getRsvps, getWeddingByToken, updateGuest } from '../lib/supabase'
 import { getGalleryImages } from '../lib/gallery'
+import { getGuestPhotos } from '../lib/guest-photos'
 import { getItineraryItems } from '../lib/itinerary'
 import { getFaqItems } from '../lib/faq'
 import { getGuestbookEntries } from '../lib/guestbook'
@@ -44,8 +45,9 @@ import PendingGuestsPanel from '../components/PendingGuestsPanel'
 import GuestExportBar from '../components/GuestExportBar'
 import MusicWishManager from '../components/MusicWishManager'
 import WishlistManager from '../components/WishlistManager'
+import GuestPhotoManager from '../components/GuestPhotoManager'
 import WhatsAppShareButton from '../components/WhatsAppShareButton'
-import type { FaqItem, GalleryImage, GuestbookEntry, GuestWithRsvp, ItineraryItem, MusicWish, Rsvp, Salutation, SeatingTable, SeatingTableWithGuests, Wedding, WishlistItem } from '../types/wedding'
+import type { FaqItem, GalleryImage, GuestPhoto, GuestbookEntry, GuestWithRsvp, ItineraryItem, MusicWish, Rsvp, Salutation, SeatingTable, SeatingTableWithGuests, Wedding, WishlistItem } from '../types/wedding'
 import { SALUTATION_OPTIONS } from '../types/wedding'
 
 export default function DashboardPage() {
@@ -61,6 +63,7 @@ export default function DashboardPage() {
   const [seatingPlan, setSeatingPlan] = useState<SeatingTableWithGuests[]>([])
   const [musicWishes, setMusicWishes] = useState<MusicWish[]>([])
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([])
+  const [guestPhotos, setGuestPhotos] = useState<GuestPhoto[]>([])
   const [loading, setLoading] = useState(true)
   const [copied, setCopied] = useState<string | null>(null)
   const [addingGuest, setAddingGuest] = useState(false)
@@ -89,7 +92,7 @@ export default function DashboardPage() {
     const w = await getWeddingByToken(dashboardToken)
     setWedding(w)
     if (w) {
-      const [g, r, gallery, itinerary, faq, guestbook, tables, plan, music, wishlist] = await Promise.all([
+      const [g, r, gallery, itinerary, faq, guestbook, tables, plan, music, wishlist, photos] = await Promise.all([
         getGuests(w.id),
         getRsvps(w.id),
         getGalleryImages(w.id),
@@ -100,6 +103,7 @@ export default function DashboardPage() {
         getSeatingPlan(w.id),
         getMusicWishes(w.id),
         getWishlistItems(w.id),
+        getGuestPhotos(w.id),
       ])
       setGuests(g)
       setRsvps(r)
@@ -111,6 +115,7 @@ export default function DashboardPage() {
       setSeatingPlan(plan)
       setMusicWishes(music)
       setWishlistItems(wishlist)
+      setGuestPhotos(photos)
     }
   }
 
@@ -349,6 +354,14 @@ export default function DashboardPage() {
           <GalleryManager
             weddingId={wedding.id}
             images={galleryImages}
+            onUpdate={() => token && loadData(token)}
+          />
+        )}
+
+        {wedding && (
+          <GuestPhotoManager
+            weddingSlug={wedding.slug}
+            photos={guestPhotos}
             onUpdate={() => token && loadData(token)}
           />
         )}

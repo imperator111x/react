@@ -10,6 +10,8 @@ export const de = {
     invalidLink: 'Dieser persönliche Link ist ungültig.',
     scrollMore: 'Mehr entdecken',
     scrollDown: 'Weiter scrollen',
+    skipToContent: 'Zum Inhalt springen',
+    close: 'Schließen',
     createdWith: 'Mit Liebe erstellt mit UnsereHochzeit',
   },
   hero: {
@@ -21,6 +23,7 @@ export const de = {
     reception: 'Feier',
     routePlan: 'Route starten',
     googleMaps: 'Google Maps',
+    printInvitation: 'Einladung drucken',
   },
   countdown: {
     title: 'Noch bis zum großen Tag',
@@ -147,5 +150,32 @@ export const de = {
       'wir laden dich herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn du dabei bist!',
     defaultPlural:
       'wir laden euch herzlich zu unserer Hochzeit ein und würden uns sehr freuen, wenn ihr dabei seid!',
+  },
+  thankYou: {
+    title: 'Danke!',
+    subtitle: 'Dass ihr diesen besonderen Tag mit uns gefeiert habt, bedeutet uns die Welt.',
+    message:
+      'Wir sind überwältigt von all der Liebe, den Lächeln und den unvergesslichen Momenten. Danke, dass ihr Teil unserer Geschichte seid!',
+    uploadPhotos: 'Eure Fotos teilen',
+    viewInvitation: 'Zur Einladung',
+  },
+  guestPhotos: {
+    title: 'Eure Fotos',
+    pageTitle: 'Fotos teilen',
+    subtitle: 'Ladet eure schönsten Momente von unserer Feier hoch – wir freuen uns riesig!',
+    yourName: 'Euer Name *',
+    namePlaceholder: 'Vor- und Nachname',
+    caption: 'Beschreibung (optional)',
+    captionPlaceholder: 'z.B. Erster Tanz',
+    selectPhotos: 'Fotos auswählen',
+    photosSelected: '{count} Foto(s) ausgewählt',
+    upload: 'Hochladen',
+    uploading: 'Wird hochgeladen…',
+    thanks: 'Danke! Eure Fotos werden nach kurzer Prüfung sichtbar.',
+    fillRequired: 'Bitte Name und mindestens ein Foto angeben.',
+    uploadError: 'Upload fehlgeschlagen.',
+    backToInvitation: 'Zurück zur Einladung',
+    emptyPublic: 'Noch keine Gäste-Fotos – seid die Ersten!',
+    pendingNote: 'Neue Fotos erscheinen nach Freigabe durch uns.',
   },
 } as const

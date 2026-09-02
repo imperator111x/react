@@ -24,6 +24,7 @@ export default function FaqSection({ items }: FaqSectionProps) {
         <div className="space-y-3">
           {items.map((item) => {
             const isOpen = openId === item.id
+            const panelId = `faq-panel-${item.id}`
             return (
               <div
                 key={item.id}
@@ -31,9 +32,11 @@ export default function FaqSection({ items }: FaqSectionProps) {
               >
                 <button
                   type="button"
+                  id={`faq-trigger-${item.id}`}
                   onClick={() => setOpenId(isOpen ? null : item.id)}
-                  className="w-full flex items-start gap-3 p-5 sm:p-6 text-left hover:bg-cream/30 transition-colors"
+                  className="w-full flex items-start gap-3 p-5 sm:p-6 text-left hover:bg-cream/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/40"
                   aria-expanded={isOpen}
+                  aria-controls={panelId}
                 >
                   <HelpCircle className="w-5 h-5 text-gold shrink-0 mt-0.5" />
                   <span className="flex-1 font-serif text-lg text-charcoal pr-2">{item.question}</span>
@@ -44,6 +47,9 @@ export default function FaqSection({ items }: FaqSectionProps) {
                   />
                 </button>
                 <div
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={`faq-trigger-${item.id}`}
                   className={`grid transition-all duration-300 ease-in-out ${
                     isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
                   }`}

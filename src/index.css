@@ -396,3 +396,39 @@ body {
   border-right: 1.5px solid;
 }
 
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print: invitation page */
+@media print {
+  .envelope-overlay,
+  .fixed.top-4,
+  [aria-label*='scroll'],
+  #rsvp form,
+  .language-switcher-print-hide {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+    color: #2c2c2c !important;
+  }
+
+  section {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+

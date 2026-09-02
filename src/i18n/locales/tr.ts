@@ -10,6 +10,8 @@ export const tr = {
     invalidLink: 'Bu kişisel bağlantı geçersiz.',
     scrollMore: 'Daha fazlasını keşfet',
     scrollDown: 'Aşağı kaydır',
+    skipToContent: 'İçeriğe atla',
+    close: 'Kapat',
     createdWith: 'UnsereHochzeit ile sevgiyle hazırlandı',
   },
   hero: {
@@ -21,6 +23,7 @@ export const tr = {
     reception: 'Düğün kutlaması',
     routePlan: 'Yol tarifi al',
     googleMaps: 'Google Maps',
+    printInvitation: 'Davetiyeyi yazdır',
   },
   countdown: {
     title: 'Büyük güne kalan süre',
@@ -148,5 +151,32 @@ export const tr = {
       'sizi düğünümüze içtenlikle davet ediyoruz ve aramızda olmanızdan büyük mutluluk duyarız!',
     defaultPlural:
       'sizi düğünümüze içtenlikle davet ediyoruz ve aramızda olmanızdan büyük mutluluk duyarız!',
+  },
+  thankYou: {
+    title: 'Teşekkürler!',
+    subtitle: 'Bu özel günü bizimle kutladığınız için çok minnettarız.',
+    message:
+      'Gösterdiğiniz sevgi, gülümsemeler ve unutulmaz anlar bizi çok duygulandırdı. Hikayemizin bir parçası olduğunuz için teşekkürler!',
+    uploadPhotos: 'Fotoğraflarınızı paylaşın',
+    viewInvitation: 'Davetiyeye dön',
+  },
+  guestPhotos: {
+    title: 'Fotoğraflarınız',
+    pageTitle: 'Fotoğraf paylaş',
+    subtitle: 'Kutlamamızdan en güzel anlarınızı yükleyin – görmek için sabırsızlanıyoruz!',
+    yourName: 'Adınız *',
+    namePlaceholder: 'Ad ve soyad',
+    caption: 'Açıklama (isteğe bağlı)',
+    captionPlaceholder: 'ör. İlk dans',
+    selectPhotos: 'Fotoğraf seç',
+    photosSelected: '{count} fotoğraf seçildi',
+    upload: 'Yükle',
+    uploading: 'Yükleniyor…',
+    thanks: 'Teşekkürler! Fotoğraflarınız kısa bir incelemeden sonra görünür olacak.',
+    fillRequired: 'Lütfen adınızı girin ve en az bir fotoğraf seçin.',
+    uploadError: 'Yükleme başarısız.',
+    backToInvitation: 'Davetiyeye dön',
+    emptyPublic: 'Henüz misafir fotoğrafı yok – ilk siz olun!',
+    pendingNote: 'Yeni fotoğraflar onaylandıktan sonra görünür.',
   },
 } as const
