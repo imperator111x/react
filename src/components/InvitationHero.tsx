@@ -1,7 +1,8 @@
-import { format } from 'date-fns'
-import { de } from 'date-fns/locale'
 import { ChevronDown, MapPin } from 'lucide-react'
-import { getCeremonyDate } from '../lib/wedding-dates'
+import {
+  formatEventDate,
+  formatEventTime,
+} from '../lib/wedding-dates'
 import type { Guest, Wedding } from '../types/wedding'
 
 interface InvitationHeroProps {
@@ -31,12 +32,43 @@ function BotanicalCorner({ className }: { className?: string }) {
   )
 }
 
+function HeroEventBlock({
+  label,
+  dateIso,
+  location,
+}: {
+  label: string
+  dateIso: string
+  location?: string | null
+}) {
+  return (
+    <div className="text-center">
+      <p className="text-gold/70 uppercase tracking-[0.28em] text-[0.6rem] sm:text-xs mb-3">
+        {label}
+      </p>
+      <p className="font-serif text-lg sm:text-xl text-charcoal mb-0.5">
+        {formatEventDate(dateIso)}
+      </p>
+      <p className="inline-block mt-3 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm tracking-wide">
+        {formatEventTime(dateIso)}
+      </p>
+      {location && (
+        <p className="mt-4 flex items-center justify-center gap-2 text-warm-gray text-sm sm:text-base">
+          <MapPin className="w-4 h-4 text-gold/70 shrink-0" />
+          <span>{location}</span>
+        </p>
+      )}
+    </div>
+  )
+}
+
 export default function InvitationHero({
   wedding,
   personalGreeting,
   invitedGuest,
 }: InvitationHeroProps) {
-  const weddingDate = getCeremonyDate(wedding) ?? new Date(wedding.wedding_date)
+  const ceremonyIso = wedding.ceremony_date ?? wedding.wedding_date
+  const receptionIso = wedding.reception_date
 
   return (
     <section className="invitation-hero relative min-h-[88vh] flex items-center justify-center overflow-hidden">
@@ -98,22 +130,24 @@ export default function InvitationHero({
             {wedding.partner2_name}
           </h1>
 
-          <div className="mt-8 sm:mt-10 pt-8 border-t border-gold/15">
-            <p className="font-serif text-xl sm:text-2xl text-charcoal mb-1">
-              {format(weddingDate, 'EEEE', { locale: de })}
-            </p>
-            <p className="text-warm-gray text-base sm:text-lg font-light">
-              {format(weddingDate, 'd. MMMM yyyy', { locale: de })}
-            </p>
-            <p className="inline-block mt-4 px-5 py-2 rounded-full bg-gold/10 border border-gold/20 text-gold text-sm tracking-wide">
-              {format(weddingDate, "HH:mm 'Uhr'", { locale: de })}
-            </p>
+          <div className="mt-8 sm:mt-10 pt-8 border-t border-gold/15 space-y-8">
+            {ceremonyIso && (
+              <HeroEventBlock
+                label="Trauung"
+                dateIso={ceremonyIso}
+                location={wedding.ceremony_location}
+              />
+            )}
 
-            {wedding.ceremony_location && (
-              <p className="mt-5 flex items-center justify-center gap-2 text-warm-gray text-sm sm:text-base">
-                <MapPin className="w-4 h-4 text-gold/70 shrink-0" />
-                <span>{wedding.ceremony_location}</span>
-              </p>
+            {receptionIso && (
+              <>
+                {ceremonyIso && <div className="h-px bg-gold/10 max-w-xs mx-auto" />}
+                <HeroEventBlock
+                  label="Feier"
+                  dateIso={receptionIso}
+                  location={wedding.reception_location}
+                />
+              </>
             )}
           </div>
         </div>
