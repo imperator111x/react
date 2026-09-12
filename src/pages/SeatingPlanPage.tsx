@@ -179,7 +179,7 @@ function SeatingPlanContent() {
                 : t('seating.yourTableSingular')}
             </p>
             <p className="font-serif text-2xl font-semibold text-charcoal">
-              {getPublicTableName(guestTable.name)}
+              {getPublicTableName(guestTable.name, { tableLabel: t('seating.table') })}
             </p>
             <p className="text-sm text-warm-gray mt-2">{t('seating.highlighted')}</p>
           </div>
@@ -191,7 +191,10 @@ function SeatingPlanContent() {
           <div className="space-y-4 mb-10">
             {plan.map((table, index) => {
               const isHighlighted = guestTable?.id === table.id
-              const publicName = getPublicTableName(table.name, index)
+              const publicName = getPublicTableName(table.name, {
+                fallbackIndex: index,
+                tableLabel: t('seating.table'),
+              })
               return (
                 <div
                   key={table.id}

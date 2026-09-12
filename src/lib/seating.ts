@@ -12,12 +12,43 @@ import { supabase } from './supabase'
 /** Maximal legbare Tische pro Hochzeit */
 export const MAX_SEATING_TABLES = 30
 
-/** Öffentliche Anzeige: nur „Tisch 1“, ohne „– Freunde“ o. Ä. */
-export function getPublicTableName(name: string, fallbackIndex?: number): string {
+const NUMBERED_TABLE_PATTERN = /^(tisch|table|masa|sto)(?:\s*(\d+))?$/i
+
+export type PublicTableNameOptions = {
+  fallbackIndex?: number
+  /** Übersetztes Wort für „Tisch“, z. B. Table / Masa / Sto */
+  tableLabel?: string
+}
+
+/**
+ * Öffentliche Anzeige: nur „Tisch 1“, ohne „– Freunde“ o. Ä.
+ * Standardnamen (Tisch/Table/Masa/Sto, optional mit Zahl) werden lokalisiert.
+ * Freie Namen bleiben unverändert.
+ */
+export function getPublicTableName(
+  name: string,
+  fallbackIndexOrOptions?: number | PublicTableNameOptions
+): string {
+  const options: PublicTableNameOptions =
+    typeof fallbackIndexOrOptions === 'number'
+      ? { fallbackIndex: fallbackIndexOrOptions }
+      : (fallbackIndexOrOptions ?? {})
+  const tableLabel = options.tableLabel?.trim() || 'Tisch'
+
   const trimmed = name.trim()
   const withoutSuffix = trimmed.split(/\s+[–-]\s+/)[0]?.trim() ?? trimmed
-  if (withoutSuffix) return withoutSuffix
-  return fallbackIndex != null ? `Tisch ${fallbackIndex + 1}` : trimmed
+
+  if (withoutSuffix) {
+    const numbered = withoutSuffix.match(NUMBERED_TABLE_PATTERN)
+    if (numbered) {
+      return numbered[2] ? `${tableLabel} ${numbered[2]}` : tableLabel
+    }
+    return withoutSuffix
+  }
+
+  return options.fallbackIndex != null
+    ? `${tableLabel} ${options.fallbackIndex + 1}`
+    : trimmed
 }
 
 export async function getSeatingTables(weddingId: string): Promise<SeatingTable[]> {
