@@ -194,7 +194,7 @@ export const de = {
     fillRequired: 'Bitte Name und mindestens ein Foto angeben.',
     uploadError: 'Upload fehlgeschlagen.',
     backToInvitation: 'Zurück zur Einladung',
-    viewPhotos: 'Fotos ansehen',
+    viewPhotos: 'Live-Fotos ansehen',
     emptyPublic: 'Noch keine Gäste-Fotos – seid die Ersten!',
     pendingNote: 'Neue Fotos erscheinen automatisch.',
   },

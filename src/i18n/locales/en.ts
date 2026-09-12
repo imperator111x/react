@@ -194,7 +194,7 @@ export const en = {
     fillRequired: 'Please enter your name and select at least one photo.',
     uploadError: 'Upload failed.',
     backToInvitation: 'Back to invitation',
-    viewPhotos: 'View photos',
+    viewPhotos: 'View live photos',
     emptyPublic: 'No guest photos yet – be the first!',
     pendingNote: 'New photos appear automatically.',
   },

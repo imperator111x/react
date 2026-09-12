@@ -7,17 +7,16 @@ import SkipLink from '../components/SkipLink'
 import CreatedWithCredit from '../components/CreatedWithCredit'
 import LegalFooterLinks from '../components/LegalFooterLinks'
 import NotFoundState from '../components/NotFoundState'
-import GuestPhotoGallerySection from '../components/GuestPhotoGallerySection'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
 import Button from '../components/Button'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
 import { getGuestByInviteToken, getWeddingBySlug } from '../lib/supabase'
-import { getGuestPhotos, uploadGuestPhoto } from '../lib/guest-photos'
+import { uploadGuestPhoto } from '../lib/guest-photos'
 import { ALLOWED_IMAGE_TYPES, MAX_GALLERY_FILE_SIZE } from '../lib/gallery'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
-import type { Guest, GuestPhoto, Wedding } from '../types/wedding'
+import type { Guest, Wedding } from '../types/wedding'
 
 export default function GuestPhotosPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -41,18 +40,13 @@ function GuestPhotosContent() {
   const [uploading, setUploading] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
-  const [photos, setPhotos] = useState<GuestPhoto[]>([])
 
   const isDemo = slug === 'demo'
   const inviteBase = import.meta.env.BASE_URL.replace(/\/$/, '')
   const invitationPath = guestToken
     ? `${inviteBase}/e/${slug}/g/${guestToken}`
     : `${inviteBase}/e/${slug}`
-
-  const refreshPhotos = async (weddingId: string) => {
-    const next = await getGuestPhotos(weddingId, true)
-    setPhotos(next)
-  }
+  const liveWallPath = `${inviteBase}/e/${slug}/fotowand`
 
   useEffect(() => {
     async function load() {
@@ -62,21 +56,17 @@ function GuestPhotosContent() {
           setGuest(DEMO_GUEST)
           setGuestName(DEMO_GUEST.name)
         }
-        setPhotos([])
         setLoading(false)
         return
       }
 
       const data = await getWeddingBySlug(slug!)
       setWedding(data)
-      if (data) {
-        await refreshPhotos(data.id)
-        if (guestToken) {
-          const g = await getGuestByInviteToken(data.id, guestToken)
-          if (g) {
-            setGuest(g)
-            setGuestName(g.name)
-          }
+      if (data && guestToken) {
+        const g = await getGuestByInviteToken(data.id, guestToken)
+        if (g) {
+          setGuest(g)
+          setGuestName(g.name)
         }
       }
       setLoading(false)
@@ -122,7 +112,6 @@ function GuestPhotosContent() {
       setSelectedFiles([])
       setCaption('')
       if (fileInputRef.current) fileInputRef.current.value = ''
-      await refreshPhotos(wedding.id)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('guestPhotos.uploadError'))
     } finally {
@@ -171,13 +160,13 @@ function GuestPhotosContent() {
             <p className="mt-2 text-sm text-charcoal font-serif italic">
               {wedding.partner1_name} & {wedding.partner2_name}
             </p>
-            <a
-              href="#galerie"
-              className="inline-flex items-center gap-2 mt-5 text-sm font-medium text-gold hover:text-gold-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 rounded"
+            <Link
+              to={liveWallPath}
+              className="inline-flex items-center justify-center gap-2 mt-6 px-6 py-3 text-sm font-medium rounded-full border-2 border-gold text-gold hover:bg-gold hover:text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
             >
               <Images className="w-4 h-4" aria-hidden />
               {t('guestPhotos.viewPhotos')}
-            </a>
+            </Link>
           </div>
 
           {done ? (
@@ -188,13 +177,13 @@ function GuestPhotosContent() {
                 <Button type="button" variant="outline" onClick={() => setDone(false)}>
                   {t('guestPhotos.selectPhotos')}
                 </Button>
-                <a
-                  href="#galerie"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gold hover:text-gold-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 rounded"
+                <Link
+                  to={liveWallPath}
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium rounded-full border-2 border-gold text-gold hover:bg-gold hover:text-white transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
                 >
                   <Images className="w-4 h-4" aria-hidden />
                   {t('guestPhotos.viewPhotos')}
-                </a>
+                </Link>
               </div>
             </div>
           ) : (
@@ -260,9 +249,6 @@ function GuestPhotosContent() {
           )}
         </div>
 
-        <div id="galerie" className="scroll-mt-8 mt-10">
-          <GuestPhotoGallerySection photos={photos} showPendingNote />
-        </div>
 
         <footer className="mt-16 pt-8 border-t border-cream-dark text-center">
           <CreatedWithCredit />

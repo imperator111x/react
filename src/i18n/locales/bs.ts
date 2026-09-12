@@ -195,7 +195,7 @@ export const bs = {
     fillRequired: 'Molimo unesite ime i barem jednu fotografiju.',
     uploadError: 'Učitavanje nije uspjelo.',
     backToInvitation: 'Nazad na pozivnicu',
-    viewPhotos: 'Pogledaj fotografije',
+    viewPhotos: 'Pogledaj live fotografije',
     emptyPublic: 'Još nema fotografija gostiju – budite prvi!',
     pendingNote: 'Nove fotografije se pojavljuju automatski.',
   },
