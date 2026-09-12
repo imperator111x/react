@@ -1,22 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Camera, CheckCircle, Loader2, Upload } from 'lucide-react'
+import { ArrowLeft, Camera, CheckCircle, Images, Loader2, Upload } from 'lucide-react'
 import WeddingThemeWrapper from '../components/WeddingThemeWrapper'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import SkipLink from '../components/SkipLink'
 import CreatedWithCredit from '../components/CreatedWithCredit'
 import LegalFooterLinks from '../components/LegalFooterLinks'
 import NotFoundState from '../components/NotFoundState'
+import GuestPhotoGallerySection from '../components/GuestPhotoGallerySection'
 import Input from '../components/Input'
 import Textarea from '../components/Textarea'
 import Button from '../components/Button'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
 import { getGuestByInviteToken, getWeddingBySlug } from '../lib/supabase'
-import { uploadGuestPhoto } from '../lib/guest-photos'
+import { getGuestPhotos, uploadGuestPhoto } from '../lib/guest-photos'
 import { ALLOWED_IMAGE_TYPES, MAX_GALLERY_FILE_SIZE } from '../lib/gallery'
 import { DEMO_WEDDING } from '../lib/demo'
 import { DEMO_GUEST } from '../lib/demo-guest'
-import type { Guest, Wedding } from '../types/wedding'
+import type { Guest, GuestPhoto, Wedding } from '../types/wedding'
 
 export default function GuestPhotosPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -40,12 +41,18 @@ function GuestPhotosContent() {
   const [uploading, setUploading] = useState(false)
   const [done, setDone] = useState(false)
   const [error, setError] = useState('')
+  const [photos, setPhotos] = useState<GuestPhoto[]>([])
 
   const isDemo = slug === 'demo'
   const inviteBase = import.meta.env.BASE_URL.replace(/\/$/, '')
   const invitationPath = guestToken
     ? `${inviteBase}/e/${slug}/g/${guestToken}`
     : `${inviteBase}/e/${slug}`
+
+  const refreshPhotos = async (weddingId: string) => {
+    const next = await getGuestPhotos(weddingId, true)
+    setPhotos(next)
+  }
 
   useEffect(() => {
     async function load() {
@@ -55,17 +62,21 @@ function GuestPhotosContent() {
           setGuest(DEMO_GUEST)
           setGuestName(DEMO_GUEST.name)
         }
+        setPhotos([])
         setLoading(false)
         return
       }
 
       const data = await getWeddingBySlug(slug!)
       setWedding(data)
-      if (data && guestToken) {
-        const g = await getGuestByInviteToken(data.id, guestToken)
-        if (g) {
-          setGuest(g)
-          setGuestName(g.name)
+      if (data) {
+        await refreshPhotos(data.id)
+        if (guestToken) {
+          const g = await getGuestByInviteToken(data.id, guestToken)
+          if (g) {
+            setGuest(g)
+            setGuestName(g.name)
+          }
         }
       }
       setLoading(false)
@@ -111,6 +122,7 @@ function GuestPhotosContent() {
       setSelectedFiles([])
       setCaption('')
       if (fileInputRef.current) fileInputRef.current.value = ''
+      await refreshPhotos(wedding.id)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('guestPhotos.uploadError'))
     } finally {
@@ -159,20 +171,31 @@ function GuestPhotosContent() {
             <p className="mt-2 text-sm text-charcoal font-serif italic">
               {wedding.partner1_name} & {wedding.partner2_name}
             </p>
+            <a
+              href="#galerie"
+              className="inline-flex items-center gap-2 mt-5 text-sm font-medium text-gold hover:text-gold-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 rounded"
+            >
+              <Images className="w-4 h-4" aria-hidden />
+              {t('guestPhotos.viewPhotos')}
+            </a>
           </div>
 
           {done ? (
             <div className="bg-white rounded-2xl border border-cream-dark p-8 text-center shadow-sm">
               <CheckCircle className="w-12 h-12 text-sage mx-auto mb-4" aria-hidden />
               <p className="text-charcoal leading-relaxed">{t('guestPhotos.thanks')}</p>
-              <Button
-                type="button"
-                variant="outline"
-                className="mt-6"
-                onClick={() => setDone(false)}
-              >
-                {t('guestPhotos.selectPhotos')}
-              </Button>
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <Button type="button" variant="outline" onClick={() => setDone(false)}>
+                  {t('guestPhotos.selectPhotos')}
+                </Button>
+                <a
+                  href="#galerie"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-gold hover:text-gold-dark transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50 rounded"
+                >
+                  <Images className="w-4 h-4" aria-hidden />
+                  {t('guestPhotos.viewPhotos')}
+                </a>
+              </div>
             </div>
           ) : (
             <form
@@ -235,6 +258,10 @@ function GuestPhotosContent() {
               </Button>
             </form>
           )}
+        </div>
+
+        <div id="galerie" className="scroll-mt-8 mt-10">
+          <GuestPhotoGallerySection photos={photos} showPendingNote />
         </div>
 
         <footer className="mt-16 pt-8 border-t border-cream-dark text-center">
