@@ -1,15 +1,16 @@
-import { de as deLocale, enUS as enLocale, tr as trLocale } from 'date-fns/locale'
+import { bs as bsLocale, de as deLocale, enUS as enLocale, tr as trLocale } from 'date-fns/locale'
+import { bs } from './locales/bs'
 import { de } from './locales/de'
 import { en } from './locales/en'
 import { tr } from './locales/tr'
 
-export type Locale = 'de' | 'en' | 'tr'
+export type Locale = 'de' | 'en' | 'tr' | 'bs'
 
 type StringDict = { [key: string]: string | StringDict }
 
 export type TranslationDict = StringDict
 
-const dictionaries: Record<Locale, StringDict> = { de, en, tr }
+const dictionaries: Record<Locale, StringDict> = { de, en, tr, bs }
 
 export function translate(
   locale: Locale,
@@ -36,7 +37,7 @@ export function translate(
   return result
 }
 
-export { de, en, tr }
+export { bs, de, en, tr }
 
 export function getDictionary(locale: Locale): TranslationDict {
   return dictionaries[locale] ?? de
@@ -48,6 +49,8 @@ export function getDateFnsLocale(locale: Locale) {
       return enLocale
     case 'tr':
       return trLocale
+    case 'bs':
+      return bsLocale
     default:
       return deLocale
   }
@@ -56,7 +59,7 @@ export function getDateFnsLocale(locale: Locale) {
 export function getStoredLocale(slug: string): Locale {
   try {
     const stored = localStorage.getItem(`locale-${slug}`)
-    if (stored === 'en' || stored === 'de' || stored === 'tr') return stored
+    if (stored === 'en' || stored === 'de' || stored === 'tr' || stored === 'bs') return stored
   } catch {
     /* ignore */
   }
