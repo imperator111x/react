@@ -42,11 +42,11 @@ function GuestPhotosContent() {
   const [error, setError] = useState('')
 
   const isDemo = slug === 'demo'
-  const inviteBase = import.meta.env.BASE_URL.replace(/\/$/, '')
+  // Link-Pfade ohne BASE_URL: BrowserRouter hat bereits basename
   const invitationPath = guestToken
-    ? `${inviteBase}/e/${slug}/g/${guestToken}`
-    : `${inviteBase}/e/${slug}`
-  const liveWallPath = `${inviteBase}/e/${slug}/fotowand`
+    ? `/e/${slug}/g/${guestToken}`
+    : `/e/${slug}`
+  const liveWallPath = `/e/${slug}/fotowand`
 
   useEffect(() => {
     async function load() {
