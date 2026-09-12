@@ -53,6 +53,7 @@ const sqlFiles = [
   'supabase/migration-v13-guest-photos-realtime.sql',
   'supabase/migration-v14-party-member-names.sql',
   'supabase/migration-v15-member-table-ids.sql',
+  'supabase/migration-v16-guest-photos-auto-approve.sql',
 ]
 
 try {

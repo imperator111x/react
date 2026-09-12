@@ -120,7 +120,7 @@ export async function uploadGuestPhoto(
       guest_name: input.guest_name.trim(),
       storage_path: storagePath,
       caption: input.caption?.trim() || null,
-      is_approved: false,
+      is_approved: true,
     })
     .select()
     .single()
