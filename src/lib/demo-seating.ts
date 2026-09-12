@@ -1,4 +1,5 @@
 import type { SeatingTable, SeatingTableWithGuests } from '../types/wedding'
+import { getSeatingSeats } from './guests'
 import { DEMO_GUEST } from './demo-guest'
 
 export const DEMO_TABLES: SeatingTable[] = [
@@ -33,6 +34,7 @@ export function getDemoSeatingPlan(): SeatingTableWithGuests[] {
       salutation: 'frau' as const,
       table_id: 'demo-table-1',
       member_names: ['Tom Weber'],
+      member_table_ids: ['demo-table-3'],
       guest_count: 2,
     },
     {
@@ -41,6 +43,7 @@ export function getDemoSeatingPlan(): SeatingTableWithGuests[] {
       salutation: 'familie' as const,
       table_id: 'demo-table-1',
       member_names: ['Lisa Müller', 'Paul Müller', 'Emma Müller'],
+      member_table_ids: ['demo-table-1', 'demo-table-1', 'demo-table-2'],
       guest_count: 3,
     },
     {
@@ -49,6 +52,7 @@ export function getDemoSeatingPlan(): SeatingTableWithGuests[] {
       salutation: DEMO_GUEST.salutation,
       table_id: DEMO_GUEST.table_id!,
       member_names: DEMO_GUEST.member_names,
+      member_table_ids: DEMO_GUEST.member_table_ids,
       guest_count: DEMO_GUEST.guest_count,
     },
     {
@@ -57,12 +61,19 @@ export function getDemoSeatingPlan(): SeatingTableWithGuests[] {
       salutation: 'herr' as const,
       table_id: 'demo-table-3',
       member_names: [],
+      member_table_ids: [],
       guest_count: 1,
     },
   ]
 
   return DEMO_TABLES.map((table) => ({
     ...table,
-    guests: guests.filter((guest) => guest.table_id === table.id),
+    guests: guests
+      .map((guest) => {
+        const seatsHere = getSeatingSeats(guest).filter((s) => s.tableId === table.id)
+        if (seatsHere.length === 0) return null
+        return { ...guest, seat_names: seatsHere.map((s) => s.name) }
+      })
+      .filter(Boolean) as SeatingTableWithGuests['guests'],
   }))
 }

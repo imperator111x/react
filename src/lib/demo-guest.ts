@@ -9,6 +9,7 @@ export const DEMO_GUEST: Guest = {
   guest_count: 2,
   max_guest_count: 2,
   member_names: ['Thomas Schmidt'],
+  member_table_ids: ['demo-table-1'],
   table_id: 'demo-table-2',
   invite_token: 'demo-gast',
   rsvp_id: null,

@@ -44,6 +44,7 @@ CREATE TABLE guests (
   guest_count INTEGER NOT NULL DEFAULT 1 CHECK (guest_count >= 1 AND guest_count <= 10),
   max_guest_count INTEGER,
   member_names TEXT[] NOT NULL DEFAULT '{}',
+  member_table_ids TEXT[] NOT NULL DEFAULT '{}',
   table_id UUID REFERENCES seating_tables(id) ON DELETE SET NULL,
   invite_token UUID NOT NULL DEFAULT gen_random_uuid(),
   rsvp_id UUID,

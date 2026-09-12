@@ -53,6 +53,112 @@ export function resizeMemberNames(names: string[] | null | undefined, slotCount:
   return next
 }
 
+/** member_table_ids auf die Länge von member_names bringen (fehlend = erben). */
+export function resizeMemberTableIds(
+  tableIds: string[] | null | undefined,
+  slotCount: number
+): (string | null)[] {
+  const next: (string | null)[] = [...(tableIds ?? [])]
+    .slice(0, slotCount)
+    .map((id) => (id === undefined ? null : id))
+  while (next.length < slotCount) next.push(null)
+  return next
+}
+
+export type SeatingSeat = {
+  guestId: string
+  name: string
+  /** null = Hauptgast (Herr/Frau) bzw. Familien-Fallback; Zahl = Index in member_names */
+  memberIndex: number | null
+  /** null = kein Tisch */
+  tableId: string | null
+}
+
+type SeatingGuestInput = Pick<
+  Guest,
+  'id' | 'name' | 'salutation' | 'table_id' | 'member_names' | 'member_table_ids'
+> & {
+  rsvp?: Pick<Rsvp, 'member_names' | 'status'> | null
+}
+
+function resolveMemberNames(
+  guest: Pick<Guest, 'member_names'> & {
+    rsvp?: Pick<Rsvp, 'member_names' | 'status'> | null
+  }
+): string[] {
+  const fromRsvp =
+    guest.rsvp?.status === 'accepted' ? sanitizeMemberNames(guest.rsvp.member_names) : []
+  const fromGuest = sanitizeMemberNames(guest.member_names)
+  return fromRsvp.length > 0 ? fromRsvp : fromGuest
+}
+
+/**
+ * Einzelne Sitzplätze einer Einladung.
+ * member_table_ids[i]: Tisch-ID | '' (kein Tisch) | fehlend/null (erbt table_id).
+ */
+export function getSeatingSeats(guest: SeatingGuestInput): SeatingSeat[] {
+  const members = resolveMemberNames(guest)
+  const memberTables = guest.member_table_ids ?? []
+  const primaryTable = guest.table_id ?? null
+  const primary = guest.name.trim()
+
+  const resolveMemberTable = (index: number): string | null => {
+    if (index < memberTables.length) {
+      const raw = memberTables[index]
+      if (raw === '') return null
+      if (raw != null) return raw
+    }
+    return primaryTable
+  }
+
+  if (guest.salutation === 'familie') {
+    if (members.length === 0) {
+      return primary
+        ? [
+            {
+              guestId: guest.id,
+              name: `Familie ${primary}`,
+              memberIndex: null,
+              tableId: primaryTable,
+            },
+          ]
+        : []
+    }
+    return members.map((name, index) => ({
+      guestId: guest.id,
+      name,
+      memberIndex: index,
+      tableId: resolveMemberTable(index),
+    }))
+  }
+
+  const seats: SeatingSeat[] = []
+  if (primary) {
+    seats.push({
+      guestId: guest.id,
+      name: primary,
+      memberIndex: null,
+      tableId: primaryTable,
+    })
+  }
+
+  const primaryLower = primary.toLowerCase()
+  const companionEntries = members
+    .map((name, index) => ({ name, index }))
+    .filter(({ name }) => name.toLowerCase() !== primaryLower)
+
+  for (const { name, index } of companionEntries) {
+    seats.push({
+      guestId: guest.id,
+      name,
+      memberIndex: index,
+      tableId: resolveMemberTable(index),
+    })
+  }
+
+  return seats
+}
+
 /** Anzahl Namensfelder für Personen am Tisch (Dashboard). */
 export function getCompanionNameSlotCount(options: {
   salutation: Salutation
@@ -105,12 +211,12 @@ export function extractEditableMemberNames(
 export function getSeatingDisplayNames(
   guest: Pick<Guest, 'name' | 'salutation' | 'member_names'> & {
     rsvp?: Pick<Rsvp, 'member_names' | 'status'> | null
+    seat_names?: string[]
   }
 ): string[] {
-  const fromRsvp =
-    guest.rsvp?.status === 'accepted' ? sanitizeMemberNames(guest.rsvp.member_names) : []
-  const fromGuest = sanitizeMemberNames(guest.member_names)
-  const members = fromRsvp.length > 0 ? fromRsvp : fromGuest
+  if (guest.seat_names && guest.seat_names.length > 0) return guest.seat_names
+
+  const members = resolveMemberNames(guest)
   const primary = guest.name.trim()
 
   if (guest.salutation === 'familie') {
