@@ -57,16 +57,16 @@ export default function GuestPhotoManager({
 
       <InviteQrCode
         url={photosUrl}
-        label="Foto-Upload Link"
+        label="Foto-Upload"
         downloadFilename={`fotos-${weddingSlug}`}
-        hint="QR-Code auf dem Tisch oder der Dankeskarte – Gäste scannen und laden Fotos hoch."
+        hint="QR-Code oder Link an Gäste geben – sie scannen bzw. öffnen die Seite und laden Fotos hoch."
       />
 
       <InviteQrCode
         url={wallUrl}
         label="Live-Fotowand"
         downloadFilename={`fotowand-${weddingSlug}`}
-        hint="Diesen Link auf Beamer, TV oder Tablet öffnen – neue Gäste-Fotos erscheinen automatisch."
+        hint="Link auf Beamer, TV oder Tablet öffnen – neue Gäste-Fotos erscheinen automatisch."
       />
 
       {photos.length === 0 ? (
