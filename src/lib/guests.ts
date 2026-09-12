@@ -1,5 +1,5 @@
 import { translate, type Locale } from '../i18n'
-import type { Guest, GuestWithRsvp, Rsvp, Salutation } from '../types/wedding'
+import type { Guest, Rsvp, Salutation } from '../types/wedding'
 
 export function getFirstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] || fullName
@@ -126,7 +126,11 @@ export function getSeatingDisplayNames(
   return [primary, ...members]
 }
 
-export function getGuestPartyLabel(guest: GuestWithRsvp | Guest): string {
+export function getGuestPartyLabel(
+  guest: Pick<Guest, 'name' | 'salutation' | 'member_names'> & {
+    rsvp?: Pick<Rsvp, 'member_names' | 'status'> | null
+  }
+): string {
   const names = getSeatingDisplayNames(guest)
   if (names.length <= 1) return names[0] ?? guest.name
   return `${guest.name} (${names.length} Personen)`
