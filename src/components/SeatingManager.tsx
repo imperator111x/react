@@ -162,15 +162,42 @@ export default function SeatingManager({
                 </Button>
               </div>
               {table.guests.length > 0 ? (
-                <ul className="space-y-1 text-sm text-charcoal">
-                  {table.guests.flatMap((g) =>
-                    getSeatingDisplayNames(g).map((displayName, index) => (
-                      <li key={`${g.id}-${index}`} className="flex items-center gap-2">
-                        <Users className="w-3.5 h-3.5 text-warm-gray" />
-                        {displayName}
+                <ul className="space-y-3 text-sm text-charcoal">
+                  {table.guests.map((g) => {
+                    const names = getSeatingDisplayNames(g)
+                    return (
+                      <li
+                        key={g.id}
+                        className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 rounded-xl border border-cream-dark/60 bg-cream/20 px-3 py-2.5"
+                      >
+                        <div className="flex-1 min-w-0 space-y-1">
+                          {names.map((displayName, index) => (
+                            <div key={`${g.id}-${index}`} className="flex items-center gap-2">
+                              <Users className="w-3.5 h-3.5 text-warm-gray shrink-0" />
+                              <span>{displayName}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <label className="flex items-center gap-2 shrink-0 text-xs text-warm-gray">
+                          <span className="whitespace-nowrap">Tisch</span>
+                          <select
+                            value={table.id}
+                            disabled={busyGuestId === g.id}
+                            aria-label={`${getGuestPartyLabel(g)} an anderen Tisch setzen`}
+                            onChange={(e) => handleAssign(g.id, e.target.value)}
+                            className="px-3 py-2 rounded-xl border border-cream-dark bg-white text-sm text-charcoal focus:outline-none focus:ring-2 focus:ring-gold/40"
+                          >
+                            <option value="">— Kein Tisch —</option>
+                            {tables.map((option) => (
+                              <option key={option.id} value={option.id}>
+                                {option.name}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
                       </li>
-                    ))
-                  )}
+                    )
+                  })}
                 </ul>
               ) : (
                 <p className="text-sm text-warm-gray italic">Noch keine Gäste zugewiesen</p>
@@ -182,33 +209,50 @@ export default function SeatingManager({
 
       {guests.length > 0 && tables.length > 0 && (
         <div className="p-6 bg-cream/20">
-          <h3 className="font-medium text-charcoal mb-4">Gäste zuweisen</h3>
+          <h3 className="font-medium text-charcoal mb-1">Gäste zuweisen & umsetzen</h3>
+          <p className="text-xs text-warm-gray mb-4">
+            Tisch in der Liste ändern – Gäste können jederzeit an einen anderen Tisch gesetzt werden.
+          </p>
           <ul className="space-y-3">
-            {guests.map((guest) => (
-              <li key={guest.id} className="flex flex-col sm:flex-row sm:items-center gap-2">
-                <span className="text-sm text-charcoal flex-1">
-                  {getGuestPartyLabel(guest)}
-                  {getSeatingDisplayNames(guest).length > 1 && (
-                    <span className="block text-xs text-warm-gray mt-0.5">
-                      {getSeatingDisplayNames(guest).join(', ')}
+            {[...guests]
+              .sort((a, b) => {
+                const aUnassigned = a.table_id ? 1 : 0
+                const bUnassigned = b.table_id ? 1 : 0
+                if (aUnassigned !== bUnassigned) return aUnassigned - bUnassigned
+                return a.name.localeCompare(b.name, 'de')
+              })
+              .map((guest) => {
+                const currentTable = tables.find((t) => t.id === guest.table_id)
+                return (
+                  <li key={guest.id} className="flex flex-col sm:flex-row sm:items-center gap-2">
+                    <span className="text-sm text-charcoal flex-1">
+                      {getGuestPartyLabel(guest)}
+                      {getSeatingDisplayNames(guest).length > 1 && (
+                        <span className="block text-xs text-warm-gray mt-0.5">
+                          {getSeatingDisplayNames(guest).join(', ')}
+                        </span>
+                      )}
+                      <span className="block text-xs text-warm-gray mt-0.5">
+                        {currentTable ? `Aktuell: ${currentTable.name}` : 'Noch keinem Tisch zugewiesen'}
+                      </span>
                     </span>
-                  )}
-                </span>
-                <select
-                  value={guest.table_id ?? ''}
-                  disabled={busyGuestId === guest.id}
-                  onChange={(e) => handleAssign(guest.id, e.target.value)}
-                  className="px-3 py-2 rounded-xl border border-cream-dark bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold/40"
-                >
-                  <option value="">— Kein Tisch —</option>
-                  {tables.map((table) => (
-                    <option key={table.id} value={table.id}>
-                      {table.name}
-                    </option>
-                  ))}
-                </select>
-              </li>
-            ))}
+                    <select
+                      value={guest.table_id ?? ''}
+                      disabled={busyGuestId === guest.id}
+                      aria-label={`${getGuestPartyLabel(guest)} Tisch zuweisen`}
+                      onChange={(e) => handleAssign(guest.id, e.target.value)}
+                      className="px-3 py-2 rounded-xl border border-cream-dark bg-white text-sm focus:outline-none focus:ring-2 focus:ring-gold/40"
+                    >
+                      <option value="">— Kein Tisch —</option>
+                      {tables.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.name}
+                        </option>
+                      ))}
+                    </select>
+                  </li>
+                )
+              })}
           </ul>
           {unassigned.length > 0 && (
             <p className="text-xs text-warm-gray mt-4">
