@@ -38,7 +38,7 @@ export default function SeatingAssignmentSection({
               {guest?.salutation === 'familie' ? t('seating.yourTable') : t('seating.yourTableSingular')}
             </p>
             <p className="font-serif text-2xl font-semibold text-charcoal">
-              {getPublicTableName(guestTable.name)}
+              {getPublicTableName(guestTable.name, { tableLabel: t('seating.table') })}
             </p>
           </div>
         ) : guest ? (
