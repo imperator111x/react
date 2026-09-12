@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS guest_photos (
   guest_name TEXT NOT NULL,
   storage_path TEXT NOT NULL,
   caption TEXT,
-  is_approved BOOLEAN NOT NULL DEFAULT false,
+  is_approved BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

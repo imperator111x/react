@@ -51,8 +51,8 @@ export default function GuestPhotoManager({
     <div className="bg-white rounded-2xl border border-cream-dark p-6 mb-8">
       <h2 className="font-serif text-xl font-semibold text-charcoal mb-2">Gäste-Fotos</h2>
       <p className="text-sm text-warm-gray mb-4">
-        Gäste laden über die Foto-Seite Bilder hoch. Freigegebene Fotos erscheinen auf der Dankeskarte –
-        auf der Live-Fotowand erscheinen neue Uploads sofort.
+        Gäste laden über die Foto-Seite Bilder hoch. Neue Uploads sind sofort sichtbar (Dankeskarte und
+        Live-Fotowand). Einzelne Fotos könnt ihr bei Bedarf verbergen.
       </p>
 
       <InviteQrCode
@@ -133,7 +133,7 @@ export default function GuestPhotoManager({
                     </>
                   ) : (
                     <>
-                      <EyeOff className="w-3 h-3" /> Ausstehend
+                      <EyeOff className="w-3 h-3" /> Verborgen
                     </>
                   )}
                 </p>
