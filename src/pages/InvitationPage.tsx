@@ -43,7 +43,16 @@ import {
   getCountdownDate,
   isWeddingPast,
 } from '../lib/wedding-dates'
-import { getPersonalGreeting, getRsvpPersonLimit, getRsvpPersonOptions } from '../lib/guests'
+import {
+  buildStoredMemberNames,
+  extractEditableMemberNames,
+  getPersonalGreeting,
+  getRsvpNameSlotCount,
+  getRsvpPersonLimit,
+  getRsvpPersonOptions,
+  resizeMemberNames,
+} from '../lib/guests'
+import PartyMemberNamesFields from '../components/PartyMemberNamesFields'
 import { getGuestbookEntries } from '../lib/guestbook'
 import { getMusicWishes } from '../lib/music-wishes'
 import { getWishlistItems } from '../lib/wishlist'
@@ -109,6 +118,7 @@ function InvitationPageContent() {
   const [guestName, setGuestName] = useState('')
   const [email, setEmail] = useState('')
   const [guestCount, setGuestCount] = useState(1)
+  const [memberNames, setMemberNames] = useState<string[]>([])
   const [dietaryNotes, setDietaryNotes] = useState('')
   const [message, setMessage] = useState('')
   const envelopeKey = `envelope-${slug}-${guestToken ?? 'general'}`
@@ -149,6 +159,14 @@ function InvitationPageContent() {
         setInvitedGuest(DEMO_GUEST)
         setGuestName(DEMO_GUEST.name)
         setGuestCount(DEMO_GUEST.guest_count)
+        setMemberNames(
+          extractEditableMemberNames(
+            DEMO_GUEST.salutation,
+            DEMO_GUEST.name,
+            DEMO_GUEST.member_names,
+            DEMO_GUEST.guest_count
+          )
+        )
         setLoading(false)
         return
       }
@@ -183,6 +201,14 @@ function InvitationPageContent() {
           setInvitedGuest(guest)
           setGuestName(guest.name)
           setGuestCount(guest.guest_count)
+          setMemberNames(
+            extractEditableMemberNames(
+              guest.salutation,
+              guest.name,
+              guest.member_names,
+              guest.guest_count
+            )
+          )
 
           if (guest.rsvp_id) {
             const rsvp = await getRsvpById(guest.rsvp_id)
@@ -191,6 +217,14 @@ function InvitationPageContent() {
               setRsvpStatus(rsvp.status)
               setEmail(rsvp.email ?? '')
               setGuestCount(rsvp.guest_count)
+              setMemberNames(
+                extractEditableMemberNames(
+                  guest.salutation,
+                  guest.name,
+                  rsvp.member_names ?? guest.member_names,
+                  rsvp.guest_count
+                )
+              )
               setDietaryNotes(rsvp.dietary_notes ?? '')
               setMessage(rsvp.message ?? '')
               setSubmitted(true)
@@ -239,6 +273,14 @@ function InvitationPageContent() {
         email: email || undefined,
         status: rsvpStatus,
         guest_count: guestCount,
+        member_names:
+          rsvpStatus === 'accepted'
+            ? buildStoredMemberNames({
+                salutation: invitedGuest?.salutation ?? 'herr',
+                companionNames: memberNames,
+                guestCount,
+              })
+            : [],
         dietary_notes: dietaryNotes || undefined,
         message: message || undefined,
         guest_id: invitedGuest?.id,
@@ -560,7 +602,15 @@ function InvitationPageContent() {
                         </label>
                         <select
                           value={guestCount}
-                          onChange={(e) => setGuestCount(Number(e.target.value))}
+                          onChange={(e) => {
+                            const next = Number(e.target.value)
+                            setGuestCount(next)
+                            const slots = getRsvpNameSlotCount(
+                              invitedGuest?.salutation ?? 'herr',
+                              next
+                            )
+                            setMemberNames((prev) => resizeMemberNames(prev, slots))
+                          }}
                           className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                         >
                           {rsvpPersonOptions.map((n) => (
@@ -581,6 +631,36 @@ function InvitationPageContent() {
                           </p>
                         )}
                       </div>
+
+                      {getRsvpNameSlotCount(invitedGuest?.salutation ?? 'herr', guestCount) > 0 && (
+                        <PartyMemberNamesFields
+                          title={
+                            invitedGuest?.salutation === 'familie'
+                              ? 'Namen der Familienmitglieder'
+                              : 'Namen der Begleitung'
+                          }
+                          hint="Damit wir euch am Tischplan mit Namen eintragen können."
+                          labels={Array.from(
+                            {
+                              length: getRsvpNameSlotCount(
+                                invitedGuest?.salutation ?? 'herr',
+                                guestCount
+                              ),
+                            },
+                            (_, i) =>
+                              invitedGuest?.salutation === 'familie'
+                                ? `Person ${i + 1}`
+                                : i === 0
+                                  ? 'Begleitung / +1'
+                                  : `Weitere Person ${i + 1}`
+                          )}
+                          values={resizeMemberNames(
+                            memberNames,
+                            getRsvpNameSlotCount(invitedGuest?.salutation ?? 'herr', guestCount)
+                          )}
+                          onChange={setMemberNames}
+                        />
+                      )}
 
                       <Input
                         label={t('rsvp.dietary')}

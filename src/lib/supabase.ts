@@ -164,14 +164,24 @@ export async function getGuests(weddingId: string): Promise<GuestWithRsvp[]> {
   const rsvpIds = guestList.map((g) => g.rsvp_id).filter(Boolean) as string[]
 
   if (rsvpIds.length === 0) {
-    return guestList.map((g) => ({ ...g, rsvp: null }))
+    return guestList.map((g) => ({
+      ...g,
+      member_names: g.member_names ?? [],
+      rsvp: null,
+    }))
   }
 
   const { data: rsvps } = await supabase.from('rsvps').select('*').in('id', rsvpIds)
-  const rsvpMap = new Map((rsvps as Rsvp[] | null)?.map((r) => [r.id, r]) ?? [])
+  const rsvpMap = new Map(
+    (rsvps as Rsvp[] | null)?.map((r) => [
+      r.id,
+      { ...r, member_names: r.member_names ?? [] },
+    ]) ?? []
+  )
 
   return guestList.map((g) => ({
     ...g,
+    member_names: g.member_names ?? [],
     rsvp: g.rsvp_id ? rsvpMap.get(g.rsvp_id) ?? null : null,
   }))
 }
@@ -190,7 +200,8 @@ export async function getGuestByInviteToken(
     .single()
 
   if (error) return null
-  return data as Guest
+  const guest = data as Guest
+  return { ...guest, member_names: guest.member_names ?? [] }
 }
 
 export async function createGuest(weddingId: string, input: CreateGuestInput): Promise<Guest> {
@@ -198,6 +209,7 @@ export async function createGuest(weddingId: string, input: CreateGuestInput): P
 
   const guestCount = input.guest_count ?? 1
   const maxGuestCount = input.max_guest_count ?? guestCount
+  const memberNames = (input.member_names ?? []).map((n) => n.trim()).filter(Boolean)
 
   const { data, error } = await supabase
     .from('guests')
@@ -208,6 +220,7 @@ export async function createGuest(weddingId: string, input: CreateGuestInput): P
       email: input.email || null,
       guest_count: guestCount,
       max_guest_count: Math.max(guestCount, maxGuestCount),
+      member_names: memberNames,
     })
     .select()
     .single()
@@ -234,12 +247,15 @@ export async function getWeddingsByEmail(email: string): Promise<WeddingRecovery
 export async function updateGuest(guestId: string, input: UpdateGuestInput): Promise<Guest> {
   if (!supabase) throw new Error('Supabase ist nicht konfiguriert')
 
-  const payload: Record<string, string | number | null> = {}
+  const payload: Record<string, string | number | string[] | null> = {}
   if (input.name !== undefined) payload.name = input.name.trim()
   if (input.salutation !== undefined) payload.salutation = input.salutation
   if (input.email !== undefined) payload.email = input.email?.trim() || null
   if (input.guest_count !== undefined) payload.guest_count = input.guest_count
   if (input.max_guest_count !== undefined) payload.max_guest_count = input.max_guest_count
+  if (input.member_names !== undefined) {
+    payload.member_names = input.member_names.map((n) => n.trim()).filter(Boolean)
+  }
 
   const { data, error } = await supabase
     .from('guests')
@@ -265,7 +281,8 @@ export async function getRsvpById(rsvpId: string): Promise<Rsvp | null> {
   const { data, error } = await supabase.from('rsvps').select('*').eq('id', rsvpId).single()
 
   if (error) return null
-  return data as Rsvp
+  const rsvp = data as Rsvp
+  return { ...rsvp, member_names: rsvp.member_names ?? [] }
 }
 
 export async function getRsvps(weddingId: string): Promise<Rsvp[]> {
@@ -278,12 +295,13 @@ export async function getRsvps(weddingId: string): Promise<Rsvp[]> {
     .order('created_at', { ascending: false })
 
   if (error) return []
-  return data as Rsvp[]
+  return ((data as Rsvp[]) ?? []).map((r) => ({ ...r, member_names: r.member_names ?? [] }))
 }
 
 export async function submitRsvp(weddingId: string, input: RsvpInput): Promise<Rsvp> {
   if (!supabase) throw new Error('Supabase ist nicht konfiguriert')
 
+  const memberNames = (input.member_names ?? []).map((n) => n.trim()).filter(Boolean)
   let rsvp: Rsvp
 
   if (input.guest_id) {
@@ -301,6 +319,7 @@ export async function submitRsvp(weddingId: string, input: RsvpInput): Promise<R
           email: input.email || null,
           status: input.status,
           guest_count: input.guest_count,
+          member_names: memberNames,
           dietary_notes: input.dietary_notes || null,
           message: input.message || null,
         })
@@ -320,6 +339,7 @@ export async function submitRsvp(weddingId: string, input: RsvpInput): Promise<R
           email: input.email || null,
           status: input.status,
           guest_count: input.guest_count,
+          member_names: memberNames,
           dietary_notes: input.dietary_notes || null,
           message: input.message || null,
         })
@@ -343,6 +363,7 @@ export async function submitRsvp(weddingId: string, input: RsvpInput): Promise<R
         email: input.email || null,
         status: input.status,
         guest_count: input.guest_count,
+        member_names: memberNames,
         dietary_notes: input.dietary_notes || null,
         message: input.message || null,
       })
@@ -351,6 +372,11 @@ export async function submitRsvp(weddingId: string, input: RsvpInput): Promise<R
 
     if (error) throw error
     rsvp = data as Rsvp
+  }
+
+  // Namen auch am Gast speichern, damit der Tischplan sie sofort zeigt
+  if (input.guest_id && input.status === 'accepted' && memberNames.length > 0) {
+    await supabase.from('guests').update({ member_names: memberNames }).eq('id', input.guest_id)
   }
 
   return rsvp

@@ -27,16 +27,38 @@ export const DEMO_TABLES: SeatingTable[] = [
 
 export function getDemoSeatingPlan(): SeatingTableWithGuests[] {
   const guests = [
-    { id: 'demo-g1', name: 'Anna Weber', salutation: 'frau' as const, table_id: 'demo-table-1' },
-    { id: 'demo-g2', name: 'Tom Weber', salutation: 'herr' as const, table_id: 'demo-table-1' },
+    {
+      id: 'demo-g1',
+      name: 'Anna Weber',
+      salutation: 'frau' as const,
+      table_id: 'demo-table-1',
+      member_names: ['Tom Weber'],
+      guest_count: 2,
+    },
+    {
+      id: 'demo-g2',
+      name: 'Müller',
+      salutation: 'familie' as const,
+      table_id: 'demo-table-1',
+      member_names: ['Lisa Müller', 'Paul Müller', 'Emma Müller'],
+      guest_count: 3,
+    },
     {
       id: DEMO_GUEST.id,
       name: DEMO_GUEST.name,
       salutation: DEMO_GUEST.salutation,
       table_id: DEMO_GUEST.table_id!,
+      member_names: DEMO_GUEST.member_names,
+      guest_count: DEMO_GUEST.guest_count,
     },
-    { id: 'demo-g4', name: 'Lisa Müller', salutation: 'frau' as const, table_id: 'demo-table-3' },
-    { id: 'demo-g5', name: 'Max Bauer', salutation: 'herr' as const, table_id: 'demo-table-3' },
+    {
+      id: 'demo-g4',
+      name: 'Max Bauer',
+      salutation: 'herr' as const,
+      table_id: 'demo-table-3',
+      member_names: [],
+      guest_count: 1,
+    },
   ]
 
   return DEMO_TABLES.map((table) => ({

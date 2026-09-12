@@ -3,6 +3,7 @@ import { LayoutGrid, Loader2, Plus, Trash2, Users } from 'lucide-react'
 import Button from './Button'
 import Input from './Input'
 import InviteQrCode from './InviteQrCode'
+import { getGuestPartyLabel, getSeatingDisplayNames } from '../lib/guests'
 import {
   assignGuestToTable,
   createSeatingTable,
@@ -147,7 +148,9 @@ export default function SeatingManager({
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
                   <h3 className="font-serif text-lg font-semibold text-charcoal">{table.name}</h3>
-                  <p className="text-sm text-warm-gray">{table.guests.length} Gäste</p>
+                  <p className="text-sm text-warm-gray">
+                    {table.guests.reduce((sum, g) => sum + getSeatingDisplayNames(g).length, 0)} Personen
+                  </p>
                 </div>
                 <Button
                   variant="ghost"
@@ -160,12 +163,14 @@ export default function SeatingManager({
               </div>
               {table.guests.length > 0 ? (
                 <ul className="space-y-1 text-sm text-charcoal">
-                  {table.guests.map((g) => (
-                    <li key={g.id} className="flex items-center gap-2">
-                      <Users className="w-3.5 h-3.5 text-warm-gray" />
-                      {g.name}
-                    </li>
-                  ))}
+                  {table.guests.flatMap((g) =>
+                    getSeatingDisplayNames(g).map((displayName, index) => (
+                      <li key={`${g.id}-${index}`} className="flex items-center gap-2">
+                        <Users className="w-3.5 h-3.5 text-warm-gray" />
+                        {displayName}
+                      </li>
+                    ))
+                  )}
                 </ul>
               ) : (
                 <p className="text-sm text-warm-gray italic">Noch keine Gäste zugewiesen</p>
@@ -181,7 +186,14 @@ export default function SeatingManager({
           <ul className="space-y-3">
             {guests.map((guest) => (
               <li key={guest.id} className="flex flex-col sm:flex-row sm:items-center gap-2">
-                <span className="text-sm text-charcoal flex-1">{guest.name}</span>
+                <span className="text-sm text-charcoal flex-1">
+                  {getGuestPartyLabel(guest)}
+                  {getSeatingDisplayNames(guest).length > 1 && (
+                    <span className="block text-xs text-warm-gray mt-0.5">
+                      {getSeatingDisplayNames(guest).join(', ')}
+                    </span>
+                  )}
+                </span>
                 <select
                   value={guest.table_id ?? ''}
                   disabled={busyGuestId === guest.id}
