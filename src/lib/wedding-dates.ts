@@ -6,18 +6,21 @@ const EVENT_DATE_PATTERNS: Record<Locale, string> = {
   de: 'EEEE, d. MMMM yyyy',
   en: 'EEEE, MMMM d, yyyy',
   tr: 'd MMMM yyyy, EEEE',
+  bs: 'EEEE, d. MMMM yyyy.',
 }
 
 const RSVP_DEADLINE_PATTERNS: Record<Locale, string> = {
   de: 'd. MMMM yyyy',
   en: 'MMMM d, yyyy',
   tr: 'd MMMM yyyy',
+  bs: 'd. MMMM yyyy.',
 }
 
 const BANNER_DATE_PATTERNS: Record<Locale, string> = {
   de: 'd.M.yyyy',
   en: 'd/M/yyyy',
   tr: 'd.M.yyyy',
+  bs: 'd.M.yyyy.',
 }
 
 export function getCeremonyDate(wedding: Wedding): Date | null {
