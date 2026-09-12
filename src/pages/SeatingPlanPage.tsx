@@ -9,6 +9,7 @@ import Button from '../components/Button'
 import NotFoundState from '../components/NotFoundState'
 import { LocaleProvider, useLocale } from '../context/LocaleContext'
 import { getSeatingPlanUrl } from '../i18n'
+import { getSeatingDisplayNames } from '../lib/guests'
 import { getGuestByInviteToken, getWeddingBySlug } from '../lib/supabase'
 import {
   getGuestTable,
@@ -197,15 +198,14 @@ function SeatingPlanContent() {
                   <h2 className="font-serif text-xl font-semibold text-charcoal">{publicName}</h2>
                   {table.guests.length > 0 ? (
                     <ul className="mt-4 space-y-2">
-                      {table.guests.map((guest) => {
+                      {table.guests.flatMap((guest) => {
+                        const names = getSeatingDisplayNames(guest)
                         const isActiveGuest = activeGuest?.id === guest.id
-                        return (
+                        return names.map((displayName, nameIndex) => (
                           <li
-                            key={guest.id}
+                            key={`${guest.id}-${nameIndex}`}
                             className={`flex items-center gap-2 text-sm transition-all duration-300 ${
-                              isActiveGuest
-                                ? 'text-gold font-semibold'
-                                : 'text-charcoal'
+                              isActiveGuest ? 'text-gold font-semibold' : 'text-charcoal'
                             }`}
                           >
                             <Users
@@ -220,10 +220,10 @@ function SeatingPlanContent() {
                                   : undefined
                               }
                             >
-                              {guest.name}
+                              {displayName}
                             </span>
                           </li>
-                        )
+                        ))
                       })}
                     </ul>
                   ) : (

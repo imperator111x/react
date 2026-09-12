@@ -18,7 +18,8 @@ import {
 } from 'lucide-react'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import { getGuestInviteUrl } from '../lib/guests'
+import { getGuestInviteUrl, getCompanionNameSlotCount, resizeMemberNames } from '../lib/guests'
+import PartyMemberNamesFields from '../components/PartyMemberNamesFields'
 import { filterAndSortGuests, type GuestSortOption, type GuestStatusFilter } from '../lib/guest-filter'
 import { getGeneralInviteShareMessage, getPersonalInviteShareMessage } from '../lib/share'
 import { getDeletionDate, formatEventDate, formatEventTime } from '../lib/wedding-dates'
@@ -73,6 +74,7 @@ export default function DashboardPage() {
     email: '',
     guest_count: 1,
     allow_plus_one: false,
+    member_names: [] as string[],
   })
   const [guestError, setGuestError] = useState('')
   const [guestSearch, setGuestSearch] = useState('')
@@ -85,6 +87,7 @@ export default function DashboardPage() {
     email: '',
     guest_count: 1,
     allow_plus_one: false,
+    member_names: [] as string[],
   })
   const [savingGuest, setSavingGuest] = useState(false)
 
@@ -197,8 +200,16 @@ export default function DashboardPage() {
         max_guest_count: guestForm.allow_plus_one
           ? Math.min(guestForm.guest_count + 1, 5)
           : guestForm.guest_count,
+        member_names: guestForm.member_names,
       })
-      setGuestForm({ name: '', salutation: 'frau', email: '', guest_count: 1, allow_plus_one: false })
+      setGuestForm({
+        name: '',
+        salutation: 'frau',
+        email: '',
+        guest_count: 1,
+        allow_plus_one: false,
+        member_names: [],
+      })
       if (token) await loadData(token)
     } catch (err) {
       setGuestError(err instanceof Error ? err.message : 'Gast konnte nicht hinzugefügt werden.')
@@ -221,6 +232,7 @@ export default function DashboardPage() {
       email: guest.email ?? '',
       guest_count: guest.guest_count,
       allow_plus_one: getGuestRsvpMax(guest) > guest.guest_count,
+      member_names: guest.member_names ?? [],
     })
   }
 
@@ -246,6 +258,7 @@ export default function DashboardPage() {
         max_guest_count: editForm.allow_plus_one
           ? Math.min(editForm.guest_count + 1, 5)
           : editForm.guest_count,
+        member_names: editForm.member_names,
       })
       setEditingGuestId(null)
       if (token) await loadData(token)
@@ -400,7 +413,19 @@ export default function DashboardPage() {
                 <select
                   value={guestForm.salutation}
                   onChange={(e) =>
-                    setGuestForm((f) => ({ ...f, salutation: e.target.value as Salutation }))
+                    setGuestForm((f) => {
+                      const salutation = e.target.value as Salutation
+                      const slots = getCompanionNameSlotCount({
+                        salutation,
+                        guestCount: f.guest_count,
+                        allowPlusOne: f.allow_plus_one,
+                      })
+                      return {
+                        ...f,
+                        salutation,
+                        member_names: resizeMemberNames(f.member_names, slots),
+                      }
+                    })
                   }
                   className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                 >
@@ -434,7 +459,19 @@ export default function DashboardPage() {
                 <select
                   value={guestForm.guest_count}
                   onChange={(e) =>
-                    setGuestForm((f) => ({ ...f, guest_count: Number(e.target.value) }))
+                    setGuestForm((f) => {
+                      const guest_count = Number(e.target.value)
+                      const slots = getCompanionNameSlotCount({
+                        salutation: f.salutation,
+                        guestCount: guest_count,
+                        allowPlusOne: f.allow_plus_one,
+                      })
+                      return {
+                        ...f,
+                        guest_count,
+                        member_names: resizeMemberNames(f.member_names, slots),
+                      }
+                    })
                   }
                   className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                 >
@@ -451,7 +488,19 @@ export default function DashboardPage() {
                   type="checkbox"
                   checked={guestForm.allow_plus_one}
                   onChange={(e) =>
-                    setGuestForm((f) => ({ ...f, allow_plus_one: e.target.checked }))
+                    setGuestForm((f) => {
+                      const allow_plus_one = e.target.checked
+                      const slots = getCompanionNameSlotCount({
+                        salutation: f.salutation,
+                        guestCount: f.guest_count,
+                        allowPlusOne: allow_plus_one,
+                      })
+                      return {
+                        ...f,
+                        allow_plus_one,
+                        member_names: resizeMemberNames(f.member_names, slots),
+                      }
+                    })
                   }
                   className="rounded border-cream-dark text-gold focus:ring-gold/40"
                 />
@@ -459,6 +508,50 @@ export default function DashboardPage() {
                   Begleitung (+1) erlauben
                 </label>
               </div>
+              {getCompanionNameSlotCount({
+                salutation: guestForm.salutation,
+                guestCount: guestForm.guest_count,
+                allowPlusOne: guestForm.allow_plus_one,
+              }) > 0 && (
+                <div className="sm:col-span-6">
+                  <PartyMemberNamesFields
+                    title={
+                      guestForm.salutation === 'familie'
+                        ? 'Namen der Familienmitglieder'
+                        : 'Namen der Begleitung'
+                    }
+                    hint={
+                      guestForm.salutation === 'familie'
+                        ? 'Diese Namen erscheinen später am Tischplan.'
+                        : 'z. B. +1 – erscheint am Tischplan.'
+                    }
+                    labels={Array.from(
+                      {
+                        length: getCompanionNameSlotCount({
+                          salutation: guestForm.salutation,
+                          guestCount: guestForm.guest_count,
+                          allowPlusOne: guestForm.allow_plus_one,
+                        }),
+                      },
+                      (_, i) =>
+                        guestForm.salutation === 'familie'
+                          ? `Person ${i + 1}`
+                          : i === 0 && guestForm.allow_plus_one
+                            ? 'Begleitung (+1)'
+                            : `Weitere Person ${i + 1}`
+                    )}
+                    values={resizeMemberNames(
+                      guestForm.member_names,
+                      getCompanionNameSlotCount({
+                        salutation: guestForm.salutation,
+                        guestCount: guestForm.guest_count,
+                        allowPlusOne: guestForm.allow_plus_one,
+                      })
+                    )}
+                    onChange={(member_names) => setGuestForm((f) => ({ ...f, member_names }))}
+                  />
+                </div>
+              )}
               <div className="sm:col-span-6">
                 {guestError && <p className="text-sm text-red-500 mb-2">{guestError}</p>}
                 <Button type="submit" disabled={addingGuest}>
@@ -548,7 +641,19 @@ export default function DashboardPage() {
                             <select
                               value={editForm.salutation}
                               onChange={(e) =>
-                                setEditForm((f) => ({ ...f, salutation: e.target.value as Salutation }))
+                                setEditForm((f) => {
+                                  const salutation = e.target.value as Salutation
+                                  const slots = getCompanionNameSlotCount({
+                                    salutation,
+                                    guestCount: f.guest_count,
+                                    allowPlusOne: f.allow_plus_one,
+                                  })
+                                  return {
+                                    ...f,
+                                    salutation,
+                                    member_names: resizeMemberNames(f.member_names, slots),
+                                  }
+                                })
                               }
                               className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                             >
@@ -575,7 +680,19 @@ export default function DashboardPage() {
                             <select
                               value={editForm.guest_count}
                               onChange={(e) =>
-                                setEditForm((f) => ({ ...f, guest_count: Number(e.target.value) }))
+                                setEditForm((f) => {
+                                  const guest_count = Number(e.target.value)
+                                  const slots = getCompanionNameSlotCount({
+                                    salutation: f.salutation,
+                                    guestCount: guest_count,
+                                    allowPlusOne: f.allow_plus_one,
+                                  })
+                                  return {
+                                    ...f,
+                                    guest_count,
+                                    member_names: resizeMemberNames(f.member_names, slots),
+                                  }
+                                })
                               }
                               className="w-full px-4 py-3 rounded-xl border border-cream-dark bg-white focus:outline-none focus:ring-2 focus:ring-gold/40"
                             >
@@ -592,12 +709,62 @@ export default function DashboardPage() {
                             type="checkbox"
                             checked={editForm.allow_plus_one}
                             onChange={(e) =>
-                              setEditForm((f) => ({ ...f, allow_plus_one: e.target.checked }))
+                              setEditForm((f) => {
+                                const allow_plus_one = e.target.checked
+                                const slots = getCompanionNameSlotCount({
+                                  salutation: f.salutation,
+                                  guestCount: f.guest_count,
+                                  allowPlusOne: allow_plus_one,
+                                })
+                                return {
+                                  ...f,
+                                  allow_plus_one,
+                                  member_names: resizeMemberNames(f.member_names, slots),
+                                }
+                              })
                             }
                             className="rounded border-cream-dark text-gold focus:ring-gold/40"
                           />
                           Begleitung (+1) erlauben
                         </label>
+                        {getCompanionNameSlotCount({
+                          salutation: editForm.salutation,
+                          guestCount: editForm.guest_count,
+                          allowPlusOne: editForm.allow_plus_one,
+                        }) > 0 && (
+                          <PartyMemberNamesFields
+                            title={
+                              editForm.salutation === 'familie'
+                                ? 'Namen der Familienmitglieder'
+                                : 'Namen der Begleitung'
+                            }
+                            hint="Diese Namen erscheinen am Tischplan."
+                            labels={Array.from(
+                              {
+                                length: getCompanionNameSlotCount({
+                                  salutation: editForm.salutation,
+                                  guestCount: editForm.guest_count,
+                                  allowPlusOne: editForm.allow_plus_one,
+                                }),
+                              },
+                              (_, i) =>
+                                editForm.salutation === 'familie'
+                                  ? `Person ${i + 1}`
+                                  : i === 0 && editForm.allow_plus_one
+                                    ? 'Begleitung (+1)'
+                                    : `Weitere Person ${i + 1}`
+                            )}
+                            values={resizeMemberNames(
+                              editForm.member_names,
+                              getCompanionNameSlotCount({
+                                salutation: editForm.salutation,
+                                guestCount: editForm.guest_count,
+                                allowPlusOne: editForm.allow_plus_one,
+                              })
+                            )}
+                            onChange={(member_names) => setEditForm((f) => ({ ...f, member_names }))}
+                          />
+                        )}
                         <div className="flex gap-2">
                           <Button size="sm" disabled={savingGuest} onClick={() => handleSaveGuest(guest.id)}>
                             {savingGuest ? (

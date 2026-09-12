@@ -8,6 +8,7 @@ export const DEMO_GUEST: Guest = {
   email: 'maria@beispiel.de',
   guest_count: 2,
   max_guest_count: 2,
+  member_names: ['Thomas Schmidt'],
   table_id: 'demo-table-2',
   invite_token: 'demo-gast',
   rsvp_id: null,

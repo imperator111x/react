@@ -39,6 +39,7 @@ export interface Guest {
   email: string | null
   guest_count: number
   max_guest_count: number | null
+  member_names: string[]
   table_id: string | null
   invite_token: string
   rsvp_id: string | null
@@ -54,6 +55,7 @@ export interface Rsvp {
   email: string | null
   status: RsvpStatus
   guest_count: number
+  member_names: string[]
   dietary_notes: string | null
   message: string | null
   created_at: string
@@ -99,6 +101,7 @@ export interface UpdateGuestInput {
   email?: string | null
   guest_count?: number
   max_guest_count?: number
+  member_names?: string[]
 }
 
 export interface CreateGuestInput {
@@ -107,6 +110,7 @@ export interface CreateGuestInput {
   email?: string
   guest_count?: number
   max_guest_count?: number
+  member_names?: string[]
 }
 
 export interface RsvpInput {
@@ -114,6 +118,7 @@ export interface RsvpInput {
   email?: string
   status: RsvpStatus
   guest_count: number
+  member_names?: string[]
   dietary_notes?: string
   message?: string
   guest_id?: string
@@ -217,7 +222,9 @@ export interface SeatingTable {
 }
 
 export interface SeatingTableWithGuests extends SeatingTable {
-  guests: Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id'>[]
+  guests: (Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id' | 'member_names' | 'guest_count'> & {
+    rsvp?: Pick<Rsvp, 'member_names' | 'status'> | null
+  })[]
 }
 
 export interface CreateSeatingTableInput {

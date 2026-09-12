@@ -1,4 +1,12 @@
-import type { CreateSeatingTableInput, Guest, SeatingTable, SeatingTableWithGuests } from '../types/wedding'
+import type {
+  CreateSeatingTableInput,
+  Guest,
+  Rsvp,
+  RsvpStatus,
+  SeatingTable,
+  SeatingTableWithGuests,
+} from '../types/wedding'
+import { getSeatingDisplayNames } from './guests'
 import { supabase } from './supabase'
 
 /** Maximal legbare Tische pro Hochzeit */
@@ -32,15 +40,39 @@ export async function getSeatingPlan(weddingId: string): Promise<SeatingTableWit
 
   const { data: guests } = await supabase
     .from('guests')
-    .select('id, name, salutation, table_id')
+    .select('id, name, salutation, table_id, member_names, guest_count, rsvp_id')
     .eq('wedding_id', weddingId)
     .order('name', { ascending: true })
 
-  const guestList = (guests ?? []) as Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id'>[]
+  const guestList = (guests ?? []) as Pick<
+    Guest,
+    'id' | 'name' | 'salutation' | 'table_id' | 'member_names' | 'guest_count' | 'rsvp_id'
+  >[]
+
+  const rsvpIds = guestList.map((g) => g.rsvp_id).filter(Boolean) as string[]
+  let rsvpById = new Map<string, { member_names: string[]; status: RsvpStatus }>()
+  if (rsvpIds.length > 0) {
+    const { data: rsvps } = await supabase
+      .from('rsvps')
+      .select('id, member_names, status')
+      .in('id', rsvpIds)
+    for (const r of rsvps ?? []) {
+      rsvpById.set(r.id, {
+        member_names: (r.member_names as string[] | null) ?? [],
+        status: r.status as RsvpStatus,
+      })
+    }
+  }
 
   return tables.map((table) => ({
     ...table,
-    guests: guestList.filter((g) => g.table_id === table.id),
+    guests: guestList
+      .filter((g) => g.table_id === table.id)
+      .map((g) => ({
+        ...g,
+        member_names: g.member_names ?? [],
+        rsvp: g.rsvp_id ? rsvpById.get(g.rsvp_id) ?? null : null,
+      })),
   }))
 }
 
@@ -108,7 +140,9 @@ export function getGuestTable(
   return tables.find((t) => t.id === guest.table_id) ?? null
 }
 
-export type SeatingPlanGuest = Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id'>
+export type SeatingPlanGuest = Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id' | 'member_names'> & {
+  rsvp?: Pick<Rsvp, 'member_names' | 'status'> | null
+}
 
 export type GuestLookupResult =
   | { status: 'found'; guest: SeatingPlanGuest }
@@ -135,7 +169,7 @@ function uniquePlanGuests(plan: SeatingTableWithGuests[]): SeatingPlanGuest[] {
   return [...byId.values()]
 }
 
-/** Gast anhand des Namens im Tischplan finden (für öffentliche Namenssuche). */
+/** Gast anhand des Namens (inkl. Familien-/Begleitungsnamen) im Tischplan finden. */
 export function lookupGuestInPlan(
   plan: SeatingTableWithGuests[],
   query: string
@@ -144,7 +178,26 @@ export function lookupGuestInPlan(
   if (!normalizedQuery) return { status: 'not_found' }
 
   const guests = uniquePlanGuests(plan)
-  const exact = guests.filter((g) => normalizeGuestName(g.name) === normalizedQuery)
+
+  const matchesName = (g: SeatingPlanGuest) => {
+    const displayNames = getSeatingDisplayNames(g)
+    const all = [g.name, ...displayNames, ...(g.member_names ?? [])]
+    return all.some((n) => normalizeGuestName(n) === normalizedQuery)
+  }
+
+  const startsWithName = (g: SeatingPlanGuest) => {
+    const displayNames = getSeatingDisplayNames(g)
+    const all = [g.name, ...displayNames, ...(g.member_names ?? [])]
+    return all.some((n) => normalizeGuestName(n).startsWith(normalizedQuery))
+  }
+
+  const containsName = (g: SeatingPlanGuest) => {
+    const displayNames = getSeatingDisplayNames(g)
+    const all = [g.name, ...displayNames, ...(g.member_names ?? [])]
+    return all.some((n) => normalizeGuestName(n).includes(normalizedQuery))
+  }
+
+  const exact = guests.filter(matchesName)
   if (exact.length === 1) {
     return exact[0].table_id
       ? { status: 'found', guest: exact[0] }
@@ -152,7 +205,7 @@ export function lookupGuestInPlan(
   }
   if (exact.length > 1) return { status: 'ambiguous', count: exact.length }
 
-  const startsWith = guests.filter((g) => normalizeGuestName(g.name).startsWith(normalizedQuery))
+  const startsWith = guests.filter(startsWithName)
   if (startsWith.length === 1) {
     return startsWith[0].table_id
       ? { status: 'found', guest: startsWith[0] }
@@ -160,7 +213,7 @@ export function lookupGuestInPlan(
   }
   if (startsWith.length > 1) return { status: 'ambiguous', count: startsWith.length }
 
-  const contains = guests.filter((g) => normalizeGuestName(g.name).includes(normalizedQuery))
+  const contains = guests.filter(containsName)
   if (contains.length === 1) {
     return contains[0].table_id
       ? { status: 'found', guest: contains[0] }
