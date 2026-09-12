@@ -195,7 +195,7 @@ export const tr = {
     fillRequired: 'Lütfen adınızı girin ve en az bir fotoğraf seçin.',
     uploadError: 'Yükleme başarısız.',
     backToInvitation: 'Davetiyeye dön',
-    viewPhotos: 'Fotoğrafları gör',
+    viewPhotos: 'Canlı fotoğrafları gör',
     emptyPublic: 'Henüz misafir fotoğrafı yok – ilk siz olun!',
     pendingNote: 'Yeni fotoğraflar otomatik olarak görünür.',
   },
