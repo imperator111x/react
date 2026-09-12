@@ -32,6 +32,8 @@ function SeatingPlanContent() {
   const [loading, setLoading] = useState(true)
   const [nameQuery, setNameQuery] = useState('')
   const [searchedGuest, setSearchedGuest] = useState<SeatingPlanGuest | null>(null)
+  const [searchedTableId, setSearchedTableId] = useState<string | null>(null)
+  const [searchedSeatName, setSearchedSeatName] = useState<string | null>(null)
   const [searchError, setSearchError] = useState('')
   const highlightRef = useRef<HTMLDivElement>(null)
 
@@ -63,7 +65,7 @@ function SeatingPlanContent() {
     load()
   }, [slug, guestToken, isDemo])
 
-  const activeTableId = tokenGuest?.table_id ?? searchedGuest?.table_id
+  const activeTableId = searchedTableId ?? tokenGuest?.table_id ?? searchedGuest?.table_id
 
   useEffect(() => {
     if (!loading && activeTableId) {
@@ -77,13 +79,19 @@ function SeatingPlanContent() {
     e.preventDefault()
     setSearchError('')
     setSearchedGuest(null)
+    setSearchedTableId(null)
+    setSearchedSeatName(null)
 
     const result = lookupGuestInPlan(plan, nameQuery)
     if (result.status === 'found') {
       setSearchedGuest(result.guest)
+      setSearchedTableId(result.tableId)
+      setSearchedSeatName(result.seatName)
       return
     }
     if (result.status === 'no_table') {
+      setSearchedGuest(result.guest)
+      setSearchedSeatName(result.seatName)
       setSearchError(t('seating.noTable'))
       return
     }
@@ -199,23 +207,29 @@ function SeatingPlanContent() {
                   {table.guests.length > 0 ? (
                     <ul className="mt-4 space-y-2">
                       {table.guests.flatMap((guest) => {
-                        const names = getSeatingDisplayNames(guest)
-                        const isActiveGuest = activeGuest?.id === guest.id
-                        return names.map((displayName, nameIndex) => (
+                        const names = guest.seat_names?.length
+                          ? guest.seat_names
+                          : getSeatingDisplayNames(guest)
+                        return names.map((displayName, nameIndex) => {
+                          const isActiveSeat =
+                            Boolean(searchedSeatName) && displayName === searchedSeatName
+                              ? true
+                              : !searchedSeatName && activeGuest?.id === guest.id
+                          return (
                           <li
                             key={`${guest.id}-${nameIndex}`}
                             className={`flex items-center gap-2 text-sm transition-all duration-300 ${
-                              isActiveGuest ? 'text-gold font-semibold' : 'text-charcoal'
+                              isActiveSeat ? 'text-gold font-semibold' : 'text-charcoal'
                             }`}
                           >
                             <Users
                               className={`w-3.5 h-3.5 shrink-0 ${
-                                isActiveGuest ? 'text-gold' : 'text-warm-gray'
+                                isActiveSeat ? 'text-gold' : 'text-warm-gray'
                               }`}
                             />
                             <span
                               className={
-                                isActiveGuest
+                                isActiveSeat
                                   ? 'px-2 py-0.5 rounded-lg bg-gold/15 ring-2 ring-gold/50 shadow-sm'
                                   : undefined
                               }
@@ -223,7 +237,8 @@ function SeatingPlanContent() {
                               {displayName}
                             </span>
                           </li>
-                        ))
+                          )
+                        })
                       })}
                     </ul>
                   ) : (

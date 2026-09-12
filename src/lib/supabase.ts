@@ -167,6 +167,7 @@ export async function getGuests(weddingId: string): Promise<GuestWithRsvp[]> {
     return guestList.map((g) => ({
       ...g,
       member_names: g.member_names ?? [],
+      member_table_ids: g.member_table_ids ?? [],
       rsvp: null,
     }))
   }
@@ -182,6 +183,7 @@ export async function getGuests(weddingId: string): Promise<GuestWithRsvp[]> {
   return guestList.map((g) => ({
     ...g,
     member_names: g.member_names ?? [],
+    member_table_ids: g.member_table_ids ?? [],
     rsvp: g.rsvp_id ? rsvpMap.get(g.rsvp_id) ?? null : null,
   }))
 }
@@ -201,7 +203,7 @@ export async function getGuestByInviteToken(
 
   if (error) return null
   const guest = data as Guest
-  return { ...guest, member_names: guest.member_names ?? [] }
+  return { ...guest, member_names: guest.member_names ?? [], member_table_ids: guest.member_table_ids ?? [] }
 }
 
 export async function createGuest(weddingId: string, input: CreateGuestInput): Promise<Guest> {
@@ -221,6 +223,7 @@ export async function createGuest(weddingId: string, input: CreateGuestInput): P
       guest_count: guestCount,
       max_guest_count: Math.max(guestCount, maxGuestCount),
       member_names: memberNames,
+      member_table_ids: input.member_table_ids ?? [],
     })
     .select()
     .single()

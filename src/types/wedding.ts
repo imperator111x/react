@@ -40,6 +40,8 @@ export interface Guest {
   guest_count: number
   max_guest_count: number | null
   member_names: string[]
+  /** Parallel zu member_names: Tisch-ID, '' = kein Tisch, fehlend = erbt table_id */
+  member_table_ids: string[]
   table_id: string | null
   invite_token: string
   rsvp_id: string | null
@@ -102,6 +104,7 @@ export interface UpdateGuestInput {
   guest_count?: number
   max_guest_count?: number
   member_names?: string[]
+  member_table_ids?: string[]
 }
 
 export interface CreateGuestInput {
@@ -111,6 +114,7 @@ export interface CreateGuestInput {
   guest_count?: number
   max_guest_count?: number
   member_names?: string[]
+  member_table_ids?: string[]
 }
 
 export interface RsvpInput {
@@ -222,8 +226,13 @@ export interface SeatingTable {
 }
 
 export interface SeatingTableWithGuests extends SeatingTable {
-  guests: (Pick<Guest, 'id' | 'name' | 'salutation' | 'table_id' | 'member_names' | 'guest_count'> & {
+  guests: (Pick<
+    Guest,
+    'id' | 'name' | 'salutation' | 'table_id' | 'member_names' | 'member_table_ids' | 'guest_count'
+  > & {
     rsvp?: Pick<Rsvp, 'member_names' | 'status'> | null
+    /** Nur die Namen, die an diesem Tisch sitzen */
+    seat_names?: string[]
   })[]
 }
 
